@@ -836,17 +836,15 @@ function mostrarTime(timeNome) {
     const escalacao = buscarEscalacao(timeNome, rodadaSelecionada);
     let somaVal = 0;
     
-    if (escalacao) {
-        if (!escalacao.jogadores || escalacao.jogadores.length === 0) {
-            container.innerHTML = '<div style="color: #f59e0b; padding: 20px; text-align: center;">Escalação vazia para esta rodada</div>';
-            renderCampoLimpo(containerVisivel);
-        } else {
-            renderEscalacao(escalacao.formacao, escalacao.jogadores, containerVisivel);
-            escalacao.jogadores.filter(j => j.status === "T").forEach(j => somaVal += j.val);
-        }
+    if (escalacao && escalacao.jogadores && escalacao.jogadores.length > 0) {
+        renderEscalacao(escalacao.formacao, escalacao.jogadores, containerVisivel);
+        escalacao.jogadores.filter(j => j.status === "T").forEach(j => somaVal += j.val);
     } else {
-        container.innerHTML = '<div style="color: #f59e0b; padding: 20px; text-align: center;">Escalação não encontrada para esta rodada</div>';
         renderCampoLimpo(containerVisivel);
+        const msg = document.createElement('div');
+        msg.style.cssText = 'position:relative;text-align:center;margin-top:-60px;padding:10px;color:#f59e0b;font-family:Teko,sans-serif;font-size:20px;text-shadow:1px 1px 3px #000;z-index:20;';
+        msg.textContent = escalacao ? 'Escalação vazia para esta rodada.' : 'Escalação não disponível para esta rodada.';
+        container.appendChild(msg);
     }
     
     const valorizacaoEl = document.getElementById('valorizacaoRodada');
