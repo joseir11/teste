@@ -1,7 +1,7 @@
 {
-  "name": "Taça Nattos 2026",
-  "short_name": "Nattos",
-  "description": "Liga de Cartola entre amigos - Taça Nattos 2026",
+  "name": "TAÇA NATTOS 2026",
+  "short_name": "NATTOS",
+  "description": "CARTOLA BMP - TAÇA NATTOS 2026",
   "start_url": "/teste/",
   "scope": "/teste/",
   "display": "standalone",
@@ -13,25 +13,13 @@
       "src": "/teste/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/teste/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     },
     {
       "src": "/teste/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/teste/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
   "categories": ["sports", "games"],
