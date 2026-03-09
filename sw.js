@@ -3,21 +3,22 @@
    Responsável por: cache offline, notificações de rodada nova
    ============================================================ */
 
-const CACHE_NAME = 'nattos-v2';
-const BASE = '/CARTOLA_BMP';
+const CACHE_NAME = 'nattos-v3';
+const BASE = '/teste';
 
-/* Arquivos que ficam em cache para uso offline */
+/* Arquivos estáticos em cache (nunca mudam) */
 const ARQUIVOS_ESTATICOS = [
   `${BASE}/`,
   `${BASE}/index.html`,
-  `${BASE}/tabela.js`,
-  `${BASE}/escalacoes.js`,
   `${BASE}/campo.png`,
   `${BASE}/CARTOLA.png`,
   `${BASE}/CS.png`,
   `${BASE}/TROFEU_NATTOS.png`,
   `${BASE}/manifest.json`
 ];
+
+/* Arquivos de dados — NUNCA cacheados, sempre frescos do servidor */
+const ARQUIVOS_DADOS = ['tabela.js', 'escalacoes.js'];
 
 /* ── INSTALAÇÃO ─────────────────────────────────────────── */
 self.addEventListener('install', event => {
@@ -43,24 +44,19 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-/* ── FETCH (cache-first para estáticos, network-first para dados) ── */
+/* ── FETCH ───────────────────────────────────────────────── */
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
-  const isDado = url.pathname.endsWith('tabela.js') || url.pathname.endsWith('escalacoes.js');
+  const isDado = ARQUIVOS_DADOS.some(nome => url.pathname.endsWith(nome));
 
   if (isDado) {
-    /* Network-first: tenta buscar versão nova, cai no cache se offline */
+    /* DADOS: sempre busca na rede, SEM cache — garante dados frescos */
     event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-          return response;
-        })
-        .catch(() => caches.match(event.request))
+      fetch(event.request, { cache: 'no-store' })
+        .catch(() => new Response('// offline', { headers: { 'Content-Type': 'application/javascript' } }))
     );
   } else {
-    /* Cache-first para todos os outros recursos */
+    /* ESTÁTICOS: cache-first */
     event.respondWith(
       caches.match(event.request).then(cached => cached || fetch(event.request))
     );
