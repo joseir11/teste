@@ -3,7 +3,7 @@
    Responsável por: cache offline, notificações de rodada nova
    ============================================================ */
 
-const CACHE_NAME = 'nattos-v1';
+const CACHE_NAME = 'nattos-v2';
 const BASE = '/CARTOLA_BMP';
 
 /* Arquivos que ficam em cache para uso offline */
@@ -85,15 +85,11 @@ self.addEventListener('message', async event => {
       /* Nova rodada detectada! */
       await gravarValor(db, chave, rodadaAtual);
       self.registration.showNotification('⚽ Taça Nattos 2026', {
-        body: `Rodada ${rodadaAtual} da Série ${serieAtiva} disponível! Confira a tabela.`,
+        body: `Rodada ${rodadaAtual} atualizada.`,
         icon: `${BASE}/CARTOLA.png`,
         badge: `${BASE}/CARTOLA.png`,
         tag: `rodada-${serieAtiva}-${rodadaAtual}`,
-        renotify: true,
-        data: { url: `https://joseir11.github.io/teste/` },
-        actions: [
-          { action: 'abrir', title: '📊 Ver Tabela' }
-        ]
+        renotify: true
       });
     } else {
       /* Primeira vez: só salva o valor */
