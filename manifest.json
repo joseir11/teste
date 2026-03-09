@@ -10,24 +10,28 @@
   "theme_color": "#f59e0b",
   "icons": [
     {
-      "src": "/CARTOLA_BMP/CARTOLA.png",
+      "src": "/CARTOLA_BMP/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "/CARTOLA_BMP/CARTOLA.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/CARTOLA_BMP/CARTOLA.png",
+      "src": "/CARTOLA_BMP/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "form_factor": "narrow"
+      "purpose": "maskable"
+    },
+    {
+      "src": "/CARTOLA_BMP/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/CARTOLA_BMP/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "categories": ["sports", "games"],
