@@ -820,7 +820,11 @@ function mostrarTime(timeNome) {
     
     document.getElementById('displayA').innerHTML = '';
     document.getElementById('displayB').innerHTML = '';
-    
+
+    // Garante que o container pai da série ativa está visível
+    document.getElementById('containerA').style.display = serieAtiva === 'A' ? 'block' : 'none';
+    document.getElementById('containerB').style.display = serieAtiva === 'B' ? 'block' : 'none';
+
     const containerVisivel = serieAtiva === 'A' ? 'displayA' : 'displayB';
     const container = document.getElementById(containerVisivel);
     if (!container) {
