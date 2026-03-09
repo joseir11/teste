@@ -6,7 +6,7 @@
 <title>TAÇA NATTOS 2026</title>
 
 <!-- PWA: manifest -->
-<link rel="manifest" href="/CARTOLA_BMP/manifest.json">
+<link rel="manifest" href="/teste/manifest.json">
 
 <!-- Cor da barra do navegador no Android -->
 <meta name="theme-color" content="#f59e0b">
@@ -15,7 +15,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Nattos">
-<link rel="apple-touch-icon" href="/CARTOLA_BMP/CARTOLA.png">
+<link rel="apple-touch-icon" href="/teste/CARTOLA.png">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Teko:wght@600;700&display=swap" rel="stylesheet">
 
@@ -36,7 +36,7 @@ body.pwa-splash::after {
   transform: translate(-50%, -50%);
   width: 120px;
   height: 120px;
-  background: url('/CARTOLA_BMP/CARTOLA.png') center/contain no-repeat;
+  background: url('/teste/CARTOLA.png') center/contain no-repeat;
   z-index: 100000;
   animation: pulseSplash 1s ease-in-out infinite;
 }
@@ -1043,7 +1043,7 @@ function selecionarSerie(serie) {
     /* ── PWA: registra service worker ── */
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/CARTOLA_BMP/sw.js', { scope: '/CARTOLA_BMP/' })
+        navigator.serviceWorker.register('/teste/sw.js', { scope: '/teste/' })
           .then(reg => console.log('[PWA] SW registrado:', reg.scope))
           .catch(err => console.warn('[PWA] Falha no registro:', err));
       });

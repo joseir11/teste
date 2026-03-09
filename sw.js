@@ -90,7 +90,7 @@ self.addEventListener('message', async event => {
         badge: `${BASE}/CARTOLA.png`,
         tag: `rodada-${serieAtiva}-${rodadaAtual}`,
         renotify: true,
-        data: { url: `https://joseir11.github.io/CARTOLA_BMP/` },
+        data: { url: `https://joseir11.github.io/teste/` },
         actions: [
           { action: 'abrir', title: '📊 Ver Tabela' }
         ]
@@ -107,7 +107,7 @@ self.addEventListener('notificationclick', event => {
   event.notification.close();
   const urlAlvo = (event.notification.data && event.notification.data.url)
     ? event.notification.data.url
-    : 'https://joseir11.github.io/CARTOLA_BMP/';
+    : 'https://joseir11.github.io/teste/';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
