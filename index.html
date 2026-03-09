@@ -344,7 +344,7 @@ body {
   aspect-ratio: 9/14;
   border-radius: 24px;
   overflow: visible;
-  background: #0f172a url("./campo.png") center/cover no-repeat;
+  background: #0f172a url('campo.png') center/cover no-repeat;
   border: 2px solid rgba(34,197,94,0.15);
   box-shadow: 0 20px 50px rgba(0,0,0,0.5);
 }
@@ -358,7 +358,7 @@ body {
   aspect-ratio: 9/14;
   border-radius: 24px;
   overflow: visible;
-  background: #0f172a url("./campo.png") center/cover no-repeat;
+  background: #0f172a url('campo.png') center/cover no-repeat;
   border: 2px solid rgba(34,197,94,0.15);
   box-shadow: 0 20px 50px rgba(0,0,0,0.5);
 }
@@ -695,6 +695,14 @@ body {
 <script src="tabela.js"></script>
 <script src="escalacoes.js"></script>
 <script>
+// ==================== DEBUG ====================
+console.log('Inicializando script...');
+console.log('bancoEscalacoes disponível?', typeof bancoEscalacoes !== 'undefined' ? 'SIM' : 'NÃO');
+if (typeof bancoEscalacoes !== 'undefined') {
+  console.log('Times disponíveis:', Object.keys(bancoEscalacoes));
+}
+// ===============================================
+
 /* POSIÇÕES POR FORMAÇÃO */
 const posicoesPorFormacao = {
   "343": [
@@ -932,11 +940,21 @@ function alterarRodadaManual(rdd) {
 }
 
 function buscarEscalacao(timeNome, rodada) {
-    if (typeof bancoEscalacoes === 'undefined' || !bancoEscalacoes[timeNome]) {
-        console.log('Time não encontrado no bancoEscalacoes:', timeNome);
+    console.log('Buscando escalação para:', timeNome, 'rodada:', rodada);
+    
+    if (typeof bancoEscalacoes === 'undefined') {
+        console.error('bancoEscalacoes não está definido!');
         return null;
     }
+    
+    if (!bancoEscalacoes[timeNome]) {
+        console.error('Time não encontrado no bancoEscalacoes:', timeNome);
+        return null;
+    }
+    
     const dados = bancoEscalacoes[timeNome];
+    console.log('Dados do time:', dados);
+    
     let i = 0;
     while (i < dados.length) {
         if (dados[i].rdd !== undefined && dados[i].rdd === rodada) {
@@ -947,6 +965,7 @@ function buscarEscalacao(timeNome, rodada) {
                 jogadores.push(dados[i]);
                 i++;
             }
+            console.log('Escalação encontrada:', { formacao, jogadores });
             return { formacao, jogadores };
         }
         i++;
@@ -956,6 +975,8 @@ function buscarEscalacao(timeNome, rodada) {
 }
 
 function mostrarTime(timeNome) {
+    console.log('mostrarTime chamado para:', timeNome);
+    
     visualizandoTime = true;
     timeSelecionado = timeNome;
     
@@ -997,8 +1018,11 @@ function mostrarTime(timeNome) {
 }
 
 function renderEscalacao(formacao, jogadores, containerId = 'displayA') {
+    console.log('Renderizando escalação:', formacao, jogadores);
+    
     const posicoes = posicoesPorFormacao[formacao.toString()];
     if (!posicoes) {
+        console.error('Formação não encontrada:', formacao);
         renderCampoLimpo(containerId);
         return;
     }
@@ -1012,6 +1036,7 @@ function renderEscalacao(formacao, jogadores, containerId = 'displayA') {
     campoDiv.className = 'campo';
     
     const titulares = jogadores.filter(j => j.status === "T");
+    console.log('Titulares:', titulares);
     
     const jogadoresPorPosicao = {
         "GOL": [], "ZAG": [], "LAT": [], "MEI": [], "ATA": [], "TEC": []
@@ -1020,6 +1045,8 @@ function renderEscalacao(formacao, jogadores, containerId = 'displayA') {
     titulares.forEach(j => {
         if (jogadoresPorPosicao.hasOwnProperty(j.pos)) {
             jogadoresPorPosicao[j.pos].push(j);
+        } else {
+            console.warn('Posição desconhecida:', j.pos);
         }
     });
     
@@ -1044,6 +1071,7 @@ function renderEscalacao(formacao, jogadores, containerId = 'displayA') {
 }
 
 function renderCampoLimpo(containerId = 'displayA') {
+    console.log('Renderizando campo limpo');
     const container = document.getElementById(containerId);
     if (!container) return;
     
@@ -1054,6 +1082,8 @@ function renderCampoLimpo(containerId = 'displayA') {
 }
 
 function voltarParaCampo() {
+    console.log('Voltando para campo principal');
+    
     visualizandoTime = false;
     timeSelecionado = null;
     
@@ -1067,6 +1097,8 @@ function voltarParaCampo() {
 }
 
 function atualizarTelas() {
+    console.log('Atualizando telas principais');
+    
     const resA = processarDados(typeof historicoSerieA !== 'undefined' ? historicoSerieA : [], rodadaSelecionada);
     const resB = processarDados(typeof historicoSerieB !== 'undefined' ? historicoSerieB : [], rodadaSelecionada);
     
@@ -1173,6 +1205,12 @@ function selecionarSerie(serie) {
 }
 
 (function init() {
+    console.log('Iniciando aplicação...');
+    
+    // Verificar se os dados das séries existem
+    console.log('historicoSerieA disponível?', typeof historicoSerieA !== 'undefined' ? 'SIM' : 'NÃO');
+    console.log('historicoSerieB disponível?', typeof historicoSerieB !== 'undefined' ? 'SIM' : 'NÃO');
+    
     const resA = processarDados(typeof historicoSerieA !== 'undefined' ? historicoSerieA : []);
     rodadaSelecionada = resA.rdd;
     atualizarSeletorRodadas();
