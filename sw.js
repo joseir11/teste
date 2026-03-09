@@ -1,12 +1,12 @@
 /* ============================================================
    SERVICE WORKER — TAÇA NATTOS 2026
-   Responsável por: cache offline, notificações de rodada nova
+   Versão: 2.0 - Corrigido para GitHub Pages
    ============================================================ */
 
-const CACHE_NAME = 'nattos-v3';
+const CACHE_NAME = 'nattos-v4';
 const BASE = '/teste';
 
-/* Arquivos estáticos em cache (nunca mudam) */
+/* Arquivos estáticos em cache */
 const ARQUIVOS_ESTATICOS = [
   `${BASE}/`,
   `${BASE}/index.html`,
@@ -14,82 +14,124 @@ const ARQUIVOS_ESTATICOS = [
   `${BASE}/CARTOLA.png`,
   `${BASE}/CS.png`,
   `${BASE}/TROFEU_NATTOS.png`,
-  `${BASE}/manifest.json`
+  `${BASE}/manifest.json`,
+  `${BASE}/Fontecartola.otf`,
+  `https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Teko:wght@600;700&display=swap`
 ];
 
-/* Arquivos de dados — NUNCA cacheados, sempre frescos do servidor */
+/* Arquivos de dados - SEMPRE DA REDE */
 const ARQUIVOS_DADOS = ['tabela.js', 'escalacoes.js'];
 
 /* ── INSTALAÇÃO ─────────────────────────────────────────── */
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(ARQUIVOS_ESTATICOS).catch(err => {
-        console.warn('[SW] Alguns arquivos não cacheados:', err);
-      });
-    })
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        return cache.addAll(ARQUIVOS_ESTATICOS).catch(err => {
+          console.warn('[SW] Alguns arquivos não cacheados:', err);
+          // Continua mesmo com erro em alguns arquivos
+        });
+      })
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
 /* ── ATIVAÇÃO (limpa caches antigos) ─────────────────────── */
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-      )
-    )
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+      );
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-/* ── FETCH ───────────────────────────────────────────────── */
+/* ── ESTRATÉGIA DE CACHE: Stale-While-Revalidate para estáticos ─── */
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
+  
+  // Ignorar requisições que não são do mesmo domínio (como fonts.googleapis.com)
+  if (url.origin !== location.origin && !url.href.includes('fonts.googleapis.com')) {
+    return;
+  }
+
   const isDado = ARQUIVOS_DADOS.some(nome => url.pathname.endsWith(nome));
 
   if (isDado) {
-    /* DADOS: sempre busca na rede, SEM cache — garante dados frescos */
+    // DADOS: Network First
     event.respondWith(
-      fetch(event.request, { cache: 'no-store' })
-        .catch(() => new Response('// offline', { headers: { 'Content-Type': 'application/javascript' } }))
+      fetch(event.request)
+        .then(response => {
+          return response;
+        })
+        .catch(() => {
+          // Se offline, retorna uma resposta vazia
+          return new Response('// offline', { 
+            headers: { 'Content-Type': 'application/javascript' } 
+          });
+        })
     );
   } else {
-    /* ESTÁTICOS: cache-first */
+    // ESTÁTICOS: Stale-While-Revalidate
     event.respondWith(
-      caches.match(event.request).then(cached => cached || fetch(event.request))
+      caches.open(CACHE_NAME).then(cache => {
+        return cache.match(event.request).then(cachedResponse => {
+          const fetchPromise = fetch(event.request)
+            .then(networkResponse => {
+              // Atualiza o cache se a resposta for válida
+              if (networkResponse && networkResponse.status === 200) {
+                cache.put(event.request, networkResponse.clone());
+              }
+              return networkResponse;
+            })
+            .catch(() => {
+              // Se falhar e não tiver cache, retorna erro
+              if (!cachedResponse) {
+                return new Response('Offline', { status: 503 });
+              }
+            });
+          
+          // Retorna o cache primeiro, ou a rede se não tiver cache
+          return cachedResponse || fetchPromise;
+        });
+      })
     );
   }
 });
 
-/* ── VERIFICAÇÃO DE NOVA RODADA ──────────────────────────── */
-/*
-  O app vai chamar esta função via postMessage após carregar os dados.
-  O SW compara com a última rodada conhecida e dispara notificação se mudou.
-*/
+/* ── NOTIFICAÇÕES DE NOVA RODADA ──────────────────────────── */
 self.addEventListener('message', async event => {
   if (event.data && event.data.tipo === 'VERIFICAR_RODADA') {
     const { rodadaAtual, serieAtiva } = event.data;
     const chave = `ultima_rodada_${serieAtiva}`;
 
-    /* Lê última rodada salva */
-    const db = await abrirDB();
-    const ultimaRodada = await lerValor(db, chave);
+    try {
+      const db = await abrirDB();
+      const ultimaRodada = await lerValor(db, chave);
 
-    if (ultimaRodada !== null && rodadaAtual > ultimaRodada) {
-      /* Nova rodada detectada! */
-      await gravarValor(db, chave, rodadaAtual);
-      self.registration.showNotification('⚽ Taça Nattos 2026', {
-        body: `Rodada ${rodadaAtual} atualizada.`,
-        icon: `${BASE}/CARTOLA.png`,
-        badge: `${BASE}/CARTOLA.png`,
-        tag: `rodada-${serieAtiva}-${rodadaAtual}`,
-        renotify: true
-      });
-    } else {
-      /* Primeira vez: só salva o valor */
-      await gravarValor(db, chave, rodadaAtual);
+      if (ultimaRodada !== null && rodadaAtual > ultimaRodada) {
+        await gravarValor(db, chave, rodadaAtual);
+        
+        // Verifica se tem permissão para notificações
+        const permission = await self.registration.permissionStatus || 
+                          { state: 'default' };
+        
+        if (permission.state === 'granted') {
+          self.registration.showNotification('⚽ TAÇA NATTOS 2026', {
+            body: `Nova rodada disponível: ${rodadaAtual}`,
+            icon: `${BASE}/CARTOLA.png`,
+            badge: `${BASE}/CARTOLA.png`,
+            tag: `rodada-${serieAtiva}-${rodadaAtual}`,
+            renotify: true,
+            data: { url: `https://joseir11.github.io/teste/?rdd=${rodadaAtual}` }
+          });
+        }
+      } else if (ultimaRodada === null) {
+        await gravarValor(db, chave, rodadaAtual);
+      }
+    } catch (error) {
+      console.error('[SW] Erro ao processar rodada:', error);
     }
   }
 });
@@ -97,25 +139,37 @@ self.addEventListener('message', async event => {
 /* ── CLIQUE NA NOTIFICAÇÃO ───────────────────────────────── */
 self.addEventListener('notificationclick', event => {
   event.notification.close();
-  const urlAlvo = (event.notification.data && event.notification.data.url)
-    ? event.notification.data.url
-    : 'https://joseir11.github.io/teste/';
+  
+  const urlParaAbrir = event.notification.data?.url || 
+                      'https://joseir11.github.io/teste/';
 
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
-      for (const client of clientList) {
-        if (client.url === urlAlvo && 'focus' in client) return client.focus();
-      }
-      if (clients.openWindow) return clients.openWindow(urlAlvo);
-    })
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then(windowClients => {
+        // Verifica se já existe uma janela aberta
+        for (const client of windowClients) {
+          if (client.url.includes('/teste/') && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        // Se não existir, abre uma nova
+        if (clients.openWindow) {
+          return clients.openWindow(urlParaAbrir);
+        }
+      })
   );
 });
 
-/* ── INDEXEDDB HELPERS (persistência leve) ───────────────── */
+/* ── INDEXEDDB HELPERS ───────────────────────────────────── */
 function abrirDB() {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('nattos-sw', 1);
-    req.onupgradeneeded = e => e.target.result.createObjectStore('kv');
+    const req = indexedDB.open('nattos-sw', 2);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('kv')) {
+        db.createObjectStore('kv');
+      }
+    };
     req.onsuccess = e => resolve(e.target.result);
     req.onerror = e => reject(e.target.error);
   });
@@ -125,7 +179,7 @@ function lerValor(db, chave) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction('kv', 'readonly');
     const req = tx.objectStore('kv').get(chave);
-    req.onsuccess = e => resolve(e.target.result ?? null);
+    req.onsuccess = e => resolve(e.target.result || null);
     req.onerror = e => reject(e.target.error);
   });
 }
