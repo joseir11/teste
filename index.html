@@ -19,6 +19,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Teko:wght@600;700&display=swap" rel="stylesheet">
 
 <style>
+/* ... (mesmo CSS anterior, manter igual) ... */
 :root {
   --green: #22c55e;
   --red: #ef4444;
@@ -592,6 +593,17 @@ body {
   right: 0;
   z-index: 1001;
 }
+
+/* MENSAGEM DE ERRO OU VAZIO */
+.empty-message {
+  text-align: center;
+  padding: 40px 20px;
+  color: #9ca3af;
+  font-size: 16px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  margin: 20px;
+}
 </style>
 </head>
 <body onclick="fecharTodosCards()">
@@ -672,7 +684,7 @@ body {
 <script src="/teste/escalacoes.js"></script>
 <script>
 /* ============================================================
-   TAÇA NATTOS 2026 - Código principal corrigido
+   TAÇA NATTOS 2026 - Código principal com diagnóstico
    ============================================================ */
 
 /* POSIÇÕES POR FORMAÇÃO */
@@ -810,14 +822,16 @@ window.addEventListener('beforeinstallprompt', (e) => {
   installContainer.style.display = 'block';
 });
 
-installButton?.addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  console.log(`Usuário ${outcome === 'accepted' ? 'aceitou' : 'recusou'} a instalação`);
-  deferredPrompt = null;
-  installContainer.style.display = 'none';
-});
+if (installButton) {
+  installButton.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`Usuário ${outcome === 'accepted' ? 'aceitou' : 'recusou'} a instalação`);
+    deferredPrompt = null;
+    installContainer.style.display = 'none';
+  });
+}
 
 window.addEventListener('appinstalled', () => {
   console.log('PWA foi instalado com sucesso!');
@@ -845,21 +859,24 @@ function solicitarPermissaoNotificacao() {
 
 // ========== FUNÇÕES PRINCIPAIS ==========
 function processarDados(historicoBruto, rodadaAlvo) {
+    // Validação de entrada
+    if (!historicoBruto || !Array.isArray(historicoBruto) || historicoBruto.length === 0) {
+        console.warn('processarDados: histórico inválido ou vazio', historicoBruto);
+        return { ranking: [], rdd: rodadaAlvo || 0 };
+    }
+
     const agrupado = {};
     let maxNoArquivo = 0;
     
-    if (!historicoBruto || !Array.isArray(historicoBruto)) {
-        console.warn('histórico inválido:', historicoBruto);
-        return { ranking: [], rdd: 0 };
-    }
+    historicoBruto.forEach(item => { 
+        if(item && item.rdd > maxNoArquivo) maxNoArquivo = item.rdd; 
+    });
 
-    historicoBruto.forEach(item => { if(item.rdd > maxNoArquivo) maxNoArquivo = item.rdd; });
-    if(maxNoArquivo > rodadaMaximaGlobal) rodadaMaximaGlobal = maxNoArquivo;
-
-    const rddLimite = rodadaAlvo || maxNoArquivo;
+    // Se rodadaAlvo não for fornecida, usa a máxima encontrada
+    const rddLimite = (rodadaAlvo && rodadaAlvo > 0) ? rodadaAlvo : maxNoArquivo;
 
     historicoBruto.forEach(item => {
-        if (item.rdd <= rddLimite) {
+        if (item && item.rdd <= rddLimite) {
             if (!agrupado[item.nome]) {
                 agrupado[item.nome] = { 
                     nome: item.nome, 
@@ -871,9 +888,9 @@ function processarDados(historicoBruto, rodadaAlvo) {
                     rodadas: [] 
                 };
             }
-            agrupado[item.nome].somaRDD += item.val;
-            agrupado[item.nome].somaRE += item.re;
-            agrupado[item.nome].somaPEN += item.pen;
+            agrupado[item.nome].somaRDD += item.val || 0;
+            agrupado[item.nome].somaRE += item.re || 0;
+            agrupado[item.nome].somaPEN += item.pen || 0;
             agrupado[item.nome].rodadas.push(item);
         }
     });
@@ -881,8 +898,8 @@ function processarDados(historicoBruto, rodadaAlvo) {
     const listaFinal = Object.values(agrupado).map(time => {
         time.total = (time.somaRDD + time.somaRE) - time.somaPEN;
         const rddsFiltradas = time.rodadas.filter(r => r.rdd <= rddLimite);
-        const ultimaRodadaObj = rddsFiltradas.reduce((prev, current) => (prev.rdd > current.rdd) ? prev : current, {val: 0});
-        time.ultimaRDDVal = ultimaRodadaObj.val;
+        const ultimaRodadaObj = rddsFiltradas.length > 0 ? rddsFiltradas.reduce((prev, current) => (prev.rdd > current.rdd) ? prev : current) : {val: 0};
+        time.ultimaRDDVal = ultimaRodadaObj.val || 0;
         time.rodadas.sort((a, b) => b.rdd - a.rdd);
         return time;
     });
@@ -893,6 +910,7 @@ function processarDados(historicoBruto, rodadaAlvo) {
 
 function atualizarSeletorRodadas() {
     const seletor = document.getElementById('seletor-rodada');
+    if (!seletor) return;
     seletor.innerHTML = '';
     for (let i = 1; i <= rodadaMaximaGlobal; i++) {
         const opt = document.createElement('option');
@@ -916,6 +934,7 @@ function alterarRodadaManual(rdd) {
 
 // Função auxiliar para gerar nome de arquivo seguro (remove acentos, substitui espaços por _)
 function nomeArquivoSeguro(nome) {
+    if (!nome) return '';
     return nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
 }
 
@@ -963,7 +982,7 @@ function mostrarTime(timeNome) {
     if (!container) return;
     
     if (typeof bancoEscalacoes === 'undefined' || !bancoEscalacoes) {
-        container.innerHTML = '<div style="color: #ef4444; padding: 20px; text-align: center;">Erro: banco de escalações não carregado</div>';
+        container.innerHTML = '<div class="empty-message">Erro: banco de escalações não carregado</div>';
         return;
     }
     
@@ -972,20 +991,22 @@ function mostrarTime(timeNome) {
     
     if (escalacao) {
         if (!escalacao.jogadores || escalacao.jogadores.length === 0) {
-            container.innerHTML = '<div style="color: #f59e0b; padding: 20px; text-align: center;">Escalação vazia para esta rodada</div>';
+            container.innerHTML = '<div class="empty-message">Escalação vazia para esta rodada</div>';
             renderCampoLimpo(containerVisivel);
         } else {
             renderEscalacao(escalacao.formacao, escalacao.jogadores, containerVisivel);
-            escalacao.jogadores.filter(j => j.status === "T").forEach(j => somaVal += j.val);
+            escalacao.jogadores.filter(j => j.status === "T").forEach(j => somaVal += j.val || 0);
         }
     } else {
-        container.innerHTML = '<div style="color: #f59e0b; padding: 20px; text-align: center;">Escalação não encontrada para esta rodada</div>';
+        container.innerHTML = '<div class="empty-message">Escalação não encontrada para esta rodada</div>';
         renderCampoLimpo(containerVisivel);
     }
     
     const valorizacaoEl = document.getElementById('valorizacaoRodada');
-    valorizacaoEl.textContent = somaVal.toFixed(2);
-    valorizacaoEl.classList.toggle('negativo', somaVal < 0);
+    if (valorizacaoEl) {
+        valorizacaoEl.textContent = somaVal.toFixed(2);
+        valorizacaoEl.classList.toggle('negativo', somaVal < 0);
+    }
 }
 
 function renderEscalacao(formacao, jogadores, containerId = 'displayA') {
@@ -1029,8 +1050,8 @@ function renderEscalacao(formacao, jogadores, containerId = 'displayA') {
             campoDiv.innerHTML += `
                 <div class="jogador-card" style="top:${posObj.t}%; left:${posObj.l}%">
                     <img class="logo-clube-escalacao" src="/teste/TIMES/${nomeClubeSeguro}.png" alt="${jogador.clube}" onerror="this.src='/teste/TIMES/default.png'">
-                    <div class="nome-jogador">${jogador.nome}</div>
-                    <div class="valor-jogador ${valClass}">${jogador.val.toFixed(2)}</div>
+                    <div class="nome-jogador">${jogador.nome || ''}</div>
+                    <div class="valor-jogador ${valClass}">${(jogador.val || 0).toFixed(2)}</div>
                 </div>
             `;
         }
@@ -1056,8 +1077,11 @@ function voltarParaCampo() {
     document.querySelector('.bloco-series').style.display = 'flex';
     document.getElementById('visualizacaoTopo').style.display = 'none';
     
-    document.getElementById('valorizacaoRodada').textContent = '0.00';
-    document.getElementById('valorizacaoRodada').classList.remove('negativo');
+    const valorizacaoEl = document.getElementById('valorizacaoRodada');
+    if (valorizacaoEl) {
+        valorizacaoEl.textContent = '0.00';
+        valorizacaoEl.classList.remove('negativo');
+    }
     
     atualizarTelas();
 }
@@ -1065,10 +1089,12 @@ function voltarParaCampo() {
 function atualizarTelas() {
     // Verifica se as variáveis globais existem
     if (typeof historicoSerieA === 'undefined') {
-        console.warn('historicoSerieA não definido. Verifique se tabela.js foi carregado.');
+        console.error('historicoSerieA não definido. Verifique se tabela.js foi carregado.');
+        document.getElementById('displayA').innerHTML = '<div class="empty-message">Erro: dados da série A não carregados (tabela.js)</div>';
     }
     if (typeof historicoSerieB === 'undefined') {
-        console.warn('historicoSerieB não definido.');
+        console.error('historicoSerieB não definido.');
+        document.getElementById('displayB').innerHTML = '<div class="empty-message">Erro: dados da série B não carregados (tabela.js)</div>';
     }
 
     const resA = processarDados(typeof historicoSerieA !== 'undefined' ? historicoSerieA : [], rodadaSelecionada);
@@ -1076,8 +1102,18 @@ function atualizarTelas() {
     
     dadosSerieA = resA.ranking;
     dadosSerieB = resB.ranking;
+    
+    // Atualiza rodada máxima global e seletor
+    if (resA.rdd > rodadaMaximaGlobal) rodadaMaximaGlobal = resA.rdd;
+    if (resB.rdd > rodadaMaximaGlobal) rodadaMaximaGlobal = resB.rdd;
+    
+    // Se rodadaSelecionada ainda não foi definida, usa a máxima
+    if (rodadaSelecionada === 0 && rodadaMaximaGlobal > 0) {
+        rodadaSelecionada = rodadaMaximaGlobal;
+    }
 
     document.getElementById('info-rdd-topo').innerText = `${rodadaSelecionada.toString().padStart(2, '0')} / 19`;
+    atualizarSeletorRodadas();
     
     renderSeção("displayA", dadosSerieA, true);
     renderSeção("displayB", dadosSerieB, false);
@@ -1097,9 +1133,15 @@ function alternarCard(e, id) {
 
 function renderSeção(id, data, isA) {
   const container = document.getElementById(id);
+  if (!container) return;
   container.innerHTML = "";
   
   if(visualizandoTime) return;
+  
+  if (!data || data.length === 0) {
+      container.innerHTML = '<div class="empty-message">Nenhum time encontrado para esta série</div>';
+      return;
+  }
   
   if(modoAtivo === 'campo') {
     const campoDiv = document.createElement("div");
@@ -1120,9 +1162,9 @@ function renderSeção(id, data, isA) {
       const linhasHistorico = time.rodadas.map(r => `
           <div class="pop-grid-row">
             <span>${r.rdd}</span>
-            <span style="color:#60a5fa">${r.val.toFixed(2)}</span>
-            <span style="color:#4ade80">${r.re.toFixed(2)}</span>
-            <span style="color:#f87171">${r.pen.toFixed(2)}</span>
+            <span style="color:#60a5fa">${(r.val || 0).toFixed(2)}</span>
+            <span style="color:#4ade80">${(r.re || 0).toFixed(2)}</span>
+            <span style="color:#f87171">${(r.pen || 0).toFixed(2)}</span>
           </div>
       `).join('');
 
@@ -1141,13 +1183,14 @@ function renderSeção(id, data, isA) {
           <div class="posicao-campo">${i+1}</div>
           <img class="logo-campo" src="/teste/ESCUDOS/${nomeEscudoSeguro}.png" onclick="mostrarTime('${time.nome}')" onerror="this.src='/teste/ESCUDOS/default.png'">
           <div class="badge-pontos-campo ${bClass}" onclick="alternarCard(event, '${idUnico}')">
-            ${time.total.toFixed(2)}
+            ${(time.total || 0).toFixed(2)}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
           </div>
         </div>`;
     });
     container.appendChild(campoDiv);
   } else {
+    // Modo lista
     let tabela = `<div class="lista-container"><table class="tabela-times">`;
     data.forEach((time, i) => {
       let rClass = (isA && i >= 8) ? "status-rebaixamento" : (!isA && i <= 1) ? "status-lider" : "";
@@ -1160,8 +1203,8 @@ function renderSeção(id, data, isA) {
         <td class="td-escudo"><img src="/teste/ESCUDOS/${nomeEscudoSeguro}.png" onclick="mostrarTime('${time.nome}')" style="cursor:pointer" onerror="this.src='/teste/ESCUDOS/default.png'"></td>
         <td class="td-nome">${time.nome.replace(/_/g, ' ')}</td>
         <td class="td-pontos">
-          <span class="pontuacao-total">${time.total.toFixed(2)}</span>
-          <span class="detalhes-lista">ULT. RDD: ${time.ultimaRDDVal.toFixed(2)} | RE: ${time.somaRE.toFixed(2)} | PEN: ${time.somaPEN.toFixed(2)}</span>
+          <span class="pontuacao-total">${(time.total || 0).toFixed(2)}</span>
+          <span class="detalhes-lista">ULT. RDD: ${(time.ultimaRDDVal || 0).toFixed(2)} | RE: ${(time.somaRE || 0).toFixed(2)} | PEN: ${(time.somaPEN || 0).toFixed(2)}</span>
         </td></tr>`;
     });
     container.innerHTML = tabela + `</table></div>`;
@@ -1170,8 +1213,8 @@ function renderSeção(id, data, isA) {
 
 function mudarVisual(tipo) {
   modoAtivo = tipo;
-  document.getElementById('btnCampo').classList.toggle('ativo', tipo === 'campo');
-  document.getElementById('btnLista').classList.toggle('ativo', tipo === 'lista');
+  document.getElementById('btnCampo')?.classList.toggle('ativo', tipo === 'campo');
+  document.getElementById('btnLista')?.classList.toggle('ativo', tipo === 'lista');
   if (!visualizandoTime) {
     atualizarTelas();
   }
@@ -1187,17 +1230,29 @@ function selecionarSerie(serie) {
 // Inicialização
 (function init() {
     console.log('Inicializando aplicação...');
-    // Verifica se os dados foram carregados
+    console.log('historicoSerieA:', typeof historicoSerieA);
+    console.log('historicoSerieB:', typeof historicoSerieB);
+    console.log('bancoEscalacoes:', typeof bancoEscalacoes);
+    
+    // Se as variáveis não existirem, tenta definir como array vazio para evitar erros
     if (typeof historicoSerieA === 'undefined') {
-        console.error('historicoSerieA não carregado. Verifique o arquivo tabela.js');
+        window.historicoSerieA = [];
+        console.warn('historicoSerieA não definido, criado como array vazio.');
+    }
+    if (typeof historicoSerieB === 'undefined') {
+        window.historicoSerieB = [];
+        console.warn('historicoSerieB não definido, criado como array vazio.');
     }
     if (typeof bancoEscalacoes === 'undefined') {
-        console.error('bancoEscalacoes não carregado. Verifique o arquivo escalacoes.js');
+        window.bancoEscalacoes = {};
+        console.warn('bancoEscalacoes não definido, criado como objeto vazio.');
     }
     
-    const resA = processarDados(typeof historicoSerieA !== 'undefined' ? historicoSerieA : []);
+    // Processa os dados
+    const resA = processarDados(historicoSerieA);
     rodadaSelecionada = resA.rdd || 1;
     rodadaMaximaGlobal = rodadaSelecionada;
+    
     atualizarSeletorRodadas();
     selecionarSerie('A');
     mudarVisual('campo');
