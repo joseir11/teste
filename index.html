@@ -31,7 +31,7 @@
 /* FONTE */
 @font-face {
   font-family: 'Fontecartola';
-  src: url('Fontecartola.otf') format('opentype');
+  src: url('/teste/Fontecartola.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
 }
@@ -344,7 +344,7 @@ body {
   aspect-ratio: 9/14;
   border-radius: 24px;
   overflow: visible;
-  background: #0f172a url('campo.png') center/cover no-repeat;
+  background: #0f172a url('/teste/campo.png') center/cover no-repeat;
   border: 2px solid rgba(34,197,94,0.15);
   box-shadow: 0 20px 50px rgba(0,0,0,0.5);
 }
@@ -358,7 +358,7 @@ body {
   aspect-ratio: 9/14;
   border-radius: 24px;
   overflow: visible;
-  background: #0f172a url('campo.png') center/cover no-repeat;
+  background: #0f172a url('/teste/campo.png') center/cover no-repeat;
   border: 2px solid rgba(34,197,94,0.15);
   box-shadow: 0 20px 50px rgba(0,0,0,0.5);
 }
@@ -578,28 +578,6 @@ body {
   transform: scale(0.95);
 }
 
-/* LOADING INDICATOR */
-.loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40px;
-}
-
-.loading::after {
-  content: "";
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(245,158,11,0.2);
-  border-top-color: var(--orange);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 /* OFFLINE INDICATOR */
 .offline-indicator {
   background: var(--red);
@@ -626,7 +604,7 @@ body {
 <div class="header">
   <div class="header-topo-mobile">
     <div class="container-logo-bola">
-      <img src="./CARTOLA.png" class="logo-campeonato" alt="Logo">
+      <img src="/teste/CARTOLA.png" class="logo-campeonato" alt="Logo">
     </div>
     <div class="titulo-wrapper">
       <div class="titulo-principal">TAÇA NATTOS</div>
@@ -662,7 +640,7 @@ body {
   <div class="nome-time-central" id="nomeTimeCentral"></div>
   
   <div class="valorizacao-container">
-    <img src="./CS.png" class="icone-cs" alt="CS" onerror="this.style.display='none'">
+    <img src="/teste/CS.png" class="icone-cs" alt="CS" onerror="this.style.display='none'">
     <div class="valorizacao-rodada" id="valorizacaoRodada">0.00</div>
   </div>
 </div>
@@ -687,21 +665,15 @@ body {
 
 <!-- BOTÃO DE INSTALAÇÃO PWA -->
 <div id="install-container" style="display: none;">
-  <button id="install-button">
-    📲 Instalar App
-  </button>
+  <button id="install-button">📲 Instalar App</button>
 </div>
 
-<script src="tabela.js"></script>
-<script src="escalacoes.js"></script>
+<script src="/teste/tabela.js"></script>
+<script src="/teste/escalacoes.js"></script>
 <script>
-// ==================== DEBUG ====================
-console.log('Inicializando script...');
-console.log('bancoEscalacoes disponível?', typeof bancoEscalacoes !== 'undefined' ? 'SIM' : 'NÃO');
-if (typeof bancoEscalacoes !== 'undefined') {
-  console.log('Times disponíveis:', Object.keys(bancoEscalacoes));
-}
-// ===============================================
+/* ============================================================
+   TAÇA NATTOS 2026 - Código principal corrigido
+   ============================================================ */
 
 /* POSIÇÕES POR FORMAÇÃO */
 const posicoesPorFormacao = {
@@ -807,7 +779,7 @@ let deferredPrompt;
 const installContainer = document.getElementById('install-container');
 const installButton = document.getElementById('install-button');
 
-// Service Worker Registration
+// ========== SERVICE WORKER ==========
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('/teste/sw.js')
@@ -828,8 +800,7 @@ window.addEventListener('offline', function() {
 
 window.addEventListener('online', function() {
   document.getElementById('offlineIndicator').style.display = 'none';
-  // Recarregar dados quando voltar online
-  atualizarTelas();
+  atualizarTelas(); // Recarrega dados quando volta online
 });
 
 // PWA Install Event
@@ -841,11 +812,9 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 installButton?.addEventListener('click', async () => {
   if (!deferredPrompt) return;
-  
   deferredPrompt.prompt();
   const { outcome } = await deferredPrompt.userChoice;
   console.log(`Usuário ${outcome === 'accepted' ? 'aceitou' : 'recusou'} a instalação`);
-  
   deferredPrompt = null;
   installContainer.style.display = 'none';
 });
@@ -856,7 +825,7 @@ window.addEventListener('appinstalled', () => {
   deferredPrompt = null;
 });
 
-// Função para verificar nova rodada
+// Função para verificar nova rodada (comunicação com o SW)
 function verificarNovaRodada(rodadaAtual, serie) {
   if (navigator.serviceWorker && navigator.serviceWorker.controller) {
     navigator.serviceWorker.controller.postMessage({
@@ -874,10 +843,16 @@ function solicitarPermissaoNotificacao() {
   }
 }
 
+// ========== FUNÇÕES PRINCIPAIS ==========
 function processarDados(historicoBruto, rodadaAlvo) {
     const agrupado = {};
     let maxNoArquivo = 0;
     
+    if (!historicoBruto || !Array.isArray(historicoBruto)) {
+        console.warn('histórico inválido:', historicoBruto);
+        return { ranking: [], rdd: 0 };
+    }
+
     historicoBruto.forEach(item => { if(item.rdd > maxNoArquivo) maxNoArquivo = item.rdd; });
     if(maxNoArquivo > rodadaMaximaGlobal) rodadaMaximaGlobal = maxNoArquivo;
 
@@ -939,22 +914,21 @@ function alterarRodadaManual(rdd) {
     }
 }
 
+// Função auxiliar para gerar nome de arquivo seguro (remove acentos, substitui espaços por _)
+function nomeArquivoSeguro(nome) {
+    return nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+}
+
 function buscarEscalacao(timeNome, rodada) {
-    console.log('Buscando escalação para:', timeNome, 'rodada:', rodada);
-    
-    if (typeof bancoEscalacoes === 'undefined') {
+    if (typeof bancoEscalacoes === 'undefined' || !bancoEscalacoes) {
         console.error('bancoEscalacoes não está definido!');
         return null;
     }
-    
-    if (!bancoEscalacoes[timeNome]) {
-        console.error('Time não encontrado no bancoEscalacoes:', timeNome);
+    const dados = bancoEscalacoes[timeNome];
+    if (!dados) {
+        console.log('Time não encontrado no bancoEscalacoes:', timeNome);
         return null;
     }
-    
-    const dados = bancoEscalacoes[timeNome];
-    console.log('Dados do time:', dados);
-    
     let i = 0;
     while (i < dados.length) {
         if (dados[i].rdd !== undefined && dados[i].rdd === rodada) {
@@ -965,7 +939,6 @@ function buscarEscalacao(timeNome, rodada) {
                 jogadores.push(dados[i]);
                 i++;
             }
-            console.log('Escalação encontrada:', { formacao, jogadores });
             return { formacao, jogadores };
         }
         i++;
@@ -975,8 +948,6 @@ function buscarEscalacao(timeNome, rodada) {
 }
 
 function mostrarTime(timeNome) {
-    console.log('mostrarTime chamado para:', timeNome);
-    
     visualizandoTime = true;
     timeSelecionado = timeNome;
     
@@ -991,7 +962,7 @@ function mostrarTime(timeNome) {
     const container = document.getElementById(containerVisivel);
     if (!container) return;
     
-    if (typeof bancoEscalacoes === 'undefined') {
+    if (typeof bancoEscalacoes === 'undefined' || !bancoEscalacoes) {
         container.innerHTML = '<div style="color: #ef4444; padding: 20px; text-align: center;">Erro: banco de escalações não carregado</div>';
         return;
     }
@@ -1018,11 +989,9 @@ function mostrarTime(timeNome) {
 }
 
 function renderEscalacao(formacao, jogadores, containerId = 'displayA') {
-    console.log('Renderizando escalação:', formacao, jogadores);
-    
     const posicoes = posicoesPorFormacao[formacao.toString()];
     if (!posicoes) {
-        console.error('Formação não encontrada:', formacao);
+        console.warn('Formação não encontrada:', formacao);
         renderCampoLimpo(containerId);
         return;
     }
@@ -1036,7 +1005,6 @@ function renderEscalacao(formacao, jogadores, containerId = 'displayA') {
     campoDiv.className = 'campo';
     
     const titulares = jogadores.filter(j => j.status === "T");
-    console.log('Titulares:', titulares);
     
     const jogadoresPorPosicao = {
         "GOL": [], "ZAG": [], "LAT": [], "MEI": [], "ATA": [], "TEC": []
@@ -1045,8 +1013,6 @@ function renderEscalacao(formacao, jogadores, containerId = 'displayA') {
     titulares.forEach(j => {
         if (jogadoresPorPosicao.hasOwnProperty(j.pos)) {
             jogadoresPorPosicao[j.pos].push(j);
-        } else {
-            console.warn('Posição desconhecida:', j.pos);
         }
     });
     
@@ -1057,9 +1023,12 @@ function renderEscalacao(formacao, jogadores, containerId = 'displayA') {
             const jogador = jogadoresDaPosicao.shift();
             const valClass = jogador.val < 0 ? 'negativo' : '';
             
+            // Nome do arquivo do clube: usando nome seguro
+            const nomeClubeSeguro = nomeArquivoSeguro(jogador.clube);
+            
             campoDiv.innerHTML += `
                 <div class="jogador-card" style="top:${posObj.t}%; left:${posObj.l}%">
-                    <img class="logo-clube-escalacao" src="./TIMES/${jogador.clube}.png" alt="${jogador.clube}" onerror="this.src='./TIMES/default.png'">
+                    <img class="logo-clube-escalacao" src="/teste/TIMES/${nomeClubeSeguro}.png" alt="${jogador.clube}" onerror="this.src='/teste/TIMES/default.png'">
                     <div class="nome-jogador">${jogador.nome}</div>
                     <div class="valor-jogador ${valClass}">${jogador.val.toFixed(2)}</div>
                 </div>
@@ -1071,7 +1040,6 @@ function renderEscalacao(formacao, jogadores, containerId = 'displayA') {
 }
 
 function renderCampoLimpo(containerId = 'displayA') {
-    console.log('Renderizando campo limpo');
     const container = document.getElementById(containerId);
     if (!container) return;
     
@@ -1082,8 +1050,6 @@ function renderCampoLimpo(containerId = 'displayA') {
 }
 
 function voltarParaCampo() {
-    console.log('Voltando para campo principal');
-    
     visualizandoTime = false;
     timeSelecionado = null;
     
@@ -1097,8 +1063,14 @@ function voltarParaCampo() {
 }
 
 function atualizarTelas() {
-    console.log('Atualizando telas principais');
-    
+    // Verifica se as variáveis globais existem
+    if (typeof historicoSerieA === 'undefined') {
+        console.warn('historicoSerieA não definido. Verifique se tabela.js foi carregado.');
+    }
+    if (typeof historicoSerieB === 'undefined') {
+        console.warn('historicoSerieB não definido.');
+    }
+
     const resA = processarDados(typeof historicoSerieA !== 'undefined' ? historicoSerieA : [], rodadaSelecionada);
     const resB = processarDados(typeof historicoSerieB !== 'undefined' ? historicoSerieB : [], rodadaSelecionada);
     
@@ -1132,16 +1104,17 @@ function renderSeção(id, data, isA) {
   if(modoAtivo === 'campo') {
     const campoDiv = document.createElement("div");
     campoDiv.className = "campo";
-    campoDiv.innerHTML += `<img src="./TROFEU_NATTOS.png" class="trofeu-campo" style="top:${posTrofeu.t}%; left:${posTrofeu.l}%">`;
+    campoDiv.innerHTML += `<img src="/teste/TROFEU_NATTOS.png" class="trofeu-campo" style="top:${posTrofeu.t}%; left:${posTrofeu.l}%">`;
     data.forEach((time, i) => {
       const p = posCampo[i];
       if(!p) return;
       const idUnico = id + i;
       let bClass = (isA && i >= 8) ? "badge-rebaixamento" : (!isA && i <= 1) ? "badge-lider" : "";
       
+      // Nome seguro para o garçom
+      const nomeGarcomSeguro = nomeArquivoSeguro(time.nome);
       if(i === 9) {
-        const nomeArquivo = time.nome.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
-        campoDiv.innerHTML += `<img class="garcom" src="./GARCONS/${nomeArquivo}.png" style="top:${p.t}%; left:${p.l}%" onerror="this.style.display='none'">`;
+        campoDiv.innerHTML += `<img class="garcom" src="/teste/GARCONS/${nomeGarcomSeguro}.png" style="top:${p.t}%; left:${p.l}%" onerror="this.style.display='none'">`;
       }
       
       const linhasHistorico = time.rodadas.map(r => `
@@ -1152,6 +1125,10 @@ function renderSeção(id, data, isA) {
             <span style="color:#f87171">${r.pen.toFixed(2)}</span>
           </div>
       `).join('');
+
+      // Nome seguro para o escudo
+      const nomeEscudoSeguro = nomeArquivoSeguro(time.nome);
+
       campoDiv.innerHTML += `
         <div class="card-time" style="top:${p.t}%; left:${p.l}%">
           <div class="pop-detalhes" id="pop-${idUnico}">
@@ -1162,7 +1139,7 @@ function renderSeção(id, data, isA) {
              ${linhasHistorico}
           </div>
           <div class="posicao-campo">${i+1}</div>
-          <img class="logo-campo" src="./ESCUDOS/${time.nome}.png" onclick="mostrarTime('${time.nome}')">
+          <img class="logo-campo" src="/teste/ESCUDOS/${nomeEscudoSeguro}.png" onclick="mostrarTime('${time.nome}')" onerror="this.src='/teste/ESCUDOS/default.png'">
           <div class="badge-pontos-campo ${bClass}" onclick="alternarCard(event, '${idUnico}')">
             ${time.total.toFixed(2)}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
@@ -1174,10 +1151,13 @@ function renderSeção(id, data, isA) {
     let tabela = `<div class="lista-container"><table class="tabela-times">`;
     data.forEach((time, i) => {
       let rClass = (isA && i >= 8) ? "status-rebaixamento" : (!isA && i <= 1) ? "status-lider" : "";
-      let iconePos = i === 0 ? `<img src="./TROFEU_NATTOS.png" style="width:20px; vertical-align:middle;">` : i+1;
+      let iconePos = i === 0 ? `<img src="/teste/TROFEU_NATTOS.png" style="width:20px; vertical-align:middle;">` : i+1;
+      
+      const nomeEscudoSeguro = nomeArquivoSeguro(time.nome);
+      
       tabela += `<tr class="${rClass}">
         <td class="td-posicao">${iconePos}</td>
-        <td class="td-escudo"><img src="./ESCUDOS/${time.nome}.png" onclick="mostrarTime('${time.nome}')" style="cursor:pointer"></td>
+        <td class="td-escudo"><img src="/teste/ESCUDOS/${nomeEscudoSeguro}.png" onclick="mostrarTime('${time.nome}')" style="cursor:pointer" onerror="this.src='/teste/ESCUDOS/default.png'"></td>
         <td class="td-nome">${time.nome.replace(/_/g, ' ')}</td>
         <td class="td-pontos">
           <span class="pontuacao-total">${time.total.toFixed(2)}</span>
@@ -1204,15 +1184,20 @@ function selecionarSerie(serie) {
   document.getElementById('containerB').style.display = serie === 'B' ? 'block' : 'none';
 }
 
+// Inicialização
 (function init() {
-    console.log('Iniciando aplicação...');
-    
-    // Verificar se os dados das séries existem
-    console.log('historicoSerieA disponível?', typeof historicoSerieA !== 'undefined' ? 'SIM' : 'NÃO');
-    console.log('historicoSerieB disponível?', typeof historicoSerieB !== 'undefined' ? 'SIM' : 'NÃO');
+    console.log('Inicializando aplicação...');
+    // Verifica se os dados foram carregados
+    if (typeof historicoSerieA === 'undefined') {
+        console.error('historicoSerieA não carregado. Verifique o arquivo tabela.js');
+    }
+    if (typeof bancoEscalacoes === 'undefined') {
+        console.error('bancoEscalacoes não carregado. Verifique o arquivo escalacoes.js');
+    }
     
     const resA = processarDados(typeof historicoSerieA !== 'undefined' ? historicoSerieA : []);
-    rodadaSelecionada = resA.rdd;
+    rodadaSelecionada = resA.rdd || 1;
+    rodadaMaximaGlobal = rodadaSelecionada;
     atualizarSeletorRodadas();
     selecionarSerie('A');
     mudarVisual('campo');
@@ -1224,6 +1209,5 @@ function selecionarSerie(serie) {
     }, 2000);
 })();
 </script>
-
 </body>
 </html>
