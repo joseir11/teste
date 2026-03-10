@@ -64,7 +64,7 @@ body {
   gap: 15px;
 }
 
-.titulo-wrer {
+.titulo-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -344,7 +344,7 @@ body {
 .status-rebaixamento .td-nome { color: var(--red) !important; }
 
 #install-container {
-  position: fixed; bottom: 20px; right: 16px;  /* posição na tela */
+  position: fixed; bottom: 20px; right: 16px;
   z-index: 9999;
   animation: slideUp 0.3s ease-out;
 }
@@ -353,12 +353,13 @@ body {
   to { transform: translateY(0); opacity: 1; }
 }
 #install-button {
-  background: #f59e0b;       /* cor do badge */
-  color: #000;               /* cor do texto */
-  padding: 8px 16px;         /* tamanho interno (altura x largura) */
-  border-radius: 50px;       /* arredondamento */
-  font-size: 13px;           /* tamanho da fonte */
-  box-shadow: 0 4px 20px rgba(245,158,11,0.5);  /* sombra */
+  background: #f59e0b; color: #000; border: none;
+  padding: 8px 16px; border-radius: 50px;
+  font-weight: bold; font-size: 13px;
+  box-shadow: 0 4px 20px rgba(245,158,11,0.5);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
 }
 #install-button:hover { transform: scale(1.05); }
 #install-button:active { transform: scale(0.95); }
@@ -387,7 +388,7 @@ body {
     <div class="container-logo-bola">
       <img src="CARTOLA.png" class="logo-campeonato" alt="Logo">
     </div>
-    <div class="titulo-wrer">
+    <div class="titulo-wrapper">
       <div class="titulo-principal">TAÇA NATTOS</div>
       <div class="ano-titulo">2026</div>
     </div>
@@ -436,7 +437,7 @@ body {
 <div style="height:60px;"></div>
 
 <div id="install-container" style="display:none;">
-  <button id="install-button">📲 APP </button>
+  <button id="install-button">📲 Instalar App</button>
 </div>
 
 <!--
@@ -532,7 +533,7 @@ document.getElementById('install-button').addEventListener('click', async () => 
   deferredPrompt = null;
   document.getElementById('install-container').style.display = 'none';
 });
-window.addEventListener('installed', () => {
+window.addEventListener('appinstalled', () => {
   document.getElementById('install-container').style.display = 'none';
 });
 
@@ -575,7 +576,7 @@ function atualizarSeletorRodadas() {
     o.value = i;
     o.innerText = `Rodada ${String(i).padStart(2,'0')}`;
     if (i === rodadaSelecionada) o.selected = true;
-    sel.endChild(o);
+    sel.appendChild(o);
   }
 }
 
@@ -657,7 +658,7 @@ function renderEscalacao(formacao, jogadores, containerId) {
         <div class="valor-jogador ${neg}">${(j.val||0).toFixed(2)}</div>
       </div>`;
   });
-  container.endChild(campo);
+  container.appendChild(campo);
 }
 
 function renderCampoLimpo(containerId) {
@@ -666,7 +667,7 @@ function renderCampoLimpo(containerId) {
   c.innerHTML = '';
   const d = document.createElement('div');
   d.className = 'campo-limpo';
-  c.endChild(d);
+  c.appendChild(d);
 }
 
 function voltarParaCampo() {
@@ -741,7 +742,7 @@ function renderSeção(id, data, isA) {
           </div>
         </div>`;
     });
-    container.endChild(campo);
+    container.appendChild(campo);
   } else {
     let t = `<div class="lista-container"><table class="tabela-times">`;
     data.forEach((time, i) => {
