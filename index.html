@@ -43,6 +43,46 @@ body {
   overflow-x: hidden;
 }
 
+/* =====================================================
+   SPLASH SCREEN
+   ─────────────────────────────────────────────────────
+   #splash          → div que cobre a tela inteira
+   #splash.oculto   → classe adicionada via JS para sumir
+   #splash-logo     → a imagem CARTOLA.png animada
+   @keyframes splashGrow → cresce de 128px até preencher
+                           a tela e vai desfocando no fim
+   ===================================================== */
+#splash {
+  position: fixed;
+  inset: 0;                          /* cobre tela toda */
+  background: #111827;               /* mesma cor do --bg */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;                    /* acima de tudo */
+  transition: opacity 0.5s ease;    /* fade-out suave */
+}
+
+#splash.oculto {
+  opacity: 0;
+  pointer-events: none;             /* não bloqueia cliques após sumir */
+}
+
+#splash-logo {
+  width: 128px;                     /* tamanho inicial */
+  height: 128px;
+  object-fit: contain;
+  animation: splashGrow 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  /* duração: 1.8s — altere aqui E no setTimeout do JS (1800) */
+}
+
+@keyframes splashGrow {
+  0%   { transform: scale(1);   opacity: 1;   }  /* tamanho inicial */
+  65%  { transform: scale(7);   opacity: 1;   }  /* cresce bastante */
+  100% { transform: scale(14);  opacity: 0;   }  /* preenche tela e some */
+}
+/* ===================================================== */
+
 .header {
   display: flex;
   flex-direction: column;
@@ -379,6 +419,15 @@ body {
 </head>
 <body onclick="fecharTodosCards()">
 
+<!-- =====================================================
+     SPLASH SCREEN — 2ª alteração: HTML
+     Fica logo após o <body>. O JS no init() remove ele.
+     ===================================================== -->
+<div id="splash">
+  <img id="splash-logo" src="CARTOLA.png" alt="">
+</div>
+<!-- ===================================================== -->
+
 <div id="offlineIndicator" class="offline-indicator" style="display:none;">
   ⚠️ Você está offline. Alguns dados podem não estar disponíveis.
 </div>
@@ -440,15 +489,6 @@ body {
   <button id="install-button">📲 APP</button>
 </div>
 
-<!--
-  ╔══════════════════════════════════════════════════════════╗
-  ║  TODOS OS PATHS SÃO RELATIVOS (sem /teste/)              ║
-  ║  Isso garante que funciona tanto no browser quanto       ║
-  ║  quando instalado como PWA — em qualquer subdiretório.   ║
-  ║                                                          ║
-  ║  O sw.js NUNCA cacheia tabela.js e escalacoes.js         ║
-  ╚══════════════════════════════════════════════════════════╝
--->
 <script src="tabela.js"></script>
 <script src="escalacoes.js"></script>
 
@@ -588,7 +628,6 @@ function alterarRodadaManual(rdd) {
 
 function buscarEscalacao(timeNome, rodada) {
   if (typeof bancoEscalacoes === 'undefined' || !bancoEscalacoes) return null;
-  // Tenta o nome como veio, e também com _ no lugar de espaços
   const dados = bancoEscalacoes[timeNome] || bancoEscalacoes[timeNome.replace(/\s+/g,'_')];
   if (!dados) {
     console.warn('[ESC] Time não encontrado:', timeNome, '| Disponíveis:', Object.keys(bancoEscalacoes).slice(0,5));
@@ -788,6 +827,20 @@ function selecionarSerie(serie) {
   atualizarSeletorRodadas();
   selecionarSerie('A');
   mudarVisual('campo');
+
+  // =====================================================
+  // SPLASH SCREEN — 3ª alteração: JS
+  // Aguarda a animação (1800ms) e remove o splash.
+  // Se quiser mais rápido: diminua 1800 E o "1.8s" no CSS.
+  // Se quiser mais devagar: aumente ambos.
+  // =====================================================
+  setTimeout(() => {
+    const splash = document.getElementById('splash');
+    if (!splash) return;
+    splash.classList.add('oculto');           // inicia fade-out (0.5s via CSS)
+    setTimeout(() => splash.remove(), 500);   // remove do DOM após o fade
+  }, 1800);
+  // =====================================================
 })();
 </script>
 </body>
