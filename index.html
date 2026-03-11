@@ -357,21 +357,22 @@ body {
 #install-button {
   width: 60px;
   height: 60px;
-  background: #f59e0b;
+  background: transparent;
   border: none;
   border-radius: 50%;
-  box-shadow: 0 4px 20px rgba(245,158,11,0.5);
+  box-shadow: none;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;                   /* sem padding interno */
+  padding: 0;
 }
 .icone-instalar {
-  width: 48px;
-  height: auto;
+  width: 60px;
+  height: 60px;
   display: block;
+  object-fit: contain;
 }
 #install-button:hover { transform: scale(1.05); }
 #install-button:active { transform: scale(0.95); }
