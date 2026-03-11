@@ -1,7 +1,7 @@
 {
-  "name": "TAÇA NATTOS 2026",
-  "short_name": "NATTOS",
-  "description": "CARTOLA BMP - TAÇA NATTOS 2026",
+  "name": "CARTOLA BMP",
+  "short_name": "CARTOLA BMP",
+  "description": "CARTOLA BMP - 2026",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
