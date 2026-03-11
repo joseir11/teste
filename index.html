@@ -355,13 +355,23 @@ body {
   to { transform: translateY(0); opacity: 1; }
 }
 #install-button {
-  background: #f59e0b; color: #000; border: none;
-  padding: 16px; border-radius: 50px; /* ajustar padding para formato retangular 20px 10px */
-  font-weight: bold; font-size: 25px;
+  width: 60px;
+  height: 60px;
+  background: #f59e0b;
+  border: none;
+  border-radius: 50%;
   box-shadow: 0 4px 20px rgba(245,158,11,0.5);
   cursor: pointer;
   transition: all 0.3s ease;
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;                   /* sem padding interno */
+}
+.icone-instalar {
+  width: 48px;
+  height: auto;
+  display: block;
 }
 #install-button:hover { transform: scale(1.05); }
 #install-button:active { transform: scale(0.95); }
@@ -441,7 +451,9 @@ body {
 <div style="height:60px;"></div>
 
 <div id="install-container" style="display:none;">
-  <button id="install-button">📲</button>
+  <button id="install-button">
+    <img src="install.png" alt="Instalar" class="icone-instalar">
+  </button>
 </div>
 
 <script src="tabela.js"></script>
