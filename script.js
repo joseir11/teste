@@ -124,7 +124,7 @@ window.app = {
                         <i data-lucide="trophy" class="text-white w-7 h-7"></i>
                     </div>
                     <div>
-                        <h1 class="text-5xl font-teko uppercase tracking-wider leading-none">Taça Nattos 2026</h1>
+                        <h1 class="text-3xl font-teko uppercase tracking-wider leading-none">Taça Nattos 2026</h1>
                         <p class="text-xs font-mono text-gray-500 uppercase tracking-widest">CARTOLA BMP</p>
                     </div>
                 </div>
