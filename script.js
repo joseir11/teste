@@ -413,20 +413,20 @@ window.app = {
                 </div>
 
                 <!-- Mito da Rodada -->
-                <div class="glass-card p-6 bg-gradient-to-br from-cartola-orange/5 to-transparent border-cartola-orange/10">
+                <div class="glass-card p-6 bg-gradient-to-br from-green-50 to-transparent border-green-100">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-teko text-xl uppercase tracking-wider">Mito da Rodada</h3>
-                        <div class="w-8 h-8 bg-cartola-orange rounded-lg flex items-center justify-center shadow-lg shadow-cartola-orange/20">
-                            <i data-lucide="zap" class="text-white w-4 h-4"></i>
+                        <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center shadow-lg shadow-green-500/20">
+                            <i data-lucide="smile" class="text-white w-4 h-4"></i>
                         </div>
                     </div>
                     <div class="flex items-center gap-4">
-                        <div class="w-16 h-16 rounded-full bg-white p-1 shadow-xl border-2 border-cartola-orange/20">
+                        <div class="w-16 h-16 rounded-full bg-white p-1 shadow-xl border-2 border-green-200">
                             <img src="ESCUDOS/${mito.nome}.png" class="w-full h-full object-contain" onerror="this.src='ESCUDOS/default.png'">
                         </div>
                         <div>
                             <p class="font-teko text-2xl uppercase leading-none">${mito.nome}</p>
-                            <p class="font-mono text-sm text-cartola-orange font-bold">+${mito.roundScore.toFixed(2)} pts</p>
+                            <p class="font-mono text-sm text-green-600 font-bold">+${mito.roundScore.toFixed(2)} pts</p>
                         </div>
                     </div>
                 </div>
