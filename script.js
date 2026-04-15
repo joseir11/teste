@@ -572,7 +572,7 @@ window.app = {
                                     <div class="flex items-center gap-4">
                                         <span class="w-12 font-mono text-xs text-gray-400">RDD ${h.rdd}</span>
                                         <div class="flex-1 h-2 bg-black/5 rounded-full overflow-hidden">
-                                            <div class="h-full bg-cartola-orange rounded-full" style="width: ${Math.min(100, (totalRound / 20) * 100)}%"></div>
+                                            <div class="h-full bg-cartola-orange rounded-full" style="width: ${Math.max(0, Math.min(100, (totalRound / 20) * 100))}%"></div>
                                         </div>
                                         <span class="w-12 text-right font-mono text-xs font-bold">${totalRound.toFixed(2)}</span>
                                     </div>
