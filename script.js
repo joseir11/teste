@@ -289,9 +289,9 @@ window.app = {
                             <div class="flex flex-col items-center gap-1">
                                 <div class="relative">
                                     ${garcomImg}
-                                    <!-- Escudo sem fundo branco, com sombra leve para harmonizar -->
-                                    <div class="w-22 h-22 md:w-24 md:h-24 flex items-center justify-center group-hover:scale-110 transition-all duration-300 relative z-10 filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.4)]">
-                                        <img src="ESCUDOS/${team.nome}.png" class="w-full h-full object-contain" onerror="this.src='ESCUDOS/default.png'">
+                                    <!-- Escudo com altura fixa e largura automática para não sobrepor no mobile -->
+                                    <div class="h-14 md:h-20 w-auto flex items-center justify-center group-hover:scale-110 transition-all duration-300 relative z-10 filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.4)]">
+                                        <img src="ESCUDOS/${team.nome}.png" class="h-full w-auto object-contain" onerror="this.src='ESCUDOS/default.png'">
                                     </div>
                                     <!-- Posição estilo número de camisa com cores dinâmicas -->
                                     <div class="absolute -top-4 -right-4 font-teko font-black text-3xl md:text-5xl ${posColorClass} drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] z-20">
