@@ -394,8 +394,8 @@ window.app = {
                     </div>
                     <div class="space-y-1">
                         ${ranking.map((team, i) => {
-                            const nextTeam = ranking[i + 1];
-                            const diff = nextTeam ? (team.pontos - nextTeam.pontos).toFixed(2) : '0.00';
+                            const prevTeam = ranking[i - 1];
+                            const diff = prevTeam ? (prevTeam.pontos - team.pontos).toFixed(2) : '0.00';
                             return `
                                 <div class="flex items-center justify-between py-2 border-b border-black/5 last:border-0 group cursor-pointer" onclick="app.selectTeam('${team.nome}')">
                                     <div class="flex items-center gap-3">
