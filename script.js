@@ -125,7 +125,7 @@ window.app = {
                     </div>
                     <div>
                         <h1 class="text-3xl font-teko uppercase tracking-wider leading-none">Taça Nattos 2026</h1>
-                        <p class="text-xs font-mono text-gray-500 uppercase tracking-widest">Fantasy Game Dashboard</p>
+                        <p class="text-xs font-mono text-gray-500 uppercase tracking-widest">CARTOLA BMP</p>
                     </div>
                 </div>
 
