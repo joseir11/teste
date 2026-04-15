@@ -280,7 +280,7 @@ window.app = {
                         const lastTeam = ranking[ranking.length - 1];
                         garcomImg = `<img class="absolute h-[150px] md:h-[250px] w-auto object-contain pointer-events-none opacity-90 z-20" 
                                           src="GARCONS/${lastTeam.nome}.png" 
-                                          style="top: 50%; left: -100%; transform: translateY(-50%); filter: drop-shadow(0 8px 16px rgba(0,0,0,0.8));" 
+                                          style="top: 50%; left: -120%; transform: translateY(-50%); filter: drop-shadow(0 8px 16px rgba(0,0,0,0.8));" 
                                           onerror="this.style.display='none'">`;
                     }
 
