@@ -294,7 +294,7 @@ window.app = {
                                         <img src="ESCUDOS/${team.nome}.png" class="h-full w-auto object-contain" onerror="this.src='ESCUDOS/default.png'">
                                     </div>
                                     <!-- Posição estilo número de camisa com cores dinâmicas -->
-                                    <div class="absolute -top-4 -right-4 font-teko font-black text-3xl md:text-5xl ${posColorClass} drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] z-20">
+                                    <div class="absolute -top-0 -right-8 font-teko font-black text-3xl md:text-5xl ${posColorClass} drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] z-20">
                                         ${i + 1}
                                     </div>
                                 </div>
