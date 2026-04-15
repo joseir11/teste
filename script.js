@@ -509,7 +509,7 @@ window.app = {
                 <!-- Back Button -->
                 <button onclick="app.selectTeam(null)" class="flex items-center gap-2 text-gray-500 hover:text-cartola-orange transition-colors group">
                     <i data-lucide="arrow-left" class="w-5 h-5 group-hover:-translate-x-1 transition-transform"></i>
-                    <span class="font-teko text-lg uppercase tracking-wider">Voltar para o Ranking</span>
+                    <span class="font-teko text-lg uppercase tracking-wider">Voltar</span>
                 </button>
 
                 <!-- Team Header -->
