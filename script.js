@@ -278,7 +278,7 @@ window.app = {
                     let garcomImg = '';
                     if (i === 9) {
                         const lastTeam = ranking[ranking.length - 1];
-                        garcomImg = `<img class="absolute h-60 w-auto object-contain pointer-events-none opacity-90 z-20" 
+                        garcomImg = `<img class="absolute h-[150px] md:h-[250px] w-auto object-contain pointer-events-none opacity-90 z-20" 
                                           src="GARCONS/${lastTeam.nome}.png" 
                                           style="top: 50%; left: -120%; transform: translateY(-50%); filter: drop-shadow(0 8px 16px rgba(0,0,0,0.8));" 
                                           onerror="this.style.display='none'">`;
@@ -294,7 +294,7 @@ window.app = {
                                         <img src="ESCUDOS/${team.nome}.png" class="h-full w-auto object-contain" onerror="this.src='ESCUDOS/default.png'">
                                     </div>
                                     <!-- Posição estilo número de camisa com cores dinâmicas -->
-                                    <div class="absolute -top-0 -right-8 font-teko font-black text-3xl md:text-5xl ${posColorClass} drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] z-20">
+                                    <div class="absolute -top-4 -right-4 font-teko font-black text-3xl md:text-5xl ${posColorClass} drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] z-20">
                                         ${i + 1}
                                     </div>
                                 </div>
