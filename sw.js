@@ -2,7 +2,7 @@
    SERVICE WORKER — TAÇA NATTOS 2026
    ============================================================ */
 
-const CACHE_NAME = 'nattos-v1';
+const CACHE_NAME = 'nattos-v2';
 
 // Arquivos para cache
 const ARQUIVOS_ESTATICOS = [
