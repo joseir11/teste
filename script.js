@@ -202,11 +202,6 @@ window.app = {
                         </select>
                         <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
                     </div>
-
-                    <!-- View Toggle -->
-                    <button onclick="app.toggleView()" class="w-10 h-10 bg-white border border-black/5 rounded-xl flex items-center justify-center hover:bg-gray-50 transition-all shadow-sm">
-                        <i data-lucide="${this.state.viewMode === 'campo' ? 'list' : 'layout-grid'}" class="w-5 h-5 text-gray-600"></i>
-                    </button>
                 </div>
             </div>
         `;
@@ -237,8 +232,8 @@ window.app = {
             <div class="space-y-8">
                 ${ranking.length >= 3 ? this.renderPodium(ranking.slice(0, 3)) : ''}
                 
-                <div class="glass-card p-1">
-                    ${this.state.viewMode === 'campo' ? this.renderField(ranking) : this.renderTable(ranking)}
+                <div class="glass-card p-1 pb-4">
+                    ${this.renderField(ranking)}
                 </div>
             </div>
         `;
@@ -459,25 +454,37 @@ window.app = {
 
         sidebar.innerHTML = `
             <div class="space-y-6">
-                <!-- Grid da Liga -->
+                <!-- Classificação -->
                 <div class="glass-card p-6 space-y-4">
                     <div class="flex items-center justify-between border-b border-black/5 pb-2">
-                        <h3 class="font-teko text-xl uppercase tracking-wider">Grid da Liga</h3>
+                        <h3 class="font-teko text-xl uppercase tracking-wider">Classificação</h3>
                         <span class="text-[10px] font-mono text-gray-400 uppercase">Série ${this.state.activeSerie}</span>
                     </div>
                     <div class="space-y-1">
+                        <div class="flex items-center text-[10px] font-mono text-gray-400 uppercase font-bold border-b border-black/5 pb-1">
+                            <span class="w-6">Pos</span>
+                            <span class="flex-1">Time</span>
+                            <span class="w-16 text-center">Ult. Rdd</span>
+                            <span class="w-16 text-right">Total</span>
+                        </div>
                         ${ranking.map((team, i) => {
                             const prevTeam = ranking[i - 1];
                             const diff = prevTeam ? (prevTeam.pontos - team.pontos).toFixed(2) : '0.00';
                             return `
-                                <div class="flex items-center justify-between py-2 border-b border-black/5 last:border-0 group cursor-pointer" onclick="app.selectTeam('${team.nome}')">
-                                    <div class="flex items-center gap-3">
+                                <div class="flex items-center py-2 border-b border-black/5 last:border-0 group cursor-pointer" onclick="app.selectTeam('${team.nome}')">
+                                    <div class="flex items-center gap-2 flex-1">
                                         <span class="font-mono text-[10px] text-gray-400 w-4">${i + 1}</span>
-                                        <span class="font-teko text-lg uppercase leading-none group-hover:text-cartola-orange transition-colors">${team.nome}</span>
+                                        <div class="w-6 h-6 shrink-0">
+                                            <img src="ESCUDOS/${team.nome}.png" class="w-full h-full object-contain" onerror="this.src='ESCUDOS/default.png'">
+                                        </div>
+                                        <span class="font-teko text-lg uppercase leading-none group-hover:text-cartola-orange transition-colors truncate">${team.nome}</span>
                                     </div>
-                                    <div class="text-right">
+                                    <div class="w-16 text-center">
+                                        <p class="font-mono text-xs font-bold text-gray-600 leading-none">${team.roundScore ? team.roundScore.toFixed(2) : '0.00'}</p>
+                                    </div>
+                                    <div class="w-16 text-right">
                                         <p class="font-mono text-sm font-bold text-cartola-orange leading-none">${team.pontos.toFixed(2)}</p>
-                                        <p class="text-[9px] font-mono text-gray-400 uppercase">DIF: ${diff}</p>
+                                        <p class="text-[8px] font-mono text-gray-400 uppercase">DIF: ${diff}</p>
                                     </div>
                                 </div>
                             `;
