@@ -666,7 +666,7 @@ window.app = {
                                         <div class="text-right shrink-0">
                                             <p class="font-mono text-xs font-bold leading-none text-cartola-orange">${totalRound.toFixed(2)}</p>
                                             <div class="flex justify-end gap-1.5 mt-1">
-                                                ${h.re ? `<span class="text-[9px] font-mono text-green-600" title="Rodada Especial">RE: +${h.re.toFixed(1)}</span>` : ''}
+                                                ${h.re ? `<span class="text-[9px] font-mono ${h.re >= 0 ? 'text-green-600' : 'text-red-500'}" title="Rodada Especial">RE: ${h.re >= 0 ? '+' : ''}${h.re.toFixed(1)}</span>` : ''}
                                                 ${h.pen ? `<span class="text-[9px] font-mono text-red-500" title="Penalização">PEN: -${h.pen.toFixed(1)}</span>` : ''}
                                             </div>
                                         </div>
