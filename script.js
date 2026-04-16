@@ -189,13 +189,13 @@ window.app = {
                 <div class="flex flex-wrap items-center gap-3">
                     <!-- Serie Toggle -->
                     <div class="bg-black/5 p-1 rounded-xl flex gap-1">
-                        <button onclick="app.setSerie('A')" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${this.state.activeSerie === 'A' ? 'bg-white shadow-sm text-cartola-orange' : 'text-gray-500 hover:text-gray-800'}">SÉRIE A</button>
-                        <button onclick="app.setSerie('B')" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${this.state.activeSerie === 'B' ? 'bg-white shadow-sm text-cartola-orange' : 'text-gray-500 hover:text-gray-800'}">SÉRIE B</button>
+                        <button onclick="app.setSerie('A')" class="px-4 py-1.5 rounded-lg text-lg font-teko uppercase tracking-wider transition-all ${this.state.activeSerie === 'A' ? 'bg-white shadow-sm text-cartola-orange' : 'text-gray-500 hover:text-gray-800'}">SÉRIE A</button>
+                        <button onclick="app.setSerie('B')" class="px-4 py-1.5 rounded-lg text-lg font-teko uppercase tracking-wider transition-all ${this.state.activeSerie === 'B' ? 'bg-white shadow-sm text-cartola-orange' : 'text-gray-500 hover:text-gray-800'}">SÉRIE B</button>
                     </div>
 
                     <!-- Round Selector -->
                     <div class="relative group">
-                        <select onchange="app.setRound(this.value)" class="appearance-none bg-white border border-black/5 rounded-xl px-4 py-2 pr-10 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cartola-orange/20 transition-all cursor-pointer">
+                        <select onchange="app.setRound(this.value)" class="appearance-none bg-white border border-black/5 rounded-xl px-4 py-2 pr-10 text-lg font-teko uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-cartola-orange/20 transition-all cursor-pointer">
                             ${Array.from({length: this.getMaxRound()}, (_, i) => i + 1).map(r => `
                                 <option value="${r}" ${this.state.selectedRound === r ? 'selected' : ''}>Rodada ${r}</option>
                             `).join('')}
