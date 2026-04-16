@@ -25,11 +25,13 @@ window.app = {
         viewMode: 'campo',
         selectedRound: 0,
         selectedTeam: null,
-        data: null
+        data: null,
+        deferredPrompt: null
     },
 
     init() {
         console.log('app.init(): Iniciando...');
+        this.initPWA();
         try {
             // Tenta encontrar os dados em diferentes variáveis possíveis
             const rawSerieA = (typeof TABELA !== 'undefined' && TABELA.serieA) || (typeof historicoSerieA !== 'undefined' ? historicoSerieA : null);
@@ -128,17 +130,59 @@ window.app = {
         }
     },
 
+    initPWA() {
+        // Service Worker registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('PWA: Service Worker registrado com sucesso'))
+                    .catch(err => console.error('PWA: Erro ao registrar Service Worker', err));
+            });
+        }
+
+        // Install prompt handler
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            this.state.deferredPrompt = e;
+            const btn = document.getElementById('installApp');
+            if (btn) btn.classList.remove('hidden');
+        });
+
+        window.addEventListener('appinstalled', (e) => {
+            this.state.deferredPrompt = null;
+            const btn = document.getElementById('installApp');
+            if (btn) btn.classList.add('hidden');
+        });
+    },
+
+    installApp() {
+        if (!this.state.deferredPrompt) return;
+        this.state.deferredPrompt.prompt();
+        this.state.deferredPrompt.userChoice.then((choiceResult) => {
+            this.state.deferredPrompt = null;
+            const btn = document.getElementById('installApp');
+            if (btn) btn.classList.add('hidden');
+        });
+    },
+
     renderHeader() {
         const header = document.getElementById('header');
         header.innerHTML = `
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-4 flex-1">
                     <div class="w-12 h-12 bg-cartola-orange rounded-xl flex items-center justify-center shadow-lg shadow-cartola-orange/20">
                         <i data-lucide="trophy" class="text-white w-7 h-7"></i>
                     </div>
-                    <div>
-                        <h1 class="text-3xl font-teko uppercase tracking-wider leading-none">Taça Nattos 2026</h1>
-                        <p class="text-xs font-mono text-gray-500 uppercase tracking-widest">CARTOLA BMP</p>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between md:justify-start md:gap-8">
+                            <div>
+                                <h1 class="text-3xl font-teko uppercase tracking-wider leading-none">Taça Nattos 2026</h1>
+                                <p class="text-xs font-mono text-gray-500 uppercase tracking-widest">CARTOLA BMP</p>
+                            </div>
+                            <button id="installApp" onclick="app.installApp()" class="hidden opacity-20 hover:opacity-100 transition-opacity p-2" title="Instalar App">
+                                <i data-lucide="download" class="w-6 h-6 text-gray-400"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
