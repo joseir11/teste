@@ -656,12 +656,20 @@ window.app = {
                             ${historico.map(h => {
                                 const totalRound = (h.val || 0) + (h.re || 0) - (h.pen || 0);
                                 return `
-                                    <div class="flex items-center gap-4">
-                                        <span class="w-12 font-mono text-xs text-gray-400">RDD ${h.rdd}</span>
+                                    <div class="flex items-center gap-4 py-1 border-b border-black/[0.03] last:border-0">
+                                        <div class="w-14 shrink-0">
+                                            <span class="font-mono text-[10px] text-gray-400">ROD ${h.rdd}</span>
+                                        </div>
                                         <div class="flex-1 h-2 bg-black/5 rounded-full overflow-hidden">
                                             <div class="h-full bg-cartola-orange rounded-full" style="width: ${Math.max(0, Math.min(100, (totalRound / 20) * 100))}%"></div>
                                         </div>
-                                        <span class="w-12 text-right font-mono text-xs font-bold">${totalRound.toFixed(2)}</span>
+                                        <div class="text-right shrink-0">
+                                            <p class="font-mono text-xs font-bold leading-none text-cartola-orange">${totalRound.toFixed(2)}</p>
+                                            <div class="flex justify-end gap-1.5 mt-1">
+                                                ${h.re ? `<span class="text-[9px] font-mono text-green-600" title="Rodada Especial">RE: +${h.re.toFixed(1)}</span>` : ''}
+                                                ${h.pen ? `<span class="text-[9px] font-mono text-red-500" title="Penalização">PEN: -${h.pen.toFixed(1)}</span>` : ''}
+                                            </div>
+                                        </div>
                                     </div>
                                 `;
                             }).join('')}
