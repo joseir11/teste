@@ -106,6 +106,19 @@ window.app = {
         return Object.values(totals).sort((a, b) => b.pontos - a.pontos);
     },
 
+    getMitoOfRound(serie, round) {
+        if (!this.state.data) return null;
+        const serieData = serie === 'A' ? this.state.data.serieA : this.state.data.serieB;
+        if (!serieData) return null;
+        const roundData = serieData.filter(d => d.rdd === round);
+        if (roundData.length === 0) return null;
+        
+        return roundData.map(d => ({
+            nome: d.nome,
+            score: (d.val || 0) + (d.re || 0) - (d.pen || 0)
+        })).sort((a, b) => b.score - a.score)[0];
+    },
+
     render() {
         this.renderHeader();
         this.renderMain();
@@ -278,7 +291,7 @@ window.app = {
                     let garcomImg = '';
                     if (i === 9) {
                         const lastTeam = ranking[ranking.length - 1];
-                        garcomImg = `<img class="absolute h-[250px] md:h-[250px] w-auto object-contain pointer-events-none opacity-90 z-20" 
+                        garcomImg = `<img class="absolute h-[150px] md:h-[250px] w-auto object-contain pointer-events-none opacity-90 z-20" 
                                           src="GARCONS/${lastTeam.nome}.png" 
                                           style="top: 50%; left: -120%; transform: translateY(-50%); filter: drop-shadow(0 8px 16px rgba(0,0,0,0.8));" 
                                           onerror="this.style.display='none'">`;
@@ -384,6 +397,22 @@ window.app = {
         const mito = [...ranking].sort((a, b) => b.roundScore - a.roundScore)[0];
         const bolaMurcha = [...ranking].sort((a, b) => a.roundScore - b.roundScore)[0];
 
+        // Lógica para Mitos de Rodadas Anteriores
+        const mitosAnteriores = [];
+        const globalMax = Math.max(
+            ...(this.state.data.serieA?.map(d => d.rdd) || []),
+            ...(this.state.data.serieB?.map(d => d.rdd) || []),
+            0
+        );
+        for (let r = 1; r <= globalMax; r++) {
+            const mitoA = this.getMitoOfRound('A', r);
+            const mitoB = this.getMitoOfRound('B', r);
+            if (mitoA || mitoB) {
+                mitosAnteriores.push({ rdd: r, mitoA, mitoB });
+            }
+        }
+        mitosAnteriores.reverse(); // Mais recente primeiro
+
         sidebar.innerHTML = `
             <div class="space-y-6">
                 <!-- Grid da Liga -->
@@ -450,26 +479,40 @@ window.app = {
                     </div>
                 </div>
 
-                <!-- Next Games -->
+                <!-- Mitos Anteriores -->
                 <div class="glass-card p-6">
-                    <h3 class="font-teko text-xl uppercase tracking-wider mb-4">Próximos Jogos</h3>
-                    <div class="space-y-4">
-                        ${[1, 2, 3].map(i => `
-                            <div class="flex items-center justify-between p-3 bg-black/[0.02] rounded-xl border border-black/5">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-8 h-8 rounded-full bg-white p-1 shadow-sm">
-                                        <img src="https://picsum.photos/seed/team${i}/50/50" class="w-full h-full object-contain" referrerPolicy="no-referrer">
+                    <h3 class="font-teko text-xl uppercase tracking-wider mb-4 text-cartola-orange">Mitos - Histórico</h3>
+                    <div class="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
+                        ${mitosAnteriores.map(m => `
+                            <div class="p-3 bg-black/[0.02] rounded-xl border border-black/5 space-y-3">
+                                <div class="flex items-center justify-between border-b border-black/5 pb-1">
+                                    <span class="text-[10px] font-mono text-gray-400 uppercase font-bold">Rodada ${m.rdd}</span>
+                                    <i data-lucide="award" class="w-3 h-3 text-yellow-500"></i>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4 divide-x divide-black/5">
+                                    <div class="space-y-2">
+                                        <p class="text-[9px] font-mono text-gray-400 uppercase text-center">Série A</p>
+                                        ${m.mitoA ? `
+                                            <div class="flex flex-col items-center">
+                                                <div class="w-10 h-10 rounded-full bg-white p-1 shadow-sm border border-black/5 mb-1">
+                                                    <img src="ESCUDOS/${m.mitoA.nome}.png" class="w-full h-full object-contain" onerror="this.src='ESCUDOS/default.png'">
+                                                </div>
+                                                <span class="font-teko text-xs uppercase leading-none truncate w-full text-center">${m.mitoA.nome}</span>
+                                                <span class="font-mono text-[10px] text-green-600 font-bold">+${m.mitoA.score.toFixed(2)}</span>
+                                            </div>
+                                        ` : '<p class="text-[9px] text-center text-gray-300">-</p>'}
                                     </div>
-                                    <span class="font-teko text-sm uppercase">TM${i}</span>
-                                </div>
-                                <div class="flex flex-col items-center">
-                                    <span class="text-[10px] font-mono text-gray-400">SAB 16:00</span>
-                                    <span class="font-teko text-xs text-cartola-orange">VS</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="font-teko text-sm uppercase">TM${i+3}</span>
-                                    <div class="w-8 h-8 rounded-full bg-white p-1 shadow-sm">
-                                        <img src="https://picsum.photos/seed/team${i+3}/50/50" class="w-full h-full object-contain" referrerPolicy="no-referrer">
+                                    <div class="space-y-2 pl-4">
+                                        <p class="text-[9px] font-mono text-gray-400 uppercase text-center">Série B</p>
+                                        ${m.mitoB ? `
+                                            <div class="flex flex-col items-center">
+                                                <div class="w-10 h-10 rounded-full bg-white p-1 shadow-sm border border-black/5 mb-1">
+                                                    <img src="ESCUDOS/${m.mitoB.nome}.png" class="w-full h-full object-contain" onerror="this.src='ESCUDOS/default.png'">
+                                                </div>
+                                                <span class="font-teko text-xs uppercase leading-none truncate w-full text-center">${m.mitoB.nome}</span>
+                                                <span class="font-mono text-[10px] text-green-600 font-bold">+${m.mitoB.score.toFixed(2)}</span>
+                                            </div>
+                                        ` : '<p class="text-[9px] text-center text-gray-300">-</p>'}
                                     </div>
                                 </div>
                             </div>
