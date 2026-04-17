@@ -180,7 +180,7 @@ window.app = {
                                 <p class="text-xs font-mono text-gray-500 uppercase tracking-widest">CARTOLA BMP</p>
                             </div>
                             <button id="installApp" onclick="app.installApp()" class="hidden opacity-20 hover:opacity-100 transition-opacity p-2" title="Instalar App">
-                                <i data-lucide="download" class="w-6 h-6 text-cartola-orange"></i>
+                                <i data-lucide="download" class="w-6 h-6 text-gray-400"></i>
                             </button>
                         </div>
                     </div>
@@ -240,53 +240,33 @@ window.app = {
     },
 
     renderPodium(top3) {
-        const getBorderClass = (index) => {
-            if (this.state.activeSerie === 'B' && index < 2) return 'border-4 border-green-500';
-            return 'border-4 border-white/10';
-        };
-
+        const leader = top3[0];
         return `
             <div class="grid grid-cols-3 gap-4 items-end px-4">
-                <!-- 2nd Place -->
-                <div class="flex flex-col items-center gap-3 pb-4">
-                    <div class="relative group cursor-pointer" onclick="app.selectTeam('${top3[1].nome}')">
-                        <div class="w-20 h-20 rounded-full bg-white p-1 shadow-xl group-hover:scale-110 transition-transform duration-500 ${this.state.activeSerie === 'B' ? 'border-4 border-green-500/50' : ''}">
-                            <img src="ESCUDOS/${top3[1].nome}.png" class="w-full h-full object-contain" onerror="this.src='ESCUDOS/default.png'">
-                        </div>
-                        <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center border-2 border-white font-teko text-lg">2</div>
-                    </div>
-                    <div class="text-center">
-                        <p class="font-teko text-xl uppercase leading-none">${top3[1].nome}</p>
-                        <p class="font-mono text-sm text-cartola-orange font-bold">${top3[1].pontos.toFixed(2)}</p>
+                <!-- Coluna 1: Vazia -->
+                <div></div>
+
+                <!-- Coluna 2: Destaque (Pasta /01) -->
+                <div class="flex flex-col items-center">
+                    <div class="relative group cursor-pointer" onclick="app.selectTeam('${leader.nome}')">
+                        <div class="absolute -inset-10 bg-yellow-400/10 rounded-full blur-3xl animate-pulse"></div>
+                        <img src="01/${leader.nome}.png" 
+                             class="h-48 md:h-72 w-auto object-contain relative z-10 transition-transform duration-700 hover:scale-105 filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)]" 
+                             onerror="this.src='ESCUDOS/${leader.nome}.png'">
                     </div>
                 </div>
 
-                <!-- 1st Place -->
-                <div class="flex flex-col items-center gap-4">
-                    <div class="relative group cursor-pointer" onclick="app.selectTeam('${top3[0].nome}')">
-                        <div class="absolute -inset-4 bg-cartola-orange/20 rounded-full blur-2xl animate-pulse"></div>
-                        <div class="w-28 h-28 rounded-full bg-white p-1 shadow-2xl relative z-10 group-hover:scale-110 transition-transform duration-500 ${this.state.activeSerie === 'B' ? 'border-4 border-green-500' : 'border-4 border-cartola-orange/10'}">
-                            <img src="ESCUDOS/${top3[0].nome}.png" class="w-full h-full object-contain" onerror="this.src='ESCUDOS/default.png'">
+                <!-- Coluna 3: Escudo + Pontuação (Antiga posição do 3º) -->
+                <div class="flex flex-col items-center gap-3 pb-6">
+                    <div class="relative group cursor-pointer" onclick="app.selectTeam('${leader.nome}')">
+                        <div class="w-20 h-20 md:w-28 md:h-28 rounded-full bg-white p-1 shadow-2xl relative z-10 group-hover:scale-110 transition-transform duration-500 border-4 border-yellow-400/20">
+                            <img src="ESCUDOS/${leader.nome}.png" class="w-full h-full object-contain" onerror="this.src='ESCUDOS/default.png'">
                         </div>
-                        <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-cartola-orange rounded-full flex items-center justify-center border-2 border-white font-teko text-xl text-white z-20 shadow-lg">1</div>
-                    </div>
-                    <div class="text-center relative z-10">
-                        <p class="font-teko text-2xl uppercase leading-none text-cartola-orange">${top3[0].nome}</p>
-                        <p class="font-mono text-lg font-bold">${top3[0].pontos.toFixed(2)}</p>
-                    </div>
-                </div>
-
-                <!-- 3rd Place -->
-                <div class="flex flex-col items-center gap-3 pb-2">
-                    <div class="relative group cursor-pointer" onclick="app.selectTeam('${top3[2].nome}')">
-                        <div class="w-16 h-16 rounded-full bg-white p-1 shadow-lg group-hover:scale-110 transition-transform duration-500">
-                            <img src="ESCUDOS/${top3[2].nome}.png" class="w-full h-full object-contain" onerror="this.src='ESCUDOS/default.png'">
-                        </div>
-                        <div class="absolute -bottom-1 -right-1 w-7 h-7 bg-orange-200 rounded-full flex items-center justify-center border-2 border-white font-teko text-base">3</div>
+                        <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-white font-teko text-xl text-black font-black z-20 shadow-lg">1</div>
                     </div>
                     <div class="text-center">
-                        <p class="font-teko text-lg uppercase leading-none">${top3[2].nome}</p>
-                        <p class="font-mono text-sm text-cartola-orange font-bold">${top3[2].pontos.toFixed(2)}</p>
+                        <p class="font-teko text-xl md:text-2xl uppercase leading-none font-bold text-gray-800">${leader.nome}</p>
+                        <p class="font-mono text-base md:text-lg font-bold text-cartola-orange">${leader.pontos.toFixed(2)}</p>
                     </div>
                 </div>
             </div>
