@@ -180,7 +180,7 @@ window.app = {
                                 <p class="text-xs font-mono text-gray-500 uppercase tracking-widest">CARTOLA BMP</p>
                             </div>
                             <button id="installApp" onclick="app.installApp()" class="hidden opacity-20 hover:opacity-100 transition-opacity p-2" title="Instalar App">
-                                <i data-lucide="download" class="w-6 h-6 text-gray-400"></i>
+                                <i data-lucide="download" class="w-6 h-6 text-cartola-orange"></i>
                             </button>
                         </div>
                     </div>
