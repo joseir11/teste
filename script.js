@@ -25,6 +25,9 @@ window.app = {
         viewMode: 'campo',
         selectedRound: 0,
         selectedTeam: null,
+        isMercadoView: false,
+        mercadoData: null,
+        partidasData: null,
         data: null,
         deferredPrompt: null
     },
@@ -122,6 +125,19 @@ window.app = {
     },
 
     render() {
+        const mainContent = document.getElementById('main-content');
+        const sidebar = document.getElementById('sidebar');
+        
+        if (mainContent && sidebar) {
+            if (this.state.isMercadoView) {
+                mainContent.className = "lg:col-span-3 space-y-8";
+                sidebar.style.display = 'none';
+            } else {
+                mainContent.className = "lg:col-span-2 space-y-8";
+                sidebar.style.display = 'block';
+            }
+        }
+
         this.renderHeader();
         this.renderMain();
         this.renderSidebar();
@@ -167,6 +183,8 @@ window.app = {
 
     renderHeader() {
         const header = document.getElementById('header');
+        const isMercado = this.state.isMercadoView;
+
         header.innerHTML = `
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div class="flex items-center gap-4 flex-1">
@@ -187,21 +205,30 @@ window.app = {
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3">
-                    <!-- Serie Toggle -->
-                    <div class="bg-black/5 p-1 rounded-xl flex gap-1">
-                        <button onclick="app.setSerie('A')" class="px-4 py-1.5 rounded-lg text-lg font-teko uppercase tracking-wider transition-all ${this.state.activeSerie === 'A' ? 'bg-white shadow-sm text-cartola-orange' : 'text-gray-500 hover:text-gray-800'}">SÉRIE A</button>
-                        <button onclick="app.setSerie('B')" class="px-4 py-1.5 rounded-lg text-lg font-teko uppercase tracking-wider transition-all ${this.state.activeSerie === 'B' ? 'bg-white shadow-sm text-cartola-orange' : 'text-gray-500 hover:text-gray-800'}">SÉRIE B</button>
-                    </div>
+                    ${!isMercado ? `
+                        <!-- Serie Toggle -->
+                        <div class="bg-black/5 p-1 rounded-xl flex gap-1 animate-in fade-in zoom-in duration-300">
+                            <button onclick="app.setSerie('A')" class="px-4 py-1.5 rounded-lg text-lg font-teko uppercase tracking-wider transition-all ${this.state.activeSerie === 'A' ? 'bg-white shadow-sm text-cartola-orange' : 'text-gray-500 hover:text-gray-800'}">SÉRIE A</button>
+                            <button onclick="app.setSerie('B')" class="px-4 py-1.5 rounded-lg text-lg font-teko uppercase tracking-wider transition-all ${this.state.activeSerie === 'B' ? 'bg-white shadow-sm text-cartola-orange' : 'text-gray-500 hover:text-gray-800'}">SÉRIE B</button>
+                        </div>
 
-                    <!-- Round Selector -->
-                    <div class="relative group">
-                        <select onchange="app.setRound(this.value)" class="appearance-none bg-white border border-black/5 rounded-xl px-4 py-2 pr-10 text-lg font-teko uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-cartola-orange/20 transition-all cursor-pointer">
-                            ${Array.from({length: this.getMaxRound()}, (_, i) => i + 1).map(r => `
-                                <option value="${r}" ${this.state.selectedRound === r ? 'selected' : ''}>Rodada ${r}</option>
-                            `).join('')}
-                        </select>
-                        <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
-                    </div>
+                        <!-- Round Selector -->
+                        <div class="relative group animate-in fade-in zoom-in duration-300">
+                            <select onchange="app.setRound(this.value)" class="appearance-none bg-white border border-black/5 rounded-xl px-4 py-2 pr-10 text-lg font-teko uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-cartola-orange/20 transition-all cursor-pointer">
+                                ${Array.from({length: this.getMaxRound()}, (_, i) => i + 1).map(r => `
+                                    <option value="${r}" ${this.state.selectedRound === r ? 'selected' : ''}>Rodada ${r}</option>
+                                `).join('')}
+                            </select>
+                            <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
+                        </div>
+                    ` : ''}
+
+                    <!-- Mercado Button -->
+                    <button onclick="app.viewMercado()" class="w-12 h-12 flex items-center justify-center rounded-full transition-all group shrink-0 ${isMercado ? 'bg-cartola-orange text-white' : 'bg-black/5 border border-black/5'}" title="Ver Mercado">
+                        <div class="w-7 h-7 flex items-center justify-center">
+                            <img src="ico_provaveis.png" class="w-full h-full object-contain group-hover:scale-110 transition-transform ${isMercado ? 'brightness-0 invert' : ''}" onerror="this.outerHTML='<i data-lucide=\'shopping-cart\' class=\'${isMercado ? 'text-white' : 'text-gray-500'} w-6 h-6\'></i>'">
+                        </div>
+                    </button>
                 </div>
             </div>
         `;
@@ -210,6 +237,11 @@ window.app = {
     renderMain() {
         const main = document.getElementById('main-content');
         if (!main) return;
+
+        if (this.state.isMercadoView) {
+            this.renderMercado(main);
+            return;
+        }
 
         if (this.state.selectedTeam) {
             this.renderTeamDetail(main);
@@ -554,12 +586,187 @@ window.app = {
         `;
     },
 
+    async viewMercado() {
+        this.state.isMercadoView = true;
+        this.state.selectedTeam = null;
+        this.state.mercadoData = null;
+        this.render(); // Mostra "Carregando..."
+
+        // 1. TENTA CARREGAR VARIÁVEIS GLOBAIS (Para modo local)
+        const globalStatus = typeof STATUS_MERCADO !== 'undefined' ? STATUS_MERCADO : null;
+        const globalPartidas = typeof PARTIDAS !== 'undefined' ? PARTIDAS : 
+                             (typeof partidas !== 'undefined' ? partidas : null);
+
+        if (globalStatus) {
+            this.processMercadoData(JSON.parse(JSON.stringify(globalStatus)));
+        }
+
+        if (globalPartidas) {
+            this.state.partidasData = JSON.parse(JSON.stringify(globalPartidas));
+        }
+
+        // 2. TENTA VIA FETCH (Para Github/Servidor ou se faltar variável local)
+        const statusToTry = ['status.js', 'status.txt', 'status.json'];
+        const matchesToTry = ['partidas.js', 'partidas.txt', 'partidas.json'];
+
+        // Carregando Status se necessário
+        if (!globalStatus) {
+            for (const fileName of statusToTry) {
+                try {
+                    const response = await fetch(`${fileName}?t=${Date.now()}`);
+                    if (response.ok) {
+                        let text = (await response.text()).trim();
+                        text = text.replace(/^(var|const|let)\s+STATUS_MERCADO\s*=\s*/, '');
+                        text = text.replace(/;?\s*$/, ''); 
+                        this.processMercadoData(JSON.parse(text));
+                        break;
+                    }
+                } catch (e) {}
+            }
+        }
+
+        // Carregando Partidas se necessário
+        if (!globalPartidas) {
+            for (const fileName of matchesToTry) {
+                try {
+                    const response = await fetch(`${fileName}?t=${Date.now()}`);
+                    if (response.ok) {
+                        let text = (await response.text()).trim();
+                        text = text.replace(/^(var|const|let)\s+PARTIDAS\s*=\s*/, '');
+                        text = text.replace(/^(var|const|let)\s+partidas\s*=\s*/, '');
+                        text = text.replace(/;?\s*$/, ''); 
+                        this.state.partidasData = JSON.parse(text);
+                        break;
+                    }
+                } catch (e) {}
+            }
+        }
+        
+        if (!this.state.mercadoData && !globalStatus) {
+            const isLocal = window.location.protocol === 'file:';
+            this.state.mercadoData = { 
+                error: true, 
+                details: isLocal 
+                    ? 'Para modo local, o arquivo status.js deve iniciar com: var STATUS_MERCADO = ' 
+                    : 'Dados do mercado não encontrados.'
+            };
+        }
+        this.render();
+    },
+
+    processMercadoData(data) {
+        const now = new Date();
+        const nowTs = Math.floor(now.getTime() / 1000);
+        
+        if (data.fechamento && !data.fechamento.timestamp && data.fechamento.ano) {
+            const f = data.fechamento;
+            const dateFechamento = new Date(f.ano, f.mes - 1, f.dia, f.hora, f.minuto, 0);
+            data.fechamento.timestamp = Math.floor(dateFechamento.getTime() / 1000);
+        }
+        
+        if (data.fechamento && data.fechamento.timestamp) {
+            if (nowTs >= data.fechamento.timestamp) {
+                data.status_mercado = 2; // FECHADO
+            }
+        }
+        this.state.mercadoData = data;
+    },
+
+    renderMercado(container) {
+        const data = this.state.mercadoData;
+        const partidasData = this.state.partidasData;
+        
+        if (!data) {
+            container.innerHTML = `
+                <div class="glass-card p-12 text-center">
+                    <p class="font-teko text-2xl uppercase animate-pulse">Carregando Mercado...</p>
+                </div>
+            `;
+            return;
+        }
+
+        if (data.error) {
+            container.innerHTML = `
+                <div class="glass-card p-12 text-center space-y-4">
+                    <p class="text-red-500 font-teko text-2xl uppercase">Erro ao carregar Mercado</p>
+                    <p class="text-xs text-gray-500">${data.details}</p>
+                    <button onclick="app.viewMercado()" class="px-6 py-2 bg-cartola-orange text-white rounded-lg font-teko uppercase">Tentar Novamente</button>
+                    <button onclick="app.closeMercado()" class="block mx-auto text-gray-400 font-teko uppercase text-sm mt-4">VOLTAR</button>
+                </div>
+            `;
+            return;
+        }
+
+        const statusMap = { 1: 'ABERTO', 2: 'FECHADO', 3: 'EM MANUTENÇÃO', 4: 'ABRIRÁ EM BREVE', 6: 'ENCERRADO' };
+        const statusText = statusMap[data.status_mercado] || 'DESCONHECIDO';
+        const statusColor = data.status_mercado === 2 ? 'text-red-500' : 'text-green-500';
+
+        let crestsToRender = [];
+        if (partidasData && partidasData.partidas) {
+            partidasData.partidas.forEach(p => {
+                crestsToRender.push(p.clube_casa_id);
+                crestsToRender.push(p.clube_visitante_id);
+            });
+        }
+
+        container.innerHTML = `
+            <div class="space-y-6 animate-in fade-in duration-300">
+                <button onclick="app.closeMercado()" class="flex items-center gap-2 text-gray-500 hover:text-cartola-orange font-teko text-xl uppercase">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i> Voltar
+                </button>
+                
+                <div class="glass-card p-4">
+                    <div class="grid grid-cols-3 gap-2 divide-x divide-black/10 items-center">
+                        <div class="text-center px-2">
+                            <p class="text-[9px] font-mono text-gray-400 uppercase mb-1 tracking-tighter">Rodada Atual</p>
+                            <p class="text-4xl font-teko uppercase leading-none">${data.rodada_atual}</p>
+                        </div>
+                        <div class="text-center px-2">
+                            <p class="text-[9px] font-mono text-gray-400 uppercase mb-1 tracking-tighter">Status Mercado</p>
+                            <p class="text-3xl font-teko uppercase leading-none ${statusColor}">${statusText}</p>
+                        </div>
+                        <div class="text-center px-2">
+                            <p class="text-[9px] font-mono text-gray-400 uppercase mb-1 tracking-tighter">Mercado Fecha</p>
+                            ${data.fechamento ? `
+                                <p class="text-xl font-teko uppercase leading-none">
+                                    ${String(data.fechamento.dia).padStart(2, '0')}/${String(data.fechamento.mes).padStart(2, '0')} ${String(data.fechamento.hora).padStart(2, '0')}:${String(data.fechamento.minuto).padStart(2, '0')}
+                                </p>
+                            ` : `<p class="text-xl font-teko uppercase leading-none text-gray-300">-</p>`}
+                        </div>
+                    </div>
+                </div>
+
+                ${crestsToRender.length > 0 ? `
+                <div class="glass-card p-6">
+                    <div class="grid grid-cols-5 gap-2 md:gap-4 justify-items-center">
+                        ${crestsToRender.map(id => `
+                            <div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-black/5 rounded-full p-2 flex items-center justify-center border border-black/5 hover:bg-black/10 transition-colors shadow-sm">
+                                <img src="ESCUDOS_BRASILEIRAO/${id}.png" 
+                                     alt="Time ${id}" 
+                                     class="w-full h-full object-contain drop-shadow-sm"
+                                     onerror="this.style.display='none'">
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+            </div>
+        `;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    },
+
+    closeMercado() {
+        this.state.isMercadoView = false;
+        this.render();
+    },
+
     renderTeamDetail(container) {
+        this.state.isMercadoView = false;
         const team = this.state.selectedTeam;
         const round = this.state.selectedRound;
         const rawEscalacao = this.state.data.escalacoes[team] || [];
         
-        // Filtra a escalação para a rodada selecionada
+        // Filtra a escalação para a rodada selecionada (LÓGICA ORIGINAL RESTAURADA)
         let escalacao = [];
         let foundRound = false;
         for (let i = 0; i < rawEscalacao.length; i++) {
@@ -687,6 +894,7 @@ window.app = {
     },
 
     selectTeam(team) {
+        this.state.isMercadoView = false;
         this.state.selectedTeam = team;
         this.render();
     }
