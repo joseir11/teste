@@ -55,14 +55,12 @@ function resolvePos(slot, xy, formacao) {
     if (xy && Number.isFinite(xy.x) && Number.isFinite(xy.y)) {
         return { x: xy.x, y: xy.y };
     }
-    // fallback básico (centro do campo)
     return { x: 50, y: 50 };
 }
 
 // Função para obter nome do jogador a partir do ID (usando JOGADORES global)
 function getJogadorNome(id) {
     if (typeof JOGADORES !== 'undefined' && JOGADORES[id] && JOGADORES[id].slug) {
-        // converte slug para título (ex: "yuri-alberto" -> "Yuri Alberto")
         return JOGADORES[id].slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     }
     return `#${id}`;
@@ -719,7 +717,6 @@ window.app = {
             }
         } catch (error) {
             console.warn('Erro ao buscar dados do Prováveis:', error);
-            // Mantém lineupsData e mercadoImages como null, não quebra a página
         }
 
         this.render();
@@ -800,7 +797,6 @@ window.app = {
             const element = document.getElementById(`time-card-${index}`);
             if (element) {
                 element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                // Adiciona um highlight temporário no card
                 element.classList.add('ring-4', 'ring-cartola-orange', 'ring-offset-2', 'transition-all', 'duration-300');
                 setTimeout(() => {
                     element.classList.remove('ring-4', 'ring-cartola-orange', 'ring-offset-2');
@@ -864,7 +860,7 @@ window.app = {
                         let jogadoresHtml = '';
                         if (lineup && this.state.mercadoImages) {
                             jogadoresHtml = lineup.titulares
-                                .filter(p => p.slot !== 'TEC') // exclui técnico do campinho
+                                .filter(p => p.slot !== 'TEC')
                                 .map(p => {
                                     const jogador = this.state.mercadoImages.get(p.id);
                                     const nome = jogador?.apelido || getJogadorNome(p.id);
@@ -875,12 +871,12 @@ window.app = {
                                     
                                     return `
                                         <div class="absolute" style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;">
-                                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/80 p-1 shadow-md ${isDuvida ? 'border-2 border-orange-500' : ''}">
+                                            <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/80 p-1 shadow-md ${isDuvida ? 'border-2 border-orange-500' : ''}">
                                                 <img src="${foto}" alt="${nome}" class="w-full h-full object-contain rounded-full" onerror="this.src='ESCUDOS_BRASILEIRAO/${time.id}.png'">
                                             </div>
                                             <div class="text-center mt-0.5">
-                                                <p class="text-[8px] md:text-[10px] font-mono text-white drop-shadow leading-tight">${nome}</p>
-                                                ${isDuvida && duvidaComNome ? `<p class="text-[7px] md:text-[8px] font-mono text-gray-300 leading-tight">${duvidaComNome}</p>` : ''}
+                                                <p class="text-[8px] md:text-[10px] font-mono text-gray-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight">${nome}</p>
+                                                ${isDuvida && duvidaComNome ? `<p class="text-[7px] md:text-[8px] font-mono text-gray-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight">${duvidaComNome}</p>` : ''}
                                             </div>
                                         </div>
                                     `;
