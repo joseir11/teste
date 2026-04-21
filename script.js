@@ -58,13 +58,20 @@ function resolvePos(slot, xy, formacao) {
     return { x: 50, y: 50 };
 }
 
-// Função para obter nome do jogador a partir do ID (usando JOGADORES global)
-function getJogadorNome(id) {
-    const numId = Number(id);
-    if (typeof window.JOGADORES !== 'undefined' && window.JOGADORES[numId] && window.JOGADORES[numId].slug) {
-        const slug = window.JOGADORES[numId].slug;
-        return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+// Função para obter nome do jogador a partir do ID
+// Prioriza o mapa de imagens do mercado (mais completo), fallback para JOGADORES global
+function getJogadorNome(id, mercadoImagesMap) {
+    // Tenta primeiro no mapa de imagens do mercado
+    if (mercadoImagesMap && mercadoImagesMap.has(id)) {
+        const jogador = mercadoImagesMap.get(id);
+        return jogador.apelido || jogador.nome || `#${id}`;
     }
+    
+    // Fallback para JOGADORES global (arquivo jogadores.js)
+    if (typeof JOGADORES !== 'undefined' && JOGADORES[id] && JOGADORES[id].slug) {
+        return JOGADORES[id].slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    }
+    
     return `#${id}`;
 }
 
@@ -865,11 +872,11 @@ window.app = {
                                 .filter(p => p.slot !== 'TEC')
                                 .map(p => {
                                     const jogador = this.state.mercadoImages.get(p.id);
-                                    const nome = jogador?.apelido || getJogadorNome(p.id);
+                                    const nome = jogador?.apelido || getJogadorNome(p.id, this.state.mercadoImages);
                                     const foto = jogador?.foto || `ESCUDOS_BRASILEIRAO/${time.id}.png`;
                                     const pos = resolvePos(p.slot, { x: p.x, y: p.y }, lineup.formacao);
                                     const isDuvida = p.sit === 'duvida';
-                                    const duvidaComNome = isDuvida && p.duvida_com ? getJogadorNome(p.duvida_com) : '';
+                                    const duvidaComNome = isDuvida && p.duvida_com ? getJogadorNome(p.duvida_com, this.state.mercadoImages) : '';
                                     
                                     return `
                                         <div class="absolute" style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;">
@@ -877,8 +884,8 @@ window.app = {
                                                 <img src="${foto}" alt="${nome}" class="w-full h-full object-contain rounded-full" onerror="this.src='ESCUDOS_BRASILEIRAO/${time.id}.png'">
                                             </div>
                                             <div class="text-center mt-0.5">
-                                                <p class="text-[10px] md:text-[12px] font-mono text-gray-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight">${nome}</p>
-                                                ${isDuvida && duvidaComNome ? `<p class="text-[8px] md:text-[10px] font-mono text-gray-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight">${duvidaComNome}</p>` : ''}
+                                                <p class="text-[12px] md:text-[14px] font-mono text-gray-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight font-bold">${nome}</p>
+                                                ${isDuvida && duvidaComNome ? `<p class="text-[9px] md:text-[10px] font-mono text-gray-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight">${duvidaComNome}</p>` : ''}
                                             </div>
                                         </div>
                                     `;
