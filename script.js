@@ -788,15 +788,17 @@ window.app = {
                                 </div>
                             </div>
 
-                            <div class="w-96 mx-auto aspect-[4/5] rounded-xl overflow-hidden border border-white/30 shadow-inner relative">
-                                <div class="absolute inset-0 bg-gradient-to-b from-green-600/40 to-green-800/40"></div>
-                                
-                                <div class="absolute inset-0 opacity-30 pointer-events-none">
-                                    <div class="absolute inset-2 border border-white rounded"></div>
-                                    <div class="absolute top-1/2 left-0 right-0 h-px bg-white"></div>
-                                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 border border-white rounded-full"></div>
-                                    <div class="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-6 border border-t-0 border-white"></div>
-                                    <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-12 h-6 border border-b-0 border-white"></div>
+                            <div class="flex justify-center">
+                                <div class="w-80 md:w-96 aspect-[4/5] rounded-xl overflow-hidden border border-white/30 shadow-inner relative">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-green-600/40 to-green-800/40"></div>
+                                    
+                                    <div class="absolute inset-0 opacity-30 pointer-events-none">
+                                        <div class="absolute inset-3 border border-white rounded"></div>
+                                        <div class="absolute top-1/2 left-0 right-0 h-px bg-white"></div>
+                                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 border border-white rounded-full"></div>
+                                        <div class="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-10 border border-t-0 border-white"></div>
+                                        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 w-20 h-10 border border-b-0 border-white"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
