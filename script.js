@@ -58,6 +58,28 @@ function resolvePos(slot, xy, formacao) {
     return { x: 50, y: 50 };
 }
 
+// Função para obter nome do jogador a partir do ID
+function getJogadorNome(id, mercadoImagesMap) {
+    const numericId = Number(id);
+    // Tenta primeiro no mapa de imagens do mercado
+    if (mercadoImagesMap && mercadoImagesMap.has(numericId)) {
+        const jogador = mercadoImagesMap.get(numericId);
+        const nome = jogador.apelido || jogador.nome;
+        console.log(`[getJogadorNome] ID ${numericId} encontrado no mercadoImages: ${nome}`);
+        return nome;
+    }
+    
+    // Fallback para JOGADORES global
+    if (typeof JOGADORES !== 'undefined' && JOGADORES[numericId] && JOGADORES[numericId].slug) {
+        const nome = JOGADORES[numericId].slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        console.log(`[getJogadorNome] ID ${numericId} encontrado no JOGADORES: ${nome}`);
+        return nome;
+    }
+    
+    console.warn(`[getJogadorNome] ID ${numericId} não encontrado em nenhuma fonte. Exibindo fallback.`);
+    return `#${numericId}`;
+}
+
 window.app = {
     state: {
         activeSerie: 'A',
@@ -702,10 +724,18 @@ window.app = {
             ]);
             if (lineupsRes.ok) {
                 this.state.lineupsData = await lineupsRes.json();
+                console.log('Lineups carregadas:', this.state.lineupsData);
             }
             if (mercadoRes.ok) {
                 const mercadoArray = await mercadoRes.json();
                 this.state.mercadoImages = new Map(mercadoArray.map(item => [item.atleta_id, item]));
+                console.log('Mercado images carregadas. Total de jogadores:', this.state.mercadoImages.size);
+                // Log de exemplo para verificar alguns IDs
+                const sampleIds = [92171, 111831, 63289];
+                sampleIds.forEach(id => {
+                    const jog = this.state.mercadoImages.get(id);
+                    console.log(`Verificação ID ${id}:`, jog ? jog.apelido : 'NÃO ENCONTRADO');
+                });
             }
         } catch (error) {
             console.warn('Erro ao buscar dados do Prováveis:', error);
@@ -851,29 +881,16 @@ window.app = {
                         
                         let jogadoresHtml = '';
                         if (lineup && this.state.mercadoImages) {
+                            console.log(`Renderizando time ${nomeTime} (slug: ${slug})`);
                             jogadoresHtml = lineup.titulares
                                 .filter(p => p.slot !== 'TEC')
                                 .map(p => {
-                                    const jogador = this.state.mercadoImages.get(p.id);
-                                    // Nome: prioridade apelido > nome > JOGADORES > ID
-                                    let nome = jogador?.apelido || jogador?.nome;
-                                    if (!nome && typeof JOGADORES !== 'undefined' && JOGADORES[p.id]?.slug) {
-                                        nome = JOGADORES[p.id].slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-                                    }
-                                    if (!nome) nome = `#${p.id}`;
-                                    
+                                    const jogador = this.state.mercadoImages.get(Number(p.id));
+                                    const nome = jogador?.apelido || getJogadorNome(p.id, this.state.mercadoImages);
                                     const foto = jogador?.foto || `ESCUDOS_BRASILEIRAO/${time.id}.png`;
                                     const pos = resolvePos(p.slot, { x: p.x, y: p.y }, lineup.formacao);
                                     const isDuvida = p.sit === 'duvida';
-                                    let duvidaComNome = '';
-                                    if (isDuvida && p.duvida_com) {
-                                        const altJogador = this.state.mercadoImages.get(p.duvida_com);
-                                        duvidaComNome = altJogador?.apelido || altJogador?.nome;
-                                        if (!duvidaComNome && typeof JOGADORES !== 'undefined' && JOGADORES[p.duvida_com]?.slug) {
-                                            duvidaComNome = JOGADORES[p.duvida_com].slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-                                        }
-                                        if (!duvidaComNome) duvidaComNome = `#${p.duvida_com}`;
-                                    }
+                                    const duvidaComNome = isDuvida && p.duvida_com ? getJogadorNome(p.duvida_com, this.state.mercadoImages) : '';
                                     
                                     return `
                                         <div class="absolute" style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;">
@@ -887,6 +904,8 @@ window.app = {
                                         </div>
                                     `;
                                 }).join('');
+                        } else {
+                            console.warn(`Lineup ou mercadoImages não disponível para ${nomeTime}`);
                         }
                         
                         return `
