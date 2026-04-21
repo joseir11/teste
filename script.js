@@ -1,5 +1,36 @@
 console.log('script.js: Carregando...');
 
+// ==================== CONFIGURAÇÃO DO PROXY ====================
+const PROXY_URL = 'https://josabet-proxy.vercel.app'; // <-- AJUSTE PARA A URL REAL DO SEU PROXY
+
+// ==================== MAPEAMENTO DE SLUGS PARA IDs DO CARTOLA ====================
+const SLUG_TO_CARTOLA_ID = {
+    "corinthians_v2": 264,
+    "palmeiras_v2": 275,
+    "flamengo_v2": 262,
+    "vasco_v2": 267,
+    "atletico-mg_v2": 282,
+    "cruzeiro_v2": 283,
+    "gremio_v2": 284,
+    "internacional_v2": 285,
+    "botafogo_v2": 263,
+    "fluminense_v2": 266,
+    "sao-paulo_v2": 276,
+    "santos_v2": 277,
+    "bragantino_v2": 280,
+    "athletico-pr_v2": 293,
+    "bahia_v2": 265,
+    "vitoria_v2": 287,
+    "mirassol_v2": 2305,
+    "chapecoense_v2": 315,
+    "coritiba_v2": 294,
+    "remo_v2": 364,
+    "fortaleza_v2": 131,
+    "sport_v2": 79,
+    "ceara_v2": 105,
+    "juventude_v2": 143
+};
+
 const POS_CAMPO = [
     { t: 20, l: 50 }, { t: 25, l: 15 }, { t: 25, l: 85 },
     { t: 45, l: 50 }, { t: 50, l: 15 }, { t: 50, l: 85 },
@@ -19,6 +50,15 @@ const POSICOES_POR_FORMACAO = {
     ]
 };
 
+// Função auxiliar para posicionamento (usando coordenadas do JSON)
+function resolvePos(slot, xy, formacao) {
+    if (xy && Number.isFinite(xy.x) && Number.isFinite(xy.y)) {
+        return { x: xy.x, y: xy.y };
+    }
+    // fallback básico (centro do campo)
+    return { x: 50, y: 50 };
+}
+
 window.app = {
     state: {
         activeSerie: 'A',
@@ -28,6 +68,8 @@ window.app = {
         isMercadoView: false,
         mercadoData: null,
         partidasData: null,
+        lineupsData: null,
+        mercadoImages: null,
         data: null,
         deferredPrompt: null
     },
@@ -142,7 +184,6 @@ window.app = {
     },
 
     initScrollToTop() {
-        // Criar botão de voltar ao topo
         const scrollButton = document.createElement('button');
         scrollButton.id = 'scrollToTop';
         scrollButton.className = 'fixed bottom-6 right-6 w-12 h-12 bg-cartola-orange text-white rounded-full shadow-lg flex items-center justify-center opacity-0 invisible transition-all duration-300 hover:bg-cartola-orange/90 hover:scale-110 z-50';
@@ -152,16 +193,15 @@ window.app = {
         };
         document.body.appendChild(scrollButton);
 
-        // Mostrar/ocultar botão baseado no scroll
         window.addEventListener('scroll', () => {
-            const scrollButton = document.getElementById('scrollToTop');
-            if (scrollButton) {
+            const btn = document.getElementById('scrollToTop');
+            if (btn) {
                 if (window.scrollY > 300) {
-                    scrollButton.classList.remove('opacity-0', 'invisible');
-                    scrollButton.classList.add('opacity-100', 'visible');
+                    btn.classList.remove('opacity-0', 'invisible');
+                    btn.classList.add('opacity-100', 'visible');
                 } else {
-                    scrollButton.classList.add('opacity-0', 'invisible');
-                    scrollButton.classList.remove('opacity-100', 'visible');
+                    btn.classList.add('opacity-0', 'invisible');
+                    btn.classList.remove('opacity-100', 'visible');
                 }
             }
         });
@@ -170,7 +210,6 @@ window.app = {
     },
 
     renderScrollToTopButton() {
-        // Garantir que o botão existe
         if (!document.getElementById('scrollToTop')) {
             this.initScrollToTop();
         }
@@ -594,8 +633,9 @@ window.app = {
         this.state.isMercadoView = true;
         this.state.selectedTeam = null;
         this.state.mercadoData = null;
-        this.render();
+        this.render(); // Mostra "Carregando..."
 
+        // 1. TENTA CARREGAR VARIÁVEIS GLOBAIS (Para modo local)
         const globalStatus = typeof STATUS_MERCADO !== 'undefined' ? STATUS_MERCADO : null;
         const globalPartidas = typeof PARTIDAS !== 'undefined' ? PARTIDAS : 
                              (typeof partidas !== 'undefined' ? partidas : null);
@@ -608,9 +648,11 @@ window.app = {
             this.state.partidasData = JSON.parse(JSON.stringify(globalPartidas));
         }
 
+        // 2. TENTA VIA FETCH (Para Github/Servidor ou se faltar variável local)
         const statusToTry = ['status.js', 'status.txt', 'status.json'];
         const matchesToTry = ['partidas.js', 'partidas.txt', 'partidas.json'];
 
+        // Carregando Status se necessário
         if (!globalStatus) {
             for (const fileName of statusToTry) {
                 try {
@@ -626,6 +668,7 @@ window.app = {
             }
         }
 
+        // Carregando Partidas se necessário
         if (!globalPartidas) {
             for (const fileName of matchesToTry) {
                 try {
@@ -651,6 +694,25 @@ window.app = {
                     : 'Dados do mercado não encontrados.'
             };
         }
+
+        // 3. CARREGAR DADOS DE ESCALAÇÃO DO PROXY
+        try {
+            const [lineupsRes, mercadoRes] = await Promise.all([
+                fetch(`${PROXY_URL}/provaveis/lineups`),
+                fetch(`${PROXY_URL}/provaveis/mercado-images`)
+            ]);
+            if (lineupsRes.ok) {
+                this.state.lineupsData = await lineupsRes.json();
+            }
+            if (mercadoRes.ok) {
+                const mercadoArray = await mercadoRes.json();
+                this.state.mercadoImages = new Map(mercadoArray.map(item => [item.atleta_id, item]));
+            }
+        } catch (error) {
+            console.warn('Erro ao buscar dados do Prováveis:', error);
+            // Mantém lineupsData e mercadoImages como null, não quebra a página
+        }
+
         this.render();
     },
 
@@ -785,6 +847,31 @@ window.app = {
                         const clubeInfo = partidasData.clubes?.[time.id] || {};
                         const nomeTime = clubeInfo.nome || `Time ${time.id}`;
                         
+                        // Obter escalação do time
+                        const cartolaId = time.id;
+                        const slug = Object.keys(SLUG_TO_CARTOLA_ID).find(key => SLUG_TO_CARTOLA_ID[key] === cartolaId);
+                        const lineup = slug ? this.state.lineupsData?.teams?.[slug] : null;
+                        
+                        let jogadoresHtml = '';
+                        if (lineup && this.state.mercadoImages) {
+                            jogadoresHtml = lineup.titulares
+                                .filter(p => p.slot !== 'TEC') // exclui técnico do campinho
+                                .map(p => {
+                                    const jogador = this.state.mercadoImages.get(p.id);
+                                    const nome = jogador?.apelido || jogador?.nome || `#${p.id}`;
+                                    const foto = jogador?.foto || `ESCUDOS_BRASILEIRAO/${time.id}.png`;
+                                    const pos = resolvePos(p.slot, { x: p.x, y: p.y }, lineup.formacao);
+                                    return `
+                                        <div class="absolute" style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;">
+                                            <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-white/80 p-0.5 shadow-md">
+                                                <img src="${foto}" alt="${nome}" class="w-full h-full object-contain rounded-full" onerror="this.src='ESCUDOS_BRASILEIRAO/${time.id}.png'">
+                                            </div>
+                                            <p class="text-[6px] md:text-[8px] font-mono text-white drop-shadow text-center mt-0.5 leading-tight">${nome}</p>
+                                        </div>
+                                    `;
+                                }).join('');
+                        }
+                        
                         return `
                         <div id="time-card-${index}" class="glass-card p-4 space-y-3 scroll-mt-20 transition-all duration-300">
                             <div class="flex items-center gap-3">
@@ -820,6 +907,9 @@ window.app = {
                                     <div class="absolute top-3 left-1/2 -translate-x-1/2 w-24 h-12 border border-t-0 border-white"></div>
                                     <div class="absolute bottom-3 left-1/2 -translate-x-1/2 w-24 h-12 border border-b-0 border-white"></div>
                                 </div>
+                                
+                                <!-- Jogadores posicionados -->
+                                ${jogadoresHtml}
                             </div>
                         </div>
                         `;
