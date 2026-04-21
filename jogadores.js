@@ -188,7 +188,7 @@ var JOGADORES = {
   "61987": { "slug": "alex-sandro" },
   "62977": { "slug": "ganso" },
   "63013": { "slug": "marcos-rocha" },
-  "63289": { "slug": "edenilson" },
+  "#63289": { "slug": "edenilson" },
   "68685": { "slug": "alan-patrick" },
   "68708": { "slug": "eduardo" },
   "68806": { "slug": "neto" },
