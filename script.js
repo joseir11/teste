@@ -1,7 +1,7 @@
 console.log('script.js: Carregando...');
 
 // ==================== CONFIGURAÇÃO DO PROXY ====================
-const PROXY_URL = 'https://josabet-proxy.vercel.app'; // <-- AJUSTE PARA A URL REAL DO SEU PROXY
+const PROXY_URL = 'https://josabet-proxy.onrender.com'; // <-- AJUSTE PARA A URL REAL DO SEU PROXY
 
 // ==================== MAPEAMENTO DE SLUGS PARA IDs DO CARTOLA ====================
 const SLUG_TO_CARTOLA_ID = {
