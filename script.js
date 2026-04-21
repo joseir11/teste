@@ -35,6 +35,7 @@ window.app = {
     init() {
         console.log('app.init(): Iniciando...');
         this.initPWA();
+        this.initScrollToTop();
         try {
             const rawSerieA = (typeof TABELA !== 'undefined' && TABELA.serieA) || (typeof historicoSerieA !== 'undefined' ? historicoSerieA : null);
             const rawSerieB = (typeof TABELA !== 'undefined' && TABELA.serieB) || (typeof historicoSerieB !== 'undefined' ? historicoSerieB : null);
@@ -134,8 +135,44 @@ window.app = {
         this.renderHeader();
         this.renderMain();
         this.renderSidebar();
+        this.renderScrollToTopButton();
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
+        }
+    },
+
+    initScrollToTop() {
+        // Criar botão de voltar ao topo
+        const scrollButton = document.createElement('button');
+        scrollButton.id = 'scrollToTop';
+        scrollButton.className = 'fixed bottom-6 right-6 w-12 h-12 bg-cartola-orange text-white rounded-full shadow-lg flex items-center justify-center opacity-0 invisible transition-all duration-300 hover:bg-cartola-orange/90 hover:scale-110 z-50';
+        scrollButton.innerHTML = '<i data-lucide="arrow-up" class="w-6 h-6"></i>';
+        scrollButton.onclick = () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+        document.body.appendChild(scrollButton);
+
+        // Mostrar/ocultar botão baseado no scroll
+        window.addEventListener('scroll', () => {
+            const scrollButton = document.getElementById('scrollToTop');
+            if (scrollButton) {
+                if (window.scrollY > 300) {
+                    scrollButton.classList.remove('opacity-0', 'invisible');
+                    scrollButton.classList.add('opacity-100', 'visible');
+                } else {
+                    scrollButton.classList.add('opacity-0', 'invisible');
+                    scrollButton.classList.remove('opacity-100', 'visible');
+                }
+            }
+        });
+
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    },
+
+    renderScrollToTopButton() {
+        // Garantir que o botão existe
+        if (!document.getElementById('scrollToTop')) {
+            this.initScrollToTop();
         }
     },
 
