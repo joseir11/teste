@@ -36,16 +36,11 @@ window.app = {
         console.log('app.init(): Iniciando...');
         this.initPWA();
         try {
-            // Tenta encontrar os dados em diferentes variáveis possíveis
             const rawSerieA = (typeof TABELA !== 'undefined' && TABELA.serieA) || (typeof historicoSerieA !== 'undefined' ? historicoSerieA : null);
             const rawSerieB = (typeof TABELA !== 'undefined' && TABELA.serieB) || (typeof historicoSerieB !== 'undefined' ? historicoSerieB : null);
             const rawEscalacoes = (typeof ESCALACOES !== 'undefined' ? ESCALACOES : null) || (typeof bancoEscalacoes !== 'undefined' ? bancoEscalacoes : null);
 
-            console.log('Dados detectados:', { 
-                serieA: !!rawSerieA, 
-                serieB: !!rawSerieB, 
-                escalacoes: !!rawEscalacoes 
-            });
+            console.log('Dados detectados:', { serieA: !!rawSerieA, serieB: !!rawSerieB, escalacoes: !!rawEscalacoes });
 
             if (!rawSerieA || !rawSerieB) {
                 throw new Error('Dados da liga (Série A ou B) não encontrados. Verifique se tabela.js está correto.');
@@ -98,12 +93,10 @@ window.app = {
         const totals = {};
         roundData.forEach(d => {
             if (!totals[d.nome]) totals[d.nome] = { nome: d.nome, pontos: 0, re: 0, pen: 0, roundScore: 0 };
-            // A pontuação total é a soma de val + re - pen de todas as rodadas até o momento
             totals[d.nome].pontos += (d.val || 0) + (d.re || 0) - (d.pen || 0);
             if (d.rdd === round) {
                 totals[d.nome].re = d.re || 0;
                 totals[d.nome].pen = d.pen || 0;
-                // Pontuação específica da rodada (Valorização)
                 totals[d.nome].roundScore = (d.val || 0) + (d.re || 0) - (d.pen || 0);
             }
         });
@@ -147,7 +140,6 @@ window.app = {
     },
 
     initPWA() {
-        // Service Worker registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
@@ -156,7 +148,6 @@ window.app = {
             });
         }
 
-        // Install prompt handler
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             this.state.deferredPrompt = e;
@@ -206,13 +197,11 @@ window.app = {
 
                 <div class="flex flex-wrap items-center gap-3">
                     ${!isMercado ? `
-                        <!-- Serie Toggle -->
                         <div class="bg-black/5 p-1 rounded-xl flex gap-1 animate-in fade-in zoom-in duration-300">
                             <button onclick="app.setSerie('A')" class="px-4 py-1.5 rounded-lg text-lg font-teko uppercase tracking-wider transition-all ${this.state.activeSerie === 'A' ? 'bg-white shadow-sm text-cartola-orange' : 'text-gray-500 hover:text-gray-800'}">SÉRIE A</button>
                             <button onclick="app.setSerie('B')" class="px-4 py-1.5 rounded-lg text-lg font-teko uppercase tracking-wider transition-all ${this.state.activeSerie === 'B' ? 'bg-white shadow-sm text-cartola-orange' : 'text-gray-500 hover:text-gray-800'}">SÉRIE B</button>
                         </div>
 
-                        <!-- Round Selector -->
                         <div class="relative group animate-in fade-in zoom-in duration-300">
                             <select onchange="app.setRound(this.value)" class="appearance-none bg-white border border-black/5 rounded-xl px-4 py-2 pr-10 text-lg font-teko uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-cartola-orange/20 transition-all cursor-pointer">
                                 ${Array.from({length: this.getMaxRound()}, (_, i) => i + 1).map(r => `
@@ -223,7 +212,6 @@ window.app = {
                         </div>
                     ` : ''}
 
-                    <!-- Mercado Button -->
                     <button onclick="app.viewMercado()" class="w-12 h-12 flex items-center justify-center rounded-full transition-all group shrink-0 ${isMercado ? 'bg-cartola-orange text-white' : 'bg-black/5 border border-black/5'}" title="Ver Mercado">
                         <div class="w-7 h-7 flex items-center justify-center">
                             <img src="ico_provaveis.png" class="w-full h-full object-contain group-hover:scale-110 transition-transform ${isMercado ? 'brightness-0 invert' : ''}" onerror="this.outerHTML='<i data-lucide=\'shopping-cart\' class=\'${isMercado ? 'text-white' : 'text-gray-500'} w-6 h-6\'></i>'">
@@ -275,10 +263,8 @@ window.app = {
         const leader = top3[0];
         return `
             <div class="grid grid-cols-3 gap-4 items-end px-4">
-                <!-- Coluna 1: Vazia -->
                 <div></div>
 
-                <!-- Coluna 2: Destaque (Pasta /01) -->
                 <div class="flex flex-col items-center">
                     <div class="relative group cursor-pointer" onclick="app.selectTeam('${leader.nome}')">
                         <div class="absolute -inset-10 bg-yellow-400/10 rounded-full blur-3xl animate-pulse"></div>
@@ -288,7 +274,6 @@ window.app = {
                     </div>
                 </div>
 
-                <!-- Coluna 3: Escudo + Pontuação (Antiga posição do 3º) -->
                 <div class="flex flex-col items-center gap-3 pb-6">
                     <div class="relative group cursor-pointer" onclick="app.selectTeam('${leader.nome}')">
                         <div class="w-20 h-20 md:w-28 md:h-28 rounded-full bg-white p-1 shadow-2xl relative z-10 group-hover:scale-110 transition-transform duration-500 border-4 border-yellow-400/20">
@@ -308,28 +293,20 @@ window.app = {
     renderField(ranking) {
         return `
             <div class="relative aspect-[4/5] w-full max-w-2xl mx-auto bg-gradient-to-b from-green-600 to-green-800 rounded-[32px] border-8 border-white/20 overflow-hidden shadow-2xl">
-                <!-- Field Lines -->
                 <div class="absolute inset-0 opacity-30 pointer-events-none">
-                    <!-- Outer Border -->
                     <div class="absolute inset-4 border-2 border-white"></div>
-                    <!-- Center Line -->
                     <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-white"></div>
-                    <!-- Center Circle -->
                     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-2 border-white rounded-full"></div>
-                    <!-- Penalty Area Top -->
                     <div class="absolute top-4 left-1/2 -translate-x-1/2 w-48 h-24 border-2 border-t-0 border-white"></div>
-                    <!-- Penalty Area Bottom -->
                     <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-48 h-24 border-2 border-b-0 border-white"></div>
                 </div>
                 
-                <!-- Trophy -->
                 <div class="absolute" style="top: ${POS_TROFEU.t}%; left: ${POS_TROFEU.l}%; transform: translate(-50%, -50%)">
                     <div class="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 shadow-2xl">
                         <i data-lucide="trophy" class="w-8 h-8 text-yellow-400"></i>
                     </div>
                 </div>
 
-                <!-- Teams -->
                 ${ranking.slice(0, 10).map((team, i) => {
                     let posColorClass = 'text-white';
                     if (this.state.activeSerie === 'A' && i >= ranking.length - 2) {
@@ -338,7 +315,6 @@ window.app = {
                         posColorClass = 'text-green-500';
                     }
 
-                    // Lógica do Garçom: Altura fixa, largura auto para não esticar
                     let garcomImg = '';
                     if (i === 9) {
                         const lastTeam = ranking[ranking.length - 1];
@@ -353,16 +329,13 @@ window.app = {
                             <div class="flex flex-col items-center gap-1">
                                 <div class="relative">
                                     ${garcomImg}
-                                    <!-- Escudo com altura fixa em pixels e largura automática para não sobrepor no mobile -->
                                     <div class="h-[40px] md:h-[70px] w-auto flex items-center justify-center group-hover:scale-110 transition-all duration-300 relative z-10 filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.4)]">
                                         <img src="ESCUDOS/${team.nome}.png" class="h-full w-auto object-contain" onerror="this.src='ESCUDOS/default.png'">
                                     </div>
-                                    <!-- Posição estilo número de camisa com cores dinâmicas -->
                                     <div class="absolute -top-2 -right-4 font-teko font-black text-3xl md:text-5xl ${posColorClass} drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] z-20">
                                         ${i + 1}
                                     </div>
                                 </div>
-                                <!-- Labels soltos, maiores e com sombra -->
                                 <div class="text-center relative z-10 flex flex-col items-center">
                                     <p class="text-sm md:text-base font-teko text-white uppercase tracking-wider font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-none">${team.nome}</p>
                                     <p class="text-base md:text-lg font-teko text-cartola-orange font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-none">${team.pontos.toFixed(2)}</p>
@@ -444,11 +417,9 @@ window.app = {
             return;
         }
 
-        // Mito: Maior roundScore / Bola Murcha: Menor roundScore
         const mito = [...ranking].sort((a, b) => b.roundScore - a.roundScore)[0];
         const bolaMurcha = [...ranking].sort((a, b) => a.roundScore - b.roundScore)[0];
 
-        // Lógica para Mitos de Rodadas Anteriores
         const mitosAnteriores = [];
         const globalMax = Math.max(
             ...(this.state.data.serieA?.map(d => d.rdd) || []),
@@ -462,11 +433,10 @@ window.app = {
                 mitosAnteriores.push({ rdd: r, mitoA, mitoB });
             }
         }
-        mitosAnteriores.reverse(); // Mais recente primeiro
+        mitosAnteriores.reverse();
 
         sidebar.innerHTML = `
             <div class="space-y-6">
-                <!-- Classificação -->
                 <div class="glass-card p-6 space-y-4">
                     <div class="flex items-center justify-between border-b border-black/5 pb-2">
                         <h3 class="font-teko text-xl uppercase tracking-wider">Classificação</h3>
@@ -504,7 +474,6 @@ window.app = {
                     </div>
                 </div>
 
-                <!-- Mito da Rodada -->
                 <div class="glass-card p-6 bg-gradient-to-br from-green-50 to-transparent border-green-100">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-teko text-xl uppercase tracking-wider">Mito da Rodada</h3>
@@ -523,7 +492,6 @@ window.app = {
                     </div>
                 </div>
 
-                <!-- Bola Murcha da Rodada -->
                 <div class="glass-card p-6 bg-gradient-to-br from-red-50 to-transparent border-red-100">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-teko text-xl uppercase tracking-wider">Bola Murcha</h3>
@@ -542,7 +510,6 @@ window.app = {
                     </div>
                 </div>
 
-                <!-- Mitos Anteriores -->
                 <div class="glass-card p-6">
                     <h3 class="font-teko text-xl uppercase tracking-wider mb-4 text-cartola-orange">Mitos - Histórico</h3>
                     <div class="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
@@ -590,9 +557,8 @@ window.app = {
         this.state.isMercadoView = true;
         this.state.selectedTeam = null;
         this.state.mercadoData = null;
-        this.render(); // Mostra "Carregando..."
+        this.render();
 
-        // 1. TENTA CARREGAR VARIÁVEIS GLOBAIS (Para modo local)
         const globalStatus = typeof STATUS_MERCADO !== 'undefined' ? STATUS_MERCADO : null;
         const globalPartidas = typeof PARTIDAS !== 'undefined' ? PARTIDAS : 
                              (typeof partidas !== 'undefined' ? partidas : null);
@@ -605,11 +571,9 @@ window.app = {
             this.state.partidasData = JSON.parse(JSON.stringify(globalPartidas));
         }
 
-        // 2. TENTA VIA FETCH (Para Github/Servidor ou se faltar variável local)
         const statusToTry = ['status.js', 'status.txt', 'status.json'];
         const matchesToTry = ['partidas.js', 'partidas.txt', 'partidas.json'];
 
-        // Carregando Status se necessário
         if (!globalStatus) {
             for (const fileName of statusToTry) {
                 try {
@@ -625,7 +589,6 @@ window.app = {
             }
         }
 
-        // Carregando Partidas se necessário
         if (!globalPartidas) {
             for (const fileName of matchesToTry) {
                 try {
@@ -666,7 +629,7 @@ window.app = {
         
         if (data.fechamento && data.fechamento.timestamp) {
             if (nowTs >= data.fechamento.timestamp) {
-                data.status_mercado = 2; // FECHADO
+                data.status_mercado = 2;
             }
         }
         this.state.mercadoData = data;
@@ -677,11 +640,7 @@ window.app = {
         const partidasData = this.state.partidasData;
         
         if (!data) {
-            container.innerHTML = `
-                <div class="glass-card p-12 text-center">
-                    <p class="font-teko text-2xl uppercase animate-pulse">Carregando Mercado...</p>
-                </div>
-            `;
+            container.innerHTML = `<div class="glass-card p-12 text-center"><p class="font-teko text-2xl uppercase animate-pulse">Carregando Mercado...</p></div>`;
             return;
         }
 
@@ -701,13 +660,32 @@ window.app = {
         const statusText = statusMap[data.status_mercado] || 'DESCONHECIDO';
         const statusColor = data.status_mercado === 2 ? 'text-red-500' : 'text-green-500';
 
-        let crestsToRender = [];
+        let timesNaOrdem = [];
         if (partidasData && partidasData.partidas) {
             partidasData.partidas.forEach(p => {
-                crestsToRender.push(p.clube_casa_id);
-                crestsToRender.push(p.clube_visitante_id);
+                timesNaOrdem.push({
+                    id: p.clube_casa_id,
+                    aproveitamento: p.aproveitamento_mandante,
+                    isMandante: true
+                });
+                timesNaOrdem.push({
+                    id: p.clube_visitante_id,
+                    aproveitamento: p.aproveitamento_visitante,
+                    isMandante: false
+                });
             });
         }
+
+        const renderAproveitamentoBolinhas = (aprov) => {
+            if (!aprov || !Array.isArray(aprov)) return '';
+            return aprov.map(resultado => {
+                let colorClass = '';
+                if (resultado === 'v') colorClass = 'bg-green-500';
+                else if (resultado === 'e') colorClass = 'bg-gray-400';
+                else if (resultado === 'd') colorClass = 'bg-red-500';
+                return `<div class="w-2.5 h-2.5 rounded-full ${colorClass} shadow-sm border border-white/50"></div>`;
+            }).join('');
+        };
 
         container.innerHTML = `
             <div class="space-y-6 animate-in fade-in duration-300">
@@ -736,18 +714,64 @@ window.app = {
                     </div>
                 </div>
 
-                ${crestsToRender.length > 0 ? `
+                ${timesNaOrdem.length > 0 ? `
                 <div class="glass-card p-6">
                     <div class="grid grid-cols-5 gap-2 md:gap-4 justify-items-center">
-                        ${crestsToRender.map(id => `
+                        ${timesNaOrdem.map(time => `
                             <div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-black/5 rounded-full p-2 flex items-center justify-center border border-black/5 hover:bg-black/10 transition-colors shadow-sm">
-                                <img src="ESCUDOS_BRASILEIRAO/${id}.png" 
-                                     alt="Time ${id}" 
+                                <img src="ESCUDOS_BRASILEIRAO/${time.id}.png" 
+                                     alt="Time ${time.id}" 
                                      class="w-full h-full object-contain drop-shadow-sm"
                                      onerror="this.style.display='none'">
                             </div>
                         `).join('')}
                     </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${timesNaOrdem.map(time => {
+                        const clubeInfo = partidasData.clubes?.[time.id] || {};
+                        const nomeTime = clubeInfo.nome || `Time ${time.id}`;
+                        
+                        return `
+                        <div class="glass-card p-4 space-y-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 shrink-0 bg-white rounded-xl p-1.5 shadow-md border border-white/50">
+                                    <img src="ESCUDOS_BRASILEIRAO/${time.id}.png" 
+                                         alt="${nomeTime}" 
+                                         class="w-full h-full object-contain"
+                                         onerror="this.src='ESCUDOS/default.png'">
+                                </div>
+                                
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-teko text-xl uppercase leading-tight tracking-wide text-gray-800 truncate">${nomeTime}</p>
+                                </div>
+                                
+                                <div class="flex gap-1.5">
+                                    ${renderAproveitamentoBolinhas(time.aproveitamento)}
+                                </div>
+                                
+                                <div class="shrink-0">
+                                    <span class="text-[9px] font-mono text-gray-500 uppercase bg-black/5 px-2 py-1 rounded-full">
+                                        ${time.isMandante ? 'Casa' : 'Fora'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="w-48 mx-auto aspect-[4/5] rounded-xl overflow-hidden border border-white/30 shadow-inner relative">
+                                <div class="absolute inset-0 bg-gradient-to-b from-green-600/40 to-green-800/40"></div>
+                                
+                                <div class="absolute inset-0 opacity-30 pointer-events-none">
+                                    <div class="absolute inset-2 border border-white rounded"></div>
+                                    <div class="absolute top-1/2 left-0 right-0 h-px bg-white"></div>
+                                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 border border-white rounded-full"></div>
+                                    <div class="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-6 border border-t-0 border-white"></div>
+                                    <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-12 h-6 border border-b-0 border-white"></div>
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                    }).join('')}
                 </div>
                 ` : ''}
             </div>
@@ -766,7 +790,6 @@ window.app = {
         const round = this.state.selectedRound;
         const rawEscalacao = this.state.data.escalacoes[team] || [];
         
-        // Filtra a escalação para a rodada selecionada (LÓGICA ORIGINAL RESTAURADA)
         let escalacao = [];
         let foundRound = false;
         for (let i = 0; i < rawEscalacao.length; i++) {
@@ -776,7 +799,7 @@ window.app = {
                 continue;
             }
             if (foundRound) {
-                if (item.rdd && item.rdd !== round) break; // Próxima rodada
+                if (item.rdd && item.rdd !== round) break;
                 escalacao.push(item);
             }
         }
@@ -787,13 +810,11 @@ window.app = {
 
         container.innerHTML = `
             <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <!-- Back Button -->
                 <button onclick="app.selectTeam(null)" class="flex items-center gap-2 text-gray-500 hover:text-cartola-orange transition-colors group">
                     <i data-lucide="arrow-left" class="w-5 h-5 group-hover:-translate-x-1 transition-transform"></i>
                     <span class="font-teko text-lg uppercase tracking-wider">Voltar</span>
                 </button>
 
-                <!-- Team Header -->
                 <div class="glass-card p-8 flex flex-col md:flex-row items-center gap-8">
                     <div class="w-32 h-32 rounded-full bg-white p-2 shadow-2xl border-4 border-cartola-orange/10">
                         <img src="ESCUDOS/${team}.png" class="w-full h-full object-contain" onerror="this.src='ESCUDOS/default.png'">
@@ -814,7 +835,6 @@ window.app = {
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Lineup -->
                     <div class="glass-card p-6">
                         <h3 class="font-teko text-2xl uppercase tracking-wider mb-6 border-b border-black/5 pb-2">Escalação Rodada ${this.state.selectedRound}</h3>
                         ${escalacao.length > 0 ? `
@@ -843,7 +863,6 @@ window.app = {
                         `}
                     </div>
 
-                    <!-- History Chart -->
                     <div class="glass-card p-6">
                         <h3 class="font-teko text-2xl uppercase tracking-wider mb-6 border-b border-black/5 pb-2">Desempenho Histórico</h3>
                         <div class="space-y-4">
@@ -875,7 +894,6 @@ window.app = {
         lucide.createIcons();
     },
 
-    // Actions
     setSerie(serie) {
         this.state.activeSerie = serie;
         this.state.selectedRound = this.getMaxRound();
