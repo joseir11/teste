@@ -58,23 +58,6 @@ function resolvePos(slot, xy, formacao) {
     return { x: 50, y: 50 };
 }
 
-// Função para obter nome do jogador a partir do ID
-// Prioriza o mapa de imagens do mercado (mais completo), fallback para JOGADORES global
-function getJogadorNome(id, mercadoImagesMap) {
-    // Tenta primeiro no mapa de imagens do mercado
-    if (mercadoImagesMap && mercadoImagesMap.has(id)) {
-        const jogador = mercadoImagesMap.get(id);
-        return jogador.apelido || jogador.nome || `#${id}`;
-    }
-    
-    // Fallback para JOGADORES global (arquivo jogadores.js)
-    if (typeof JOGADORES !== 'undefined' && JOGADORES[id] && JOGADORES[id].slug) {
-        return JOGADORES[id].slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-    }
-    
-    return `#${id}`;
-}
-
 window.app = {
     state: {
         activeSerie: 'A',
@@ -872,11 +855,25 @@ window.app = {
                                 .filter(p => p.slot !== 'TEC')
                                 .map(p => {
                                     const jogador = this.state.mercadoImages.get(p.id);
-                                    const nome = jogador?.apelido || getJogadorNome(p.id, this.state.mercadoImages);
+                                    // Nome: prioridade apelido > nome > JOGADORES > ID
+                                    let nome = jogador?.apelido || jogador?.nome;
+                                    if (!nome && typeof JOGADORES !== 'undefined' && JOGADORES[p.id]?.slug) {
+                                        nome = JOGADORES[p.id].slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                                    }
+                                    if (!nome) nome = `#${p.id}`;
+                                    
                                     const foto = jogador?.foto || `ESCUDOS_BRASILEIRAO/${time.id}.png`;
                                     const pos = resolvePos(p.slot, { x: p.x, y: p.y }, lineup.formacao);
                                     const isDuvida = p.sit === 'duvida';
-                                    const duvidaComNome = isDuvida && p.duvida_com ? getJogadorNome(p.duvida_com, this.state.mercadoImages) : '';
+                                    let duvidaComNome = '';
+                                    if (isDuvida && p.duvida_com) {
+                                        const altJogador = this.state.mercadoImages.get(p.duvida_com);
+                                        duvidaComNome = altJogador?.apelido || altJogador?.nome;
+                                        if (!duvidaComNome && typeof JOGADORES !== 'undefined' && JOGADORES[p.duvida_com]?.slug) {
+                                            duvidaComNome = JOGADORES[p.duvida_com].slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                                        }
+                                        if (!duvidaComNome) duvidaComNome = `#${p.duvida_com}`;
+                                    }
                                     
                                     return `
                                         <div class="absolute" style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;">
