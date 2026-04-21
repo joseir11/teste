@@ -780,7 +780,7 @@ window.app = {
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-4">
                     ${timesNaOrdem.map((time, index) => {
                         const clubeInfo = partidasData.clubes?.[time.id] || {};
                         const nomeTime = clubeInfo.nome || `Time ${time.id}`;
@@ -788,7 +788,7 @@ window.app = {
                         return `
                         <div id="time-card-${index}" class="glass-card p-4 space-y-3 scroll-mt-20 transition-all duration-300">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 shrink-0 bg-white rounded-xl p-1.5 shadow-md border border-white/50">
+                                <div class="w-12 h-12 shrink-0 bg-white rounded-xl p-1.5 shadow-md border border-white/50">
                                     <img src="ESCUDOS_BRASILEIRAO/${time.id}.png" 
                                          alt="${nomeTime}" 
                                          class="w-full h-full object-contain"
@@ -796,7 +796,7 @@ window.app = {
                                 </div>
                                 
                                 <div class="flex-1 min-w-0">
-                                    <p class="font-teko text-xl uppercase leading-tight tracking-wide text-gray-800 truncate">${nomeTime}</p>
+                                    <p class="font-teko text-2xl uppercase leading-tight tracking-wide text-gray-800 truncate">${nomeTime}</p>
                                 </div>
                                 
                                 <div class="flex gap-1.5">
@@ -804,21 +804,21 @@ window.app = {
                                 </div>
                                 
                                 <div class="shrink-0">
-                                    <span class="text-[9px] font-mono text-gray-500 uppercase bg-black/5 px-2 py-1 rounded-full">
+                                    <span class="text-[10px] font-mono text-gray-500 uppercase bg-black/5 px-2 py-1 rounded-full">
                                         ${time.isMandante ? 'Casa' : 'Fora'}
                                     </span>
                                 </div>
                             </div>
 
-                            <div class="w-48 mx-auto aspect-[4/5] rounded-xl overflow-hidden border border-white/30 shadow-inner relative">
+                            <div class="relative w-full aspect-[4/5] rounded-xl overflow-hidden border border-white/30 shadow-inner">
                                 <div class="absolute inset-0 bg-gradient-to-b from-green-600/40 to-green-800/40"></div>
                                 
                                 <div class="absolute inset-0 opacity-30 pointer-events-none">
-                                    <div class="absolute inset-2 border border-white rounded"></div>
+                                    <div class="absolute inset-3 border border-white rounded"></div>
                                     <div class="absolute top-1/2 left-0 right-0 h-px bg-white"></div>
-                                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 border border-white rounded-full"></div>
-                                    <div class="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-6 border border-t-0 border-white"></div>
-                                    <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-12 h-6 border border-b-0 border-white"></div>
+                                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 border border-white rounded-full"></div>
+                                    <div class="absolute top-3 left-1/2 -translate-x-1/2 w-24 h-12 border border-t-0 border-white"></div>
+                                    <div class="absolute bottom-3 left-1/2 -translate-x-1/2 w-24 h-12 border border-b-0 border-white"></div>
                                 </div>
                             </div>
                         </div>
