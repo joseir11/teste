@@ -60,8 +60,10 @@ function resolvePos(slot, xy, formacao) {
 
 // Função para obter nome do jogador a partir do ID (usando JOGADORES global)
 function getJogadorNome(id) {
-    if (typeof JOGADORES !== 'undefined' && JOGADORES[id] && JOGADORES[id].slug) {
-        return JOGADORES[id].slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    const numId = Number(id);
+    if (typeof window.JOGADORES !== 'undefined' && window.JOGADORES[numId] && window.JOGADORES[numId].slug) {
+        const slug = window.JOGADORES[numId].slug;
+        return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     }
     return `#${id}`;
 }
@@ -875,8 +877,8 @@ window.app = {
                                                 <img src="${foto}" alt="${nome}" class="w-full h-full object-contain rounded-full" onerror="this.src='ESCUDOS_BRASILEIRAO/${time.id}.png'">
                                             </div>
                                             <div class="text-center mt-0.5">
-                                                <p class="text-[8px] md:text-[10px] font-mono text-gray-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight">${nome}</p>
-                                                ${isDuvida && duvidaComNome ? `<p class="text-[7px] md:text-[8px] font-mono text-gray-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight">${duvidaComNome}</p>` : ''}
+                                                <p class="text-[10px] md:text-[12px] font-mono text-gray-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight">${nome}</p>
+                                                ${isDuvida && duvidaComNome ? `<p class="text-[8px] md:text-[10px] font-mono text-gray-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight">${duvidaComNome}</p>` : ''}
                                             </div>
                                         </div>
                                     `;
