@@ -50,7 +50,7 @@ const POSICOES_POR_FORMACAO = {
     ]
 };
 
-// Função auxiliar para posicionamento (usando coordenadas do JSON)
+// Função auxiliar para posicionamento
 function resolvePos(slot, xy, formacao) {
     if (xy && Number.isFinite(xy.x) && Number.isFinite(xy.y)) {
         return { x: xy.x, y: xy.y };
@@ -58,26 +58,35 @@ function resolvePos(slot, xy, formacao) {
     return { x: 50, y: 50 };
 }
 
-// Função para obter nome do jogador a partir do ID
+// Função que retorna o nome do jogador a partir do ID, usando múltiplas fontes
 function getJogadorNome(id, mercadoImagesMap) {
-    const numericId = Number(id);
-    // Tenta primeiro no mapa de imagens do mercado
-    if (mercadoImagesMap && mercadoImagesMap.has(numericId)) {
-        const jogador = mercadoImagesMap.get(numericId);
-        const nome = jogador.apelido || jogador.nome;
-        console.log(`[getJogadorNome] ID ${numericId} encontrado no mercadoImages: ${nome}`);
-        return nome;
+    const numId = Number(id);
+    
+    // 1. Tenta no mapa de mercado (com chave numérica e string)
+    if (mercadoImagesMap) {
+        const jogador = mercadoImagesMap.get(numId) || mercadoImagesMap.get(String(numId));
+        if (jogador) {
+            const nome = jogador.apelido || jogador.nome;
+            if (nome) {
+                console.log(`[getJogadorNome] ID ${id} -> "${nome}" (mercadoImages)`);
+                return nome;
+            }
+        }
     }
     
-    // Fallback para JOGADORES global
-    if (typeof JOGADORES !== 'undefined' && JOGADORES[numericId] && JOGADORES[numericId].slug) {
-        const nome = JOGADORES[numericId].slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-        console.log(`[getJogadorNome] ID ${numericId} encontrado no JOGADORES: ${nome}`);
-        return nome;
+    // 2. Fallback para JOGADORES global (jogadores.js)
+    if (typeof JOGADORES !== 'undefined' && JOGADORES) {
+        const jogadorSlug = JOGADORES[numId] || JOGADORES[String(numId)];
+        if (jogadorSlug && jogadorSlug.slug) {
+            const nome = jogadorSlug.slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            console.log(`[getJogadorNome] ID ${id} -> "${nome}" (jogadores.js)`);
+            return nome;
+        }
     }
     
-    console.warn(`[getJogadorNome] ID ${numericId} não encontrado em nenhuma fonte. Exibindo fallback.`);
-    return `#${numericId}`;
+    // 3. Fallback final
+    console.warn(`[getJogadorNome] ID ${id} não encontrado. Usando fallback.`);
+    return `Jogador ${id}`;
 }
 
 window.app = {
@@ -718,27 +727,39 @@ window.app = {
 
         // 3. CARREGAR DADOS DE ESCALAÇÃO DO PROXY
         try {
+            console.log('[viewMercado] Buscando dados do proxy...');
             const [lineupsRes, mercadoRes] = await Promise.all([
                 fetch(`${PROXY_URL}/provaveis/lineups`),
                 fetch(`${PROXY_URL}/provaveis/mercado-images`)
             ]);
             if (lineupsRes.ok) {
                 this.state.lineupsData = await lineupsRes.json();
-                console.log('Lineups carregadas:', this.state.lineupsData);
+                console.log('[viewMercado] Lineups carregadas:', this.state.lineupsData);
+            } else {
+                console.warn('[viewMercado] Falha ao carregar lineups:', lineupsRes.status);
             }
             if (mercadoRes.ok) {
                 const mercadoArray = await mercadoRes.json();
-                this.state.mercadoImages = new Map(mercadoArray.map(item => [item.atleta_id, item]));
-                console.log('Mercado images carregadas. Total de jogadores:', this.state.mercadoImages.size);
-                // Log de exemplo para verificar alguns IDs
-                const sampleIds = [92171, 111831, 63289];
-                sampleIds.forEach(id => {
-                    const jog = this.state.mercadoImages.get(id);
-                    console.log(`Verificação ID ${id}:`, jog ? jog.apelido : 'NÃO ENCONTRADO');
+                // Criar mapa com chaves numéricas E strings para garantir compatibilidade
+                this.state.mercadoImages = new Map();
+                mercadoArray.forEach(item => {
+                    const id = item.atleta_id;
+                    this.state.mercadoImages.set(id, item);
+                    this.state.mercadoImages.set(String(id), item);
                 });
+                console.log('[viewMercado] Mercado images carregadas. Total de jogadores:', this.state.mercadoImages.size / 2); // dividido por 2 porque inserimos chave número e string
+                
+                // Teste de alguns IDs comuns
+                const testIds = [63289, 92171, 111831, 100652, 39148];
+                testIds.forEach(id => {
+                    const jog = this.state.mercadoImages.get(id) || this.state.mercadoImages.get(String(id));
+                    console.log(`[viewMercado] Verificação ID ${id}:`, jog ? jog.apelido : 'NÃO ENCONTRADO');
+                });
+            } else {
+                console.warn('[viewMercado] Falha ao carregar mercado-images:', mercadoRes.status);
             }
         } catch (error) {
-            console.warn('Erro ao buscar dados do Prováveis:', error);
+            console.error('[viewMercado] Erro ao buscar dados do Prováveis:', error);
         }
 
         this.render();
@@ -880,14 +901,16 @@ window.app = {
                         const lineup = slug ? this.state.lineupsData?.teams?.[slug] : null;
                         
                         let jogadoresHtml = '';
-                        if (lineup && this.state.mercadoImages) {
+                        if (lineup) {
                             console.log(`Renderizando time ${nomeTime} (slug: ${slug})`);
                             jogadoresHtml = lineup.titulares
                                 .filter(p => p.slot !== 'TEC')
                                 .map(p => {
-                                    const jogador = this.state.mercadoImages.get(Number(p.id));
-                                    const nome = jogador?.apelido || getJogadorNome(p.id, this.state.mercadoImages);
-                                    const foto = jogador?.foto || `ESCUDOS_BRASILEIRAO/${time.id}.png`;
+                                    // Usa a função robusta getJogadorNome
+                                    const nome = getJogadorNome(p.id, this.state.mercadoImages);
+                                    const foto = this.state.mercadoImages?.get(Number(p.id))?.foto || 
+                                                 this.state.mercadoImages?.get(String(p.id))?.foto || 
+                                                 `ESCUDOS_BRASILEIRAO/${time.id}.png`;
                                     const pos = resolvePos(p.slot, { x: p.x, y: p.y }, lineup.formacao);
                                     const isDuvida = p.sit === 'duvida';
                                     const duvidaComNome = isDuvida && p.duvida_com ? getJogadorNome(p.duvida_com, this.state.mercadoImages) : '';
@@ -905,7 +928,7 @@ window.app = {
                                     `;
                                 }).join('');
                         } else {
-                            console.warn(`Lineup ou mercadoImages não disponível para ${nomeTime}`);
+                            console.warn(`Lineup não encontrada para o time ${nomeTime} (slug: ${slug})`);
                         }
                         
                         return `
