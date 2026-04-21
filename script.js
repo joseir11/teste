@@ -1,7 +1,7 @@
 console.log('script.js: Carregando...');
 
 // ==================== CONFIGURAÇÃO DO PROXY ====================
-const PROXY_URL = 'https://josabet-proxy.onrender.com'; // <-- AJUSTE PARA A URL REAL DO SEU PROXY
+const PROXY_URL = 'https://josabet-proxy.onrender.com';
 
 // ==================== MAPEAMENTO DE SLUGS PARA IDs DO CARTOLA ====================
 const SLUG_TO_CARTOLA_ID = {
@@ -57,6 +57,15 @@ function resolvePos(slot, xy, formacao) {
     }
     // fallback básico (centro do campo)
     return { x: 50, y: 50 };
+}
+
+// Função para obter nome do jogador a partir do ID (usando JOGADORES global)
+function getJogadorNome(id) {
+    if (typeof JOGADORES !== 'undefined' && JOGADORES[id] && JOGADORES[id].slug) {
+        // converte slug para título (ex: "yuri-alberto" -> "Yuri Alberto")
+        return JOGADORES[id].slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    }
+    return `#${id}`;
 }
 
 window.app = {
@@ -858,15 +867,21 @@ window.app = {
                                 .filter(p => p.slot !== 'TEC') // exclui técnico do campinho
                                 .map(p => {
                                     const jogador = this.state.mercadoImages.get(p.id);
-                                    const nome = jogador?.apelido || jogador?.nome || `#${p.id}`;
+                                    const nome = jogador?.apelido || getJogadorNome(p.id);
                                     const foto = jogador?.foto || `ESCUDOS_BRASILEIRAO/${time.id}.png`;
                                     const pos = resolvePos(p.slot, { x: p.x, y: p.y }, lineup.formacao);
+                                    const isDuvida = p.sit === 'duvida';
+                                    const duvidaComNome = isDuvida && p.duvida_com ? getJogadorNome(p.duvida_com) : '';
+                                    
                                     return `
                                         <div class="absolute" style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;">
-                                            <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-white/80 p-0.5 shadow-md">
+                                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/80 p-1 shadow-md ${isDuvida ? 'border-2 border-orange-500' : ''}">
                                                 <img src="${foto}" alt="${nome}" class="w-full h-full object-contain rounded-full" onerror="this.src='ESCUDOS_BRASILEIRAO/${time.id}.png'">
                                             </div>
-                                            <p class="text-[6px] md:text-[8px] font-mono text-white drop-shadow text-center mt-0.5 leading-tight">${nome}</p>
+                                            <div class="text-center mt-0.5">
+                                                <p class="text-[8px] md:text-[10px] font-mono text-white drop-shadow leading-tight">${nome}</p>
+                                                ${isDuvida && duvidaComNome ? `<p class="text-[7px] md:text-[8px] font-mono text-gray-300 leading-tight">${duvidaComNome}</p>` : ''}
+                                            </div>
                                         </div>
                                     `;
                                 }).join('');
