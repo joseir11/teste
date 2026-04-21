@@ -35,7 +35,6 @@ window.app = {
     init() {
         console.log('app.init(): Iniciando...');
         this.initPWA();
-        this.initScrollToTop();
         try {
             const rawSerieA = (typeof TABELA !== 'undefined' && TABELA.serieA) || (typeof historicoSerieA !== 'undefined' ? historicoSerieA : null);
             const rawSerieB = (typeof TABELA !== 'undefined' && TABELA.serieB) || (typeof historicoSerieB !== 'undefined' ? historicoSerieB : null);
@@ -76,35 +75,6 @@ window.app = {
                 `;
                 if (typeof lucide !== 'undefined') lucide.createIcons();
             }
-        }
-    },
-
-    initScrollToTop() {
-        // Criar botão de voltar ao topo
-        const scrollBtn = document.createElement('button');
-        scrollBtn.id = 'scrollToTopBtn';
-        scrollBtn.className = 'fixed bottom-6 right-6 w-12 h-12 bg-cartola-orange text-white rounded-full shadow-lg flex items-center justify-center opacity-0 invisible transition-all duration-300 hover:scale-110 z-50';
-        scrollBtn.innerHTML = '<i data-lucide="arrow-up" class="w-6 h-6"></i>';
-        scrollBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-        document.body.appendChild(scrollBtn);
-
-        // Mostrar/ocultar botão baseado no scroll
-        window.addEventListener('scroll', () => {
-            const btn = document.getElementById('scrollToTopBtn');
-            if (btn) {
-                if (window.scrollY > 300) {
-                    btn.classList.remove('opacity-0', 'invisible');
-                    btn.classList.add('opacity-100', 'visible');
-                } else {
-                    btn.classList.add('opacity-0', 'invisible');
-                    btn.classList.remove('opacity-100', 'visible');
-                }
-            }
-        });
-
-        // Atualizar ícone após renderização
-        if (typeof lucide !== 'undefined') {
-            setTimeout(() => lucide.createIcons(), 100);
         }
     },
 
@@ -717,6 +687,19 @@ window.app = {
             }).join('');
         };
 
+        // Função para fazer scroll suave até o card
+        window.scrollToCard = (index) => {
+            const element = document.getElementById(`time-card-${index}`);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Adiciona um highlight temporário no card
+                element.classList.add('ring-4', 'ring-cartola-orange', 'ring-offset-2', 'transition-all', 'duration-300');
+                setTimeout(() => {
+                    element.classList.remove('ring-4', 'ring-cartola-orange', 'ring-offset-2');
+                }, 2000);
+            }
+        };
+
         container.innerHTML = `
             <div class="space-y-6 animate-in fade-in duration-300">
                 <button onclick="app.closeMercado()" class="flex items-center gap-2 text-gray-500 hover:text-cartola-orange font-teko text-xl uppercase">
@@ -747,8 +730,10 @@ window.app = {
                 ${timesNaOrdem.length > 0 ? `
                 <div class="glass-card p-6">
                     <div class="grid grid-cols-5 gap-2 md:gap-4 justify-items-center">
-                        ${timesNaOrdem.map(time => `
-                            <div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-black/5 rounded-full p-2 flex items-center justify-center border border-black/5 hover:bg-black/10 transition-colors shadow-sm">
+                        ${timesNaOrdem.map((time, index) => `
+                            <div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-black/5 rounded-full p-2 flex items-center justify-center border border-black/5 hover:bg-black/10 transition-colors shadow-sm cursor-pointer hover:scale-110 transition-transform duration-200" 
+                                 onclick="scrollToCard(${index})"
+                                 title="Ver card do time">
                                 <img src="ESCUDOS_BRASILEIRAO/${time.id}.png" 
                                      alt="Time ${time.id}" 
                                      class="w-full h-full object-contain drop-shadow-sm"
@@ -759,12 +744,12 @@ window.app = {
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    ${timesNaOrdem.map(time => {
+                    ${timesNaOrdem.map((time, index) => {
                         const clubeInfo = partidasData.clubes?.[time.id] || {};
                         const nomeTime = clubeInfo.nome || `Time ${time.id}`;
                         
                         return `
-                        <div class="glass-card p-4 space-y-3">
+                        <div id="time-card-${index}" class="glass-card p-4 space-y-3 scroll-mt-20 transition-all duration-300">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 shrink-0 bg-white rounded-xl p-1.5 shadow-md border border-white/50">
                                     <img src="ESCUDOS_BRASILEIRAO/${time.id}.png" 
@@ -788,17 +773,15 @@ window.app = {
                                 </div>
                             </div>
 
-                            <div class="flex justify-center">
-                                <div class="w-80 md:w-96 aspect-[4/5] rounded-xl overflow-hidden border border-white/30 shadow-inner relative">
-                                    <div class="absolute inset-0 bg-gradient-to-b from-green-600/40 to-green-800/40"></div>
-                                    
-                                    <div class="absolute inset-0 opacity-30 pointer-events-none">
-                                        <div class="absolute inset-3 border border-white rounded"></div>
-                                        <div class="absolute top-1/2 left-0 right-0 h-px bg-white"></div>
-                                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 border border-white rounded-full"></div>
-                                        <div class="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-10 border border-t-0 border-white"></div>
-                                        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 w-20 h-10 border border-b-0 border-white"></div>
-                                    </div>
+                            <div class="w-48 mx-auto aspect-[4/5] rounded-xl overflow-hidden border border-white/30 shadow-inner relative">
+                                <div class="absolute inset-0 bg-gradient-to-b from-green-600/40 to-green-800/40"></div>
+                                
+                                <div class="absolute inset-0 opacity-30 pointer-events-none">
+                                    <div class="absolute inset-2 border border-white rounded"></div>
+                                    <div class="absolute top-1/2 left-0 right-0 h-px bg-white"></div>
+                                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 border border-white rounded-full"></div>
+                                    <div class="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-6 border border-t-0 border-white"></div>
+                                    <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-12 h-6 border border-b-0 border-white"></div>
                                 </div>
                             </div>
                         </div>
