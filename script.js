@@ -1,36 +1,5 @@
 console.log('script.js: Carregando...');
 
-// ==================== CONFIGURAÇÃO DO PROXY ====================
-const PROXY_URL = 'https://josabet-proxy.onrender.com';
-
-// ==================== MAPEAMENTO DE SLUGS PARA IDs DO CARTOLA ====================
-const SLUG_TO_CARTOLA_ID = {
-    "corinthians_v2": 264,
-    "palmeiras_v2": 275,
-    "flamengo_v2": 262,
-    "vasco_v2": 267,
-    "atletico-mg_v2": 282,
-    "cruzeiro_v2": 283,
-    "gremio_v2": 284,
-    "internacional_v2": 285,
-    "botafogo_v2": 263,
-    "fluminense_v2": 266,
-    "sao-paulo_v2": 276,
-    "santos_v2": 277,
-    "bragantino_v2": 280,
-    "athletico-pr_v2": 293,
-    "bahia_v2": 265,
-    "vitoria_v2": 287,
-    "mirassol_v2": 2305,
-    "chapecoense_v2": 315,
-    "coritiba_v2": 294,
-    "remo_v2": 364,
-    "fortaleza_v2": 131,
-    "sport_v2": 79,
-    "ceara_v2": 105,
-    "juventude_v2": 143
-};
-
 const POS_CAMPO = [
     { t: 20, l: 50 }, { t: 25, l: 15 }, { t: 25, l: 85 },
     { t: 45, l: 50 }, { t: 50, l: 15 }, { t: 50, l: 85 },
@@ -50,14 +19,6 @@ const POSICOES_POR_FORMACAO = {
     ]
 };
 
-// Função auxiliar para posicionamento (usando coordenadas do JSON)
-function resolvePos(slot, xy, formacao) {
-    if (xy && Number.isFinite(xy.x) && Number.isFinite(xy.y)) {
-        return { x: xy.x, y: xy.y };
-    }
-    return { x: 50, y: 50 };
-}
-
 window.app = {
     state: {
         activeSerie: 'A',
@@ -67,8 +28,10 @@ window.app = {
         isMercadoView: false,
         mercadoData: null,
         partidasData: null,
-        lineupsData: null,
-        mercadoImages: null,
+        probableLineups: null,
+        athletesData: null,
+        externalMatches: null,
+        lineupsLoadingStatus: 'loading', // 'loading', 'success', 'error'
         data: null,
         deferredPrompt: null
     },
@@ -76,13 +39,17 @@ window.app = {
     init() {
         console.log('app.init(): Iniciando...');
         this.initPWA();
-        this.initScrollToTop();
         try {
+            // Tenta encontrar os dados em diferentes variáveis possíveis
             const rawSerieA = (typeof TABELA !== 'undefined' && TABELA.serieA) || (typeof historicoSerieA !== 'undefined' ? historicoSerieA : null);
             const rawSerieB = (typeof TABELA !== 'undefined' && TABELA.serieB) || (typeof historicoSerieB !== 'undefined' ? historicoSerieB : null);
             const rawEscalacoes = (typeof ESCALACOES !== 'undefined' ? ESCALACOES : null) || (typeof bancoEscalacoes !== 'undefined' ? bancoEscalacoes : null);
 
-            console.log('Dados detectados:', { serieA: !!rawSerieA, serieB: !!rawSerieB, escalacoes: !!rawEscalacoes });
+            console.log('Dados detectados:', { 
+                serieA: !!rawSerieA, 
+                serieB: !!rawSerieB, 
+                escalacoes: !!rawEscalacoes 
+            });
 
             if (!rawSerieA || !rawSerieB) {
                 throw new Error('Dados da liga (Série A ou B) não encontrados. Verifique se tabela.js está correto.');
@@ -135,10 +102,12 @@ window.app = {
         const totals = {};
         roundData.forEach(d => {
             if (!totals[d.nome]) totals[d.nome] = { nome: d.nome, pontos: 0, re: 0, pen: 0, roundScore: 0 };
+            // A pontuação total é a soma de val + re - pen de todas as rodadas até o momento
             totals[d.nome].pontos += (d.val || 0) + (d.re || 0) - (d.pen || 0);
             if (d.rdd === round) {
                 totals[d.nome].re = d.re || 0;
                 totals[d.nome].pen = d.pen || 0;
+                // Pontuação específica da rodada (Valorização)
                 totals[d.nome].roundScore = (d.val || 0) + (d.re || 0) - (d.pen || 0);
             }
         });
@@ -176,45 +145,13 @@ window.app = {
         this.renderHeader();
         this.renderMain();
         this.renderSidebar();
-        this.renderScrollToTopButton();
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
         }
     },
 
-    initScrollToTop() {
-        const scrollButton = document.createElement('button');
-        scrollButton.id = 'scrollToTop';
-        scrollButton.className = 'fixed bottom-6 right-6 w-12 h-12 bg-cartola-orange text-white rounded-full shadow-lg flex items-center justify-center opacity-0 invisible transition-all duration-300 hover:bg-cartola-orange/90 hover:scale-110 z-50';
-        scrollButton.innerHTML = '<i data-lucide="arrow-up" class="w-6 h-6"></i>';
-        scrollButton.onclick = () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-        document.body.appendChild(scrollButton);
-
-        window.addEventListener('scroll', () => {
-            const btn = document.getElementById('scrollToTop');
-            if (btn) {
-                if (window.scrollY > 300) {
-                    btn.classList.remove('opacity-0', 'invisible');
-                    btn.classList.add('opacity-100', 'visible');
-                } else {
-                    btn.classList.add('opacity-0', 'invisible');
-                    btn.classList.remove('opacity-100', 'visible');
-                }
-            }
-        });
-
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-    },
-
-    renderScrollToTopButton() {
-        if (!document.getElementById('scrollToTop')) {
-            this.initScrollToTop();
-        }
-    },
-
     initPWA() {
+        // Service Worker registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
@@ -223,6 +160,7 @@ window.app = {
             });
         }
 
+        // Install prompt handler
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             this.state.deferredPrompt = e;
@@ -272,11 +210,13 @@ window.app = {
 
                 <div class="flex flex-wrap items-center gap-3">
                     ${!isMercado ? `
+                        <!-- Serie Toggle -->
                         <div class="bg-black/5 p-1 rounded-xl flex gap-1 animate-in fade-in zoom-in duration-300">
                             <button onclick="app.setSerie('A')" class="px-4 py-1.5 rounded-lg text-lg font-teko uppercase tracking-wider transition-all ${this.state.activeSerie === 'A' ? 'bg-white shadow-sm text-cartola-orange' : 'text-gray-500 hover:text-gray-800'}">SÉRIE A</button>
                             <button onclick="app.setSerie('B')" class="px-4 py-1.5 rounded-lg text-lg font-teko uppercase tracking-wider transition-all ${this.state.activeSerie === 'B' ? 'bg-white shadow-sm text-cartola-orange' : 'text-gray-500 hover:text-gray-800'}">SÉRIE B</button>
                         </div>
 
+                        <!-- Round Selector -->
                         <div class="relative group animate-in fade-in zoom-in duration-300">
                             <select onchange="app.setRound(this.value)" class="appearance-none bg-white border border-black/5 rounded-xl px-4 py-2 pr-10 text-lg font-teko uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-cartola-orange/20 transition-all cursor-pointer">
                                 ${Array.from({length: this.getMaxRound()}, (_, i) => i + 1).map(r => `
@@ -287,6 +227,7 @@ window.app = {
                         </div>
                     ` : ''}
 
+                    <!-- Mercado Button -->
                     <button onclick="app.viewMercado()" class="w-12 h-12 flex items-center justify-center rounded-full transition-all group shrink-0 ${isMercado ? 'bg-cartola-orange text-white' : 'bg-black/5 border border-black/5'}" title="Ver Mercado">
                         <div class="w-7 h-7 flex items-center justify-center">
                             <img src="ico_provaveis.png" class="w-full h-full object-contain group-hover:scale-110 transition-transform ${isMercado ? 'brightness-0 invert' : ''}" onerror="this.outerHTML='<i data-lucide=\'shopping-cart\' class=\'${isMercado ? 'text-white' : 'text-gray-500'} w-6 h-6\'></i>'">
@@ -338,8 +279,10 @@ window.app = {
         const leader = top3[0];
         return `
             <div class="grid grid-cols-3 gap-4 items-end px-4">
+                <!-- Coluna 1: Vazia -->
                 <div></div>
 
+                <!-- Coluna 2: Destaque (Pasta /01) -->
                 <div class="flex flex-col items-center">
                     <div class="relative group cursor-pointer" onclick="app.selectTeam('${leader.nome}')">
                         <div class="absolute -inset-10 bg-yellow-400/10 rounded-full blur-3xl animate-pulse"></div>
@@ -349,6 +292,7 @@ window.app = {
                     </div>
                 </div>
 
+                <!-- Coluna 3: Escudo + Pontuação (Antiga posição do 3º) -->
                 <div class="flex flex-col items-center gap-3 pb-6">
                     <div class="relative group cursor-pointer" onclick="app.selectTeam('${leader.nome}')">
                         <div class="w-20 h-20 md:w-28 md:h-28 rounded-full bg-white p-1 shadow-2xl relative z-10 group-hover:scale-110 transition-transform duration-500 border-4 border-yellow-400/20">
@@ -368,20 +312,28 @@ window.app = {
     renderField(ranking) {
         return `
             <div class="relative aspect-[4/5] w-full max-w-2xl mx-auto bg-gradient-to-b from-green-600 to-green-800 rounded-[32px] border-8 border-white/20 overflow-hidden shadow-2xl">
+                <!-- Field Lines -->
                 <div class="absolute inset-0 opacity-30 pointer-events-none">
+                    <!-- Outer Border -->
                     <div class="absolute inset-4 border-2 border-white"></div>
+                    <!-- Center Line -->
                     <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-white"></div>
+                    <!-- Center Circle -->
                     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-2 border-white rounded-full"></div>
+                    <!-- Penalty Area Top -->
                     <div class="absolute top-4 left-1/2 -translate-x-1/2 w-48 h-24 border-2 border-t-0 border-white"></div>
+                    <!-- Penalty Area Bottom -->
                     <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-48 h-24 border-2 border-b-0 border-white"></div>
                 </div>
                 
+                <!-- Trophy -->
                 <div class="absolute" style="top: ${POS_TROFEU.t}%; left: ${POS_TROFEU.l}%; transform: translate(-50%, -50%)">
                     <div class="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 shadow-2xl">
                         <i data-lucide="trophy" class="w-8 h-8 text-yellow-400"></i>
                     </div>
                 </div>
 
+                <!-- Teams -->
                 ${ranking.slice(0, 10).map((team, i) => {
                     let posColorClass = 'text-white';
                     if (this.state.activeSerie === 'A' && i >= ranking.length - 2) {
@@ -390,6 +342,7 @@ window.app = {
                         posColorClass = 'text-green-500';
                     }
 
+                    // Lógica do Garçom: Altura fixa, largura auto para não esticar
                     let garcomImg = '';
                     if (i === 9) {
                         const lastTeam = ranking[ranking.length - 1];
@@ -404,13 +357,16 @@ window.app = {
                             <div class="flex flex-col items-center gap-1">
                                 <div class="relative">
                                     ${garcomImg}
+                                    <!-- Escudo com altura fixa em pixels e largura automática para não sobrepor no mobile -->
                                     <div class="h-[40px] md:h-[70px] w-auto flex items-center justify-center group-hover:scale-110 transition-all duration-300 relative z-10 filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.4)]">
                                         <img src="ESCUDOS/${team.nome}.png" class="h-full w-auto object-contain" onerror="this.src='ESCUDOS/default.png'">
                                     </div>
+                                    <!-- Posição estilo número de camisa com cores dinâmicas -->
                                     <div class="absolute -top-2 -right-4 font-teko font-black text-3xl md:text-5xl ${posColorClass} drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] z-20">
                                         ${i + 1}
                                     </div>
                                 </div>
+                                <!-- Labels soltos, maiores e com sombra -->
                                 <div class="text-center relative z-10 flex flex-col items-center">
                                     <p class="text-sm md:text-base font-teko text-white uppercase tracking-wider font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-none">${team.nome}</p>
                                     <p class="text-base md:text-lg font-teko text-cartola-orange font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-none">${team.pontos.toFixed(2)}</p>
@@ -492,9 +448,11 @@ window.app = {
             return;
         }
 
+        // Mito: Maior roundScore / Bola Murcha: Menor roundScore
         const mito = [...ranking].sort((a, b) => b.roundScore - a.roundScore)[0];
         const bolaMurcha = [...ranking].sort((a, b) => a.roundScore - b.roundScore)[0];
 
+        // Lógica para Mitos de Rodadas Anteriores
         const mitosAnteriores = [];
         const globalMax = Math.max(
             ...(this.state.data.serieA?.map(d => d.rdd) || []),
@@ -508,10 +466,11 @@ window.app = {
                 mitosAnteriores.push({ rdd: r, mitoA, mitoB });
             }
         }
-        mitosAnteriores.reverse();
+        mitosAnteriores.reverse(); // Mais recente primeiro
 
         sidebar.innerHTML = `
             <div class="space-y-6">
+                <!-- Classificação -->
                 <div class="glass-card p-6 space-y-4">
                     <div class="flex items-center justify-between border-b border-black/5 pb-2">
                         <h3 class="font-teko text-xl uppercase tracking-wider">Classificação</h3>
@@ -549,6 +508,7 @@ window.app = {
                     </div>
                 </div>
 
+                <!-- Mito da Rodada -->
                 <div class="glass-card p-6 bg-gradient-to-br from-green-50 to-transparent border-green-100">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-teko text-xl uppercase tracking-wider">Mito da Rodada</h3>
@@ -567,6 +527,7 @@ window.app = {
                     </div>
                 </div>
 
+                <!-- Bola Murcha da Rodada -->
                 <div class="glass-card p-6 bg-gradient-to-br from-red-50 to-transparent border-red-100">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-teko text-xl uppercase tracking-wider">Bola Murcha</h3>
@@ -585,6 +546,7 @@ window.app = {
                     </div>
                 </div>
 
+                <!-- Mitos Anteriores -->
                 <div class="glass-card p-6">
                     <h3 class="font-teko text-xl uppercase tracking-wider mb-4 text-cartola-orange">Mitos - Histórico</h3>
                     <div class="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
@@ -632,86 +594,198 @@ window.app = {
         this.state.isMercadoView = true;
         this.state.selectedTeam = null;
         this.state.mercadoData = null;
-        this.render(); // Mostra "Carregando..."
-
-        // 1. TENTA CARREGAR VARIÁVEIS GLOBAIS (Para modo local)
+        
+        // 1. CARREGA DADOS LOCAIS IMEDIATAMENTE (Variáveis Globais)
         const globalStatus = typeof STATUS_MERCADO !== 'undefined' ? STATUS_MERCADO : null;
         const globalPartidas = typeof PARTIDAS !== 'undefined' ? PARTIDAS : 
                              (typeof partidas !== 'undefined' ? partidas : null);
+        const globalLineups = typeof LINEUPS_PROVAVEIS !== 'undefined' ? LINEUPS_PROVAVEIS : null;
+        const globalAthletes = typeof ATLETAS_DADOS !== 'undefined' ? ATLETAS_DADOS : null;
 
-        if (globalStatus) {
-            this.processMercadoData(JSON.parse(JSON.stringify(globalStatus)));
+        if (globalStatus) this.processMercadoData(JSON.parse(JSON.stringify(globalStatus)));
+        if (globalPartidas) this.state.partidasData = JSON.parse(JSON.stringify(globalPartidas));
+        if (globalLineups) {
+            this.state.probableLineups = JSON.parse(JSON.stringify(globalLineups));
+            this.state.lineupsLoadingStatus = 'success';
+        }
+        if (globalAthletes) {
+            const athletesJson = JSON.parse(JSON.stringify(globalAthletes));
+            this.state.athletesData = {};
+            athletesJson.forEach(a => { this.state.athletesData[a.atleta_id || a.id] = a; });
         }
 
-        if (globalPartidas) {
-            this.state.partidasData = JSON.parse(JSON.stringify(globalPartidas));
+        // Renderiza o que tivermos agora
+        this.render();
+
+        // 2. DISPARA CARREGAMENTO EXTERNO EM SEGUNDO PLANO (Não bloqueia a tela)
+        this.loadExternalLineups();
+
+        // 3. TENTA VIA FETCH (Arquivos locais ou servidor)
+        await this.loadLocalFiles(globalStatus, globalPartidas, globalLineups, globalAthletes);
+    },
+
+    async loadExternalLineups() {
+        const isLocalFile = window.location.protocol === 'file:';
+        
+        // 1. TENTA CARREGAR DO CACHE LOCAL (Simulado como arquivo temporário no navegador)
+        const cachedLineups = this.loadFromCache('PDC_LINEUPS');
+        const cachedMatches = this.loadFromCache('PDC_MATCHES');
+        const cachedAthletes = this.loadFromCache('PDC_ATHLETES');
+
+        if (cachedLineups) {
+            this.state.probableLineups = cachedLineups;
+            this.state.lineupsLoadingStatus = 'success';
+        }
+        if (cachedMatches) this.state.externalMatches = cachedMatches;
+        if (cachedAthletes) this.state.athletesData = cachedAthletes;
+
+        if (cachedLineups || cachedMatches || cachedAthletes) {
+            console.log('App: Dados carregados do Cache Local');
+            if (this.state.isMercadoView) this.render();
         }
 
-        // 2. TENTA VIA FETCH (Para Github/Servidor ou se faltar variável local)
-        const statusToTry = ['status.js', 'status.txt', 'status.json'];
-        const matchesToTry = ['partidas.js', 'partidas.txt', 'partidas.json'];
+        // Se já temos cache, não precisamos mostrar o "carregando" agressivo
+        if (!this.state.probableLineups) {
+            this.state.lineupsLoadingStatus = 'loading';
+        }
 
-        // Carregando Status se necessário
-        if (!globalStatus) {
-            for (const fileName of statusToTry) {
-                try {
-                    const response = await fetch(`${fileName}?t=${Date.now()}`);
-                    if (response.ok) {
-                        let text = (await response.text()).trim();
-                        text = text.replace(/^(var|const|let)\s+STATUS_MERCADO\s*=\s*/, '');
-                        text = text.replace(/;?\s*$/, ''); 
-                        this.processMercadoData(JSON.parse(text));
-                        break;
-                    }
-                } catch (e) {}
+        // Timeout para não ficar preso no modo local
+        const timeoutId = setTimeout(() => {
+            if (this.state.lineupsLoadingStatus === 'loading') {
+                this.state.lineupsLoadingStatus = 'error';
+                if (this.state.isMercadoView) this.render();
             }
-        }
+        }, 15000);
+        
+        const fetchLineups = async () => {
+            try {
+                const url = isLocalFile 
+                    ? `https://api.allorigins.win/raw?url=${encodeURIComponent('https://provaveisdocartola.com.br/assets/data/lineups.json')}`
+                    : '/api/lineups';
+                const res = await fetch(url);
+                if (res.ok) {
+                    const data = await res.json();
+                    this.state.probableLineups = data;
+                    this.state.lineupsLoadingStatus = 'success';
+                    this.saveToCache('PDC_LINEUPS', data);
+                    if (this.state.isMercadoView) this.render();
+                } else if (!this.state.probableLineups) {
+                    throw new Error('Falha na resposta');
+                }
+            } catch (e) {
+                if (!this.state.probableLineups) {
+                    this.state.lineupsLoadingStatus = 'error';
+                    if (this.state.isMercadoView) this.render();
+                }
+            }
+        };
 
-        // Carregando Partidas se necessário
-        if (!globalPartidas) {
-            for (const fileName of matchesToTry) {
+        const fetchMatches = async () => {
+            try {
+                const url = isLocalFile 
+                    ? `https://api.allorigins.win/raw?url=${encodeURIComponent('https://provaveisdocartola.com.br/assets/data/partidas.json')}`
+                    : '/api/external-matches';
+                const res = await fetch(url);
+                if (res.ok) {
+                    const data = await res.json();
+                    this.state.externalMatches = data;
+                    this.saveToCache('PDC_MATCHES', data);
+                    if (this.state.isMercadoView) this.render();
+                }
+            } catch (e) {}
+        };
+
+        const fetchAthletes = async () => {
+            try {
+                const url = isLocalFile 
+                    ? `https://api.allorigins.win/raw?url=${encodeURIComponent('https://provaveisdocartola.com.br/assets/data/mercado.images.json')}`
+                    : '/api/athletes';
+                const res = await fetch(url);
+                if (res.ok) {
+                    const athletesJson = await res.json();
+                    const athletesMap = {};
+                    athletesJson.forEach(a => { athletesMap[a.atleta_id || a.id] = a; });
+                    this.state.athletesData = athletesMap;
+                    this.saveToCache('PDC_ATHLETES', athletesMap);
+                    if (this.state.isMercadoView) this.render();
+                }
+            } catch (e) {}
+        };
+
+        // Dispara atualizações em segundo plano
+        Promise.allSettled([fetchLineups(), fetchMatches(), fetchAthletes()]).finally(() => {
+            clearTimeout(timeoutId);
+        });
+    },
+
+    saveToCache(key, data) {
+        try {
+            const cache = {
+                data: data,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(key, JSON.stringify(cache));
+        } catch (e) {
+            console.warn('App: Falha ao salvar no cache', e);
+        }
+    },
+
+    loadFromCache(key) {
+        try {
+            const item = localStorage.getItem(key);
+            if (!item) return null;
+            const cache = JSON.parse(item);
+            // Expira em 12 horas
+            const isExpired = (Date.now() - cache.timestamp) > (12 * 60 * 60 * 1000);
+            return isExpired ? null : cache.data;
+        } catch (e) {
+            return null;
+        }
+    },
+
+    async loadLocalFiles(hasStatus, hasPartidas, hasLineups, hasAthletes) {
+        const filesToTry = {
+            status: { tried: hasStatus, names: ['status.js', 'status.txt', 'status.json'], var: 'STATUS_MERCADO' },
+            partidas: { tried: hasPartidas, names: ['partidas.js', 'partidas.txt', 'partidas.json'], var: 'PARTIDAS' },
+            lineups: { tried: hasLineups, names: ['escalacoes.js', 'escalacoes.txt', 'escalacoes.json'], var: 'LINEUPS_PROVAVEIS' },
+            athletes: { tried: hasAthletes, names: ['atletas.js', 'atletas.txt', 'atletas.json'], var: 'ATLETAS_DADOS' }
+        };
+
+        for (const key in filesToTry) {
+            if (filesToTry[key].tried) continue;
+            
+            for (const fileName of filesToTry[key].names) {
                 try {
                     const response = await fetch(`${fileName}?t=${Date.now()}`);
                     if (response.ok) {
                         let text = (await response.text()).trim();
-                        text = text.replace(/^(var|const|let)\s+PARTIDAS\s*=\s*/, '');
-                        text = text.replace(/^(var|const|let)\s+partidas\s*=\s*/, '');
-                        text = text.replace(/;?\s*$/, ''); 
-                        this.state.partidasData = JSON.parse(text);
+                        // Limpa a variável se for .js
+                        const regex = new RegExp(`^(var|const|let)\\s+${filesToTry[key].var}\\s*=\\s*`);
+                        text = text.replace(regex, '').replace(/;?\s*$/, '');
+                        const jsonData = JSON.parse(text);
+
+                        if (key === 'status') this.processMercadoData(jsonData);
+                        if (key === 'partidas') this.state.partidasData = jsonData;
+                        if (key === 'lineups') {
+                            this.state.probableLineups = jsonData;
+                            this.state.lineupsLoadingStatus = 'success';
+                        }
+                        if (key === 'athletes') {
+                            this.state.athletesData = {};
+                            jsonData.forEach(a => { this.state.athletesData[a.atleta_id || a.id] = a; });
+                        }
+                        
+                        this.render();
                         break;
                     }
                 } catch (e) {}
             }
         }
         
-        if (!this.state.mercadoData && !globalStatus) {
-            const isLocal = window.location.protocol === 'file:';
-            this.state.mercadoData = { 
-                error: true, 
-                details: isLocal 
-                    ? 'Para modo local, o arquivo status.js deve iniciar com: var STATUS_MERCADO = ' 
-                    : 'Dados do mercado não encontrados.'
-            };
+        if (!this.state.mercadoData && !hasStatus) {
+            this.state.mercadoData = { error: true, details: 'Dados do mercado não encontrados.' };
+            this.render();
         }
-
-        // 3. CARREGAR DADOS DE ESCALAÇÃO DO PROXY
-        try {
-            const [lineupsRes, mercadoRes] = await Promise.all([
-                fetch(`${PROXY_URL}/provaveis/lineups`),
-                fetch(`${PROXY_URL}/provaveis/mercado-images`)
-            ]);
-            if (lineupsRes.ok) {
-                this.state.lineupsData = await lineupsRes.json();
-            }
-            if (mercadoRes.ok) {
-                const mercadoArray = await mercadoRes.json();
-                this.state.mercadoImages = new Map(mercadoArray.map(item => [item.atleta_id, item]));
-            }
-        } catch (error) {
-            console.warn('Erro ao buscar dados do Prováveis:', error);
-        }
-
-        this.render();
     },
 
     processMercadoData(data) {
@@ -726,7 +800,7 @@ window.app = {
         
         if (data.fechamento && data.fechamento.timestamp) {
             if (nowTs >= data.fechamento.timestamp) {
-                data.status_mercado = 2;
+                data.status_mercado = 2; // FECHADO
             }
         }
         this.state.mercadoData = data;
@@ -734,10 +808,19 @@ window.app = {
 
     renderMercado(container) {
         const data = this.state.mercadoData;
-        const partidasData = this.state.partidasData;
+        const localPartidas = this.state.partidasData;
+        const externalMatches = this.state.externalMatches;
+        const probableLineups = this.state.probableLineups;
         
+        // Prioriza as partidas externas do Prováveis do Cartola (jogos-root)
+        const activeMatches = externalMatches && externalMatches.partidas ? externalMatches.partidas : (localPartidas ? localPartidas.partidas : []);
+
         if (!data) {
-            container.innerHTML = `<div class="glass-card p-12 text-center"><p class="font-teko text-2xl uppercase animate-pulse">Carregando Mercado...</p></div>`;
+            container.innerHTML = `
+                <div class="glass-card p-12 text-center">
+                    <p class="font-teko text-2xl uppercase animate-pulse">Carregando Mercado...</p>
+                </div>
+            `;
             return;
         }
 
@@ -757,44 +840,13 @@ window.app = {
         const statusText = statusMap[data.status_mercado] || 'DESCONHECIDO';
         const statusColor = data.status_mercado === 2 ? 'text-red-500' : 'text-green-500';
 
-        let timesNaOrdem = [];
-        if (partidasData && partidasData.partidas) {
-            partidasData.partidas.forEach(p => {
-                timesNaOrdem.push({
-                    id: p.clube_casa_id,
-                    aproveitamento: p.aproveitamento_mandante,
-                    isMandante: true
-                });
-                timesNaOrdem.push({
-                    id: p.clube_visitante_id,
-                    aproveitamento: p.aproveitamento_visitante,
-                    isMandante: false
-                });
+        let crestsToRender = [];
+        if (activeMatches) {
+            activeMatches.forEach(p => {
+                crestsToRender.push({ id: p.clube_casa_id, alias: 'mandante' });
+                crestsToRender.push({ id: p.clube_visitante_id, alias: 'visitante' });
             });
         }
-
-        const renderAproveitamentoBolinhas = (aprov) => {
-            if (!aprov || !Array.isArray(aprov)) return '';
-            return aprov.map(resultado => {
-                let colorClass = '';
-                if (resultado === 'v') colorClass = 'bg-green-500';
-                else if (resultado === 'e') colorClass = 'bg-gray-400';
-                else if (resultado === 'd') colorClass = 'bg-red-500';
-                return `<div class="w-2.5 h-2.5 rounded-full ${colorClass} shadow-sm border border-white/50"></div>`;
-            }).join('');
-        };
-
-        // Função para fazer scroll suave até o card
-        window.scrollToCard = (index) => {
-            const element = document.getElementById(`time-card-${index}`);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                element.classList.add('ring-4', 'ring-cartola-orange', 'ring-offset-2', 'transition-all', 'duration-300');
-                setTimeout(() => {
-                    element.classList.remove('ring-4', 'ring-cartola-orange', 'ring-offset-2');
-                }, 2000);
-            }
-        };
 
         container.innerHTML = `
             <div class="space-y-6 animate-in fade-in duration-300">
@@ -823,119 +875,180 @@ window.app = {
                     </div>
                 </div>
 
-                ${timesNaOrdem.length > 0 ? `
+                ${crestsToRender.length > 0 ? `
                 <div class="glass-card p-6">
                     <div class="grid grid-cols-5 gap-2 md:gap-4 justify-items-center">
-                        ${timesNaOrdem.map((time, index) => `
-                            <div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-black/5 rounded-full p-2 flex items-center justify-center border border-black/5 hover:bg-black/10 transition-colors shadow-sm cursor-pointer hover:scale-110 transition-transform duration-200" 
-                                 onclick="scrollToCard(${index})"
-                                 title="Ver card do time">
-                                <img src="ESCUDOS_BRASILEIRAO/${time.id}.png" 
-                                     alt="Time ${time.id}" 
+                        ${crestsToRender.map(item => `
+                            <button onclick="const el = document.getElementById('lineup-${item.id}'); if(el) el.scrollIntoView({behavior: 'smooth', block: 'center'})" 
+                                    class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-black/5 rounded-full p-2 flex items-center justify-center border border-black/5 hover:bg-black/10 hover:scale-110 hover:shadow-md transition-all">
+                                <img src="ESCUDOS_BRASILEIRAO/${item.id}.png" 
+                                     alt="Time ${item.id}" 
                                      class="w-full h-full object-contain drop-shadow-sm"
                                      onerror="this.style.display='none'">
-                            </div>
+                            </button>
                         `).join('')}
                     </div>
                 </div>
-
-                <div class="space-y-4">
-                    ${timesNaOrdem.map((time, index) => {
-                        const clubeInfo = partidasData.clubes?.[time.id] || {};
-                        const nomeTime = clubeInfo.nome || `Time ${time.id}`;
-                        
-                        // Obter escalação do time
-                        const cartolaId = time.id;
-                        const slug = Object.keys(SLUG_TO_CARTOLA_ID).find(key => SLUG_TO_CARTOLA_ID[key] === cartolaId);
-                        const lineup = slug ? this.state.lineupsData?.teams?.[slug] : null;
-                        
-                        let jogadoresHtml = '';
-                        if (lineup && this.state.mercadoImages) {
-                            jogadoresHtml = lineup.titulares
-                                .filter(p => p.slot !== 'TEC')
-                                .map(p => {
-                                    const jogador = this.state.mercadoImages.get(p.id);
-                                    // Nome: prioridade apelido > nome > JOGADORES > ID
-                                    let nome = jogador?.apelido || jogador?.nome;
-                                    if (!nome && typeof JOGADORES !== 'undefined' && JOGADORES[p.id]?.slug) {
-                                        nome = JOGADORES[p.id].slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-                                    }
-                                    if (!nome) nome = `#${p.id}`;
-                                    
-                                    const foto = jogador?.foto || `ESCUDOS_BRASILEIRAO/${time.id}.png`;
-                                    const pos = resolvePos(p.slot, { x: p.x, y: p.y }, lineup.formacao);
-                                    const isDuvida = p.sit === 'duvida';
-                                    let duvidaComNome = '';
-                                    if (isDuvida && p.duvida_com) {
-                                        const altJogador = this.state.mercadoImages.get(p.duvida_com);
-                                        duvidaComNome = altJogador?.apelido || altJogador?.nome;
-                                        if (!duvidaComNome && typeof JOGADORES !== 'undefined' && JOGADORES[p.duvida_com]?.slug) {
-                                            duvidaComNome = JOGADORES[p.duvida_com].slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-                                        }
-                                        if (!duvidaComNome) duvidaComNome = `#${p.duvida_com}`;
-                                    }
-                                    
-                                    return `
-                                        <div class="absolute" style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;">
-                                            <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/80 p-1 shadow-md ${isDuvida ? 'border-2 border-orange-500' : ''}">
-                                                <img src="${foto}" alt="${nome}" class="w-full h-full object-contain rounded-full" onerror="this.src='ESCUDOS_BRASILEIRAO/${time.id}.png'">
-                                            </div>
-                                            <div class="text-center mt-0.5">
-                                                <p class="text-[12px] md:text-[14px] font-mono text-gray-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight font-bold">${nome}</p>
-                                                ${isDuvida && duvidaComNome ? `<p class="text-[9px] md:text-[10px] font-mono text-gray-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight">${duvidaComNome}</p>` : ''}
-                                            </div>
-                                        </div>
-                                    `;
-                                }).join('');
-                        }
-                        
-                        return `
-                        <div id="time-card-${index}" class="glass-card p-4 space-y-3 scroll-mt-20 transition-all duration-300">
-                            <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 shrink-0 bg-white rounded-xl p-1.5 shadow-md border border-white/50">
-                                    <img src="ESCUDOS_BRASILEIRAO/${time.id}.png" 
-                                         alt="${nomeTime}" 
-                                         class="w-full h-full object-contain"
-                                         onerror="this.src='ESCUDOS/default.png'">
-                                </div>
-                                
-                                <div class="flex-1 min-w-0">
-                                    <p class="font-teko text-2xl uppercase leading-tight tracking-wide text-gray-800 truncate">${nomeTime}</p>
-                                </div>
-                                
-                                <div class="flex gap-1.5">
-                                    ${renderAproveitamentoBolinhas(time.aproveitamento)}
-                                </div>
-                                
-                                <div class="shrink-0">
-                                    <span class="text-[10px] font-mono text-gray-500 uppercase bg-black/5 px-2 py-1 rounded-full">
-                                        ${time.isMandante ? 'Casa' : 'Fora'}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="relative w-full aspect-[4/5] rounded-xl overflow-hidden border border-white/30 shadow-inner">
-                                <div class="absolute inset-0 bg-gradient-to-b from-green-600/40 to-green-800/40"></div>
-                                
-                                <div class="absolute inset-0 opacity-30 pointer-events-none">
-                                    <div class="absolute inset-3 border border-white rounded"></div>
-                                    <div class="absolute top-1/2 left-0 right-0 h-px bg-white"></div>
-                                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 border border-white rounded-full"></div>
-                                    <div class="absolute top-3 left-1/2 -translate-x-1/2 w-24 h-12 border border-t-0 border-white"></div>
-                                    <div class="absolute bottom-3 left-1/2 -translate-x-1/2 w-24 h-12 border border-b-0 border-white"></div>
-                                </div>
-                                
-                                <!-- Jogadores posicionados -->
-                                ${jogadoresHtml}
-                            </div>
-                        </div>
-                        `;
-                    }).join('')}
-                </div>
                 ` : ''}
+
+                <!-- Escalações Prováveis -->
+                <div id="lineups-section" class="space-y-8">
+                    ${this.renderLineupCards(crestsToRender, probableLineups)}
+                </div>
             </div>
         `;
         if (typeof lucide !== 'undefined') lucide.createIcons();
+    },
+
+    renderLineupCards(teams, lineups) {
+        if (this.state.lineupsLoadingStatus === 'loading') {
+            return `
+                <div class="text-center py-10 space-y-3">
+                    <p class="font-teko uppercase text-xl animate-pulse text-gray-400">Buscando escalações prováveis...</p>
+                    <p class="text-[10px] text-gray-400 max-w-xs mx-auto">Se você estiver rodando o arquivo localmente, a conexão externa pode demorar alguns segundos a mais.</p>
+                </div>
+            `;
+        }
+
+        if (this.state.lineupsLoadingStatus === 'error' && (!lineups || !lineups.teams)) {
+            return `
+                <div class="glass-card p-8 text-center border-dashed border-2 border-red-500/20">
+                    <p class="font-teko text-red-500 text-xl uppercase mb-2">Não foi possível carregar as escalações</p>
+                    <p class="text-xs text-gray-400 mb-4">O bloqueio de segurança do seu navegador pode estar impedindo o acesso aos dados externos no modo local.</p>
+                    <a href="https://provaveisdocartola.com.br" target="_blank" class="inline-block px-4 py-1.5 bg-black/5 hover:bg-black/10 rounded font-teko text-sm uppercase transition-colors">
+                        Ver Direto no Site Oficial
+                    </a>
+                </div>
+            `;
+        }
+        
+        if (!lineups || !lineups.teams) return '';
+        
+        // Mapeamento de IDs para nomes e slugs do JSON externo (Série A e B)
+        const teamConfigs = {
+            262: { name: 'Flamengo', slug: 'flamengo_v2' },
+            263: { name: 'Botafogo', slug: 'botafogo_v2' },
+            264: { name: 'Corinthians', slug: 'corinthians_v2' },
+            265: { name: 'Bahia', slug: 'bahia_v2' },
+            266: { name: 'Fluminense', slug: 'fluminense_v2' },
+            267: { name: 'Vasco', slug: 'vasco_v2' },
+            275: { name: 'Palmeiras', slug: 'palmeiras_v2' },
+            276: { name: 'São Paulo', slug: 'sao-paulo_v2' },
+            277: { name: 'Santos', slug: 'santos_v2' },
+            280: { name: 'Bragantino', slug: 'bragantino_v2' },
+            282: { name: 'Atlético-MG', slug: 'atletico-mg_v2' },
+            283: { name: 'Cruzeiro', slug: 'cruzeiro_v2' },
+            284: { name: 'Grêmio', slug: 'gremio_v2' },
+            285: { name: 'Internacional', slug: 'internacional_v2' },
+            286: { name: 'Juventude', slug: 'juventude_v2' },
+            287: { name: 'Vitória', slug: 'vitoria_v2' },
+            290: { name: 'Goiás', slug: 'goias_v2' },
+            292: { name: 'Sport', slug: 'sport_v2' },
+            293: { name: 'Athlético-PR', slug: 'athletico-pr_v2' },
+            294: { name: 'Coritiba', slug: 'coritiba_v2' },
+            301: { name: 'Avaí', slug: 'avai_v2' },
+            304: { name: 'Figueirense', slug: 'figueirense_v2' },
+            314: { name: 'Joinville', slug: 'joinville_v2' },
+            315: { name: 'Chapecoense', slug: 'chapecoense_v2' },
+            316: { name: 'Criciúma', slug: 'criciuma_v2' },
+            327: { name: 'América-MG', slug: 'america-mg_v2' },
+            331: { name: 'Ponte Preta', slug: 'ponte-preta_v2' },
+            341: { name: 'Guarani', slug: 'guarani_v2' },
+            354: { name: 'Ceará', slug: 'ceara_v2' },
+            356: { name: 'Fortaleza', slug: 'fortaleza_v2' },
+            364: { name: 'Remo', slug: 'remo_v2' },
+            373: { name: 'Atlético-GO', slug: 'atletico-go_v2' },
+            1371: { name: 'Cuiabá', slug: 'cuiaba_v2' },
+            2305: { name: 'Mirassol', slug: 'mirassol_v2' }
+        };
+
+        return teams.map(item => {
+            const teamId = item.id;
+            const config = teamConfigs[teamId] || { name: `Time ${teamId}`, slug: teamId };
+            // Procura a escalação na propriedade .teams do JSON retornado
+            const teamData = lineups.teams[config.slug] || {};
+            const lineup = teamData.titulares || [];
+
+            return `
+                <div id="lineup-${teamId}" class="glass-card overflow-hidden">
+                    <div class="bg-black/5 p-4 flex items-center gap-3 border-b border-black/5">
+                        <img src="ESCUDOS_BRASILEIRAO/${teamId}.png" class="w-8 h-8 object-contain" onerror="this.remove()">
+                        <h3 class="font-teko text-2xl uppercase tracking-wider">${config.name}</h3>
+                        <span class="ml-auto text-[10px] font-mono text-gray-400 uppercase">Provável Escalação</span>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div class="field-bg aspect-[3/4] w-full max-w-sm mx-auto rounded-xl shadow-inner overflow-hidden relative border border-white/20">
+                            ${this.renderPitchPlayers(lineup, teamId)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    },
+
+    renderPitchPlayers(lineup, teamId) {
+        if (!lineup || lineup.length === 0) {
+            return '<div class="absolute inset-0 flex items-center justify-center text-white/20 font-teko uppercase">Dados indisponíveis</div>';
+        }
+
+        return lineup.map(p => {
+            // Usa as coordenadas (x, y) do JSON se disponíveis, senão usa fallback por slot
+            const left = p.x !== undefined ? p.x : (this.getSlotCoords(p.slot).l);
+            const top = p.y !== undefined ? p.y : (this.getSlotCoords(p.slot).t);
+            
+            // Busca o nome do atleta no mapa de atletas ou no fallback JOGADORES
+            const athlete = this.state.athletesData ? this.state.athletesData[p.id] : null;
+            let name = athlete ? (athlete.apelido || athlete.nome) : null;
+            
+            if (!name && typeof JOGADORES !== 'undefined' && JOGADORES[p.id]?.slug) {
+                // Formata o slug (ex: igor-gomes -> Igor Gomes)
+                name = JOGADORES[p.id].slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            }
+            
+            if (!name) name = `#${p.id}`;
+
+            const isDuvida = p.status === 'Dúvida';
+            const duvidaCom = p.duvida_com || [];
+            let duvidaComNome = '';
+            if (isDuvida && duvidaCom.length > 0) {
+                duvidaComNome = duvidaCom.map(dId => {
+                    const dAthlete = this.state.athletesData ? this.state.athletesData[dId] : null;
+                    if (dAthlete) return dAthlete.apelido || dAthlete.nome;
+                    if (typeof JOGADORES !== 'undefined' && JOGADORES[dId]?.slug) {
+                        return JOGADORES[dId].slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                    }
+                    return '#' + dId;
+                }).join(' / ');
+            }
+
+            return `
+                <div class="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5 group" style="top: ${top}%; left: ${left}%; z-index: 20;">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/90 p-0.5 shadow-md ${isDuvida ? 'border-2 border-orange-500' : 'border border-white/50'} group-hover:scale-110 transition-transform overflow-hidden">
+                        <img src="https://cdn.provaveisdocartola.com.br/atletas/${p.id}.webp" 
+                             class="w-full h-full object-cover rounded-full"
+                             onerror="this.src='ESCUDOS_BRASILEIRAO/${teamId}.png'; this.classList.add('p-2', 'opacity-30')">
+                    </div>
+                    <div class="text-center">
+                        <p class="text-[9px] md:text-[11px] font-mono text-gray-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight font-black uppercase whitespace-nowrap">${name}</p>
+                        ${duvidaComNome ? `<p class="text-[7px] md:text-[8px] font-mono text-gray-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight uppercase whitespace-nowrap italic">ou ${duvidaComNome}</p>` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    },
+
+    getSlotCoords(slot) {
+        const coords = {
+            'GOL': {t: 88, l: 50},
+            'ZAG-L': {t: 71, l: 35}, 'ZAG-R': {t: 71, l: 65}, 'ZAG-C': {t: 71, l: 50},
+            'LAT-L': {t: 66, l: 15}, 'LAT-R': {t: 66, l: 85},
+            'VOL': {t: 55, l: 50}, 'VOL-L': {t: 52, l: 30}, 'VOL-R': {t: 52, l: 70},
+            'MEI-L': {t: 45, l: 25}, 'MEI-R': {t: 45, l: 75}, 'MEI-C': {t: 35, l: 50},
+            'ATA-L': {t: 20, l: 20}, 'ATA-R': {t: 20, l: 80}, 'ATA-C': {t: 12, l: 50},
+            'TEC': {t: 94, l: 88}
+        };
+        return coords[slot] || {t: 50, l: 50};
     },
 
     closeMercado() {
@@ -949,6 +1062,7 @@ window.app = {
         const round = this.state.selectedRound;
         const rawEscalacao = this.state.data.escalacoes[team] || [];
         
+        // Filtra a escalação para a rodada selecionada (LÓGICA ORIGINAL RESTAURADA)
         let escalacao = [];
         let foundRound = false;
         for (let i = 0; i < rawEscalacao.length; i++) {
@@ -958,7 +1072,7 @@ window.app = {
                 continue;
             }
             if (foundRound) {
-                if (item.rdd && item.rdd !== round) break;
+                if (item.rdd && item.rdd !== round) break; // Próxima rodada
                 escalacao.push(item);
             }
         }
@@ -969,11 +1083,13 @@ window.app = {
 
         container.innerHTML = `
             <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <!-- Back Button -->
                 <button onclick="app.selectTeam(null)" class="flex items-center gap-2 text-gray-500 hover:text-cartola-orange transition-colors group">
                     <i data-lucide="arrow-left" class="w-5 h-5 group-hover:-translate-x-1 transition-transform"></i>
                     <span class="font-teko text-lg uppercase tracking-wider">Voltar</span>
                 </button>
 
+                <!-- Team Header -->
                 <div class="glass-card p-8 flex flex-col md:flex-row items-center gap-8">
                     <div class="w-32 h-32 rounded-full bg-white p-2 shadow-2xl border-4 border-cartola-orange/10">
                         <img src="ESCUDOS/${team}.png" class="w-full h-full object-contain" onerror="this.src='ESCUDOS/default.png'">
@@ -994,6 +1110,7 @@ window.app = {
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Lineup -->
                     <div class="glass-card p-6">
                         <h3 class="font-teko text-2xl uppercase tracking-wider mb-6 border-b border-black/5 pb-2">Escalação Rodada ${this.state.selectedRound}</h3>
                         ${escalacao.length > 0 ? `
@@ -1022,6 +1139,7 @@ window.app = {
                         `}
                     </div>
 
+                    <!-- History Chart -->
                     <div class="glass-card p-6">
                         <h3 class="font-teko text-2xl uppercase tracking-wider mb-6 border-b border-black/5 pb-2">Desempenho Histórico</h3>
                         <div class="space-y-4">
@@ -1053,6 +1171,7 @@ window.app = {
         lucide.createIcons();
     },
 
+    // Actions
     setSerie(serie) {
         this.state.activeSerie = serie;
         this.state.selectedRound = this.getMaxRound();
