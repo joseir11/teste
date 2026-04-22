@@ -1,8 +1,5 @@
 console.log('script.js: Carregando...');
 
-// ==================== CONFIGURAÇÃO DO PROXY ====================
-const PROXY_URL = 'https://josabet-proxy.onrender.com';
-
 // ==================== MAPEAMENTO DE SLUGS PARA IDs DO CARTOLA ====================
 const SLUG_TO_CARTOLA_ID = {
     "corinthians_v2": 264,
@@ -58,35 +55,21 @@ function resolvePos(slot, xy, formacao) {
     return { x: 50, y: 50 };
 }
 
-// Função que retorna o nome do jogador a partir do ID, usando múltiplas fontes
-function getJogadorNome(id, mercadoImagesMap) {
+// Obtém o nome do jogador a partir do arquivo jogadores.js (global JOGADORES)
+function getJogadorNome(id) {
     const numId = Number(id);
-    
-    // 1. Tenta no mapa de mercado (com chave numérica e string)
-    if (mercadoImagesMap) {
-        const jogador = mercadoImagesMap.get(numId) || mercadoImagesMap.get(String(numId));
-        if (jogador) {
-            const nome = jogador.apelido || jogador.nome;
-            if (nome) {
-                console.log(`[getJogadorNome] ID ${id} -> "${nome}" (mercadoImages)`);
-                return nome;
-            }
-        }
-    }
-    
-    // 2. Fallback para JOGADORES global (jogadores.js)
     if (typeof JOGADORES !== 'undefined' && JOGADORES) {
         const jogadorSlug = JOGADORES[numId] || JOGADORES[String(numId)];
         if (jogadorSlug && jogadorSlug.slug) {
-            const nome = jogadorSlug.slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-            console.log(`[getJogadorNome] ID ${id} -> "${nome}" (jogadores.js)`);
-            return nome;
+            return jogadorSlug.slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
         }
     }
-    
-    // 3. Fallback final
-    console.warn(`[getJogadorNome] ID ${id} não encontrado. Usando fallback.`);
     return `Jogador ${id}`;
+}
+
+// Obtém o caminho da foto do jogador (pasta local /JOGADORES/)
+function getJogadorFoto(id, timeId) {
+    return `/JOGADORES/${id}.webp`;
 }
 
 window.app = {
@@ -99,7 +82,6 @@ window.app = {
         mercadoData: null,
         partidasData: null,
         lineupsData: null,
-        mercadoImages: null,
         data: null,
         deferredPrompt: null
     },
@@ -663,103 +645,27 @@ window.app = {
         this.state.isMercadoView = true;
         this.state.selectedTeam = null;
         this.state.mercadoData = null;
-        this.render(); // Mostra "Carregando..."
+        this.render();
 
-        // 1. TENTA CARREGAR VARIÁVEIS GLOBAIS (Para modo local)
+        // 1. CARREGAR STATUS E PARTIDAS (já existente)
         const globalStatus = typeof STATUS_MERCADO !== 'undefined' ? STATUS_MERCADO : null;
         const globalPartidas = typeof PARTIDAS !== 'undefined' ? PARTIDAS : 
                              (typeof partidas !== 'undefined' ? partidas : null);
 
-        if (globalStatus) {
-            this.processMercadoData(JSON.parse(JSON.stringify(globalStatus)));
-        }
+        if (globalStatus) this.processMercadoData(JSON.parse(JSON.stringify(globalStatus)));
+        if (globalPartidas) this.state.partidasData = JSON.parse(JSON.stringify(globalPartidas));
 
-        if (globalPartidas) {
-            this.state.partidasData = JSON.parse(JSON.stringify(globalPartidas));
-        }
-
-        // 2. TENTA VIA FETCH (Para Github/Servidor ou se faltar variável local)
-        const statusToTry = ['status.js', 'status.txt', 'status.json'];
-        const matchesToTry = ['partidas.js', 'partidas.txt', 'partidas.json'];
-
-        // Carregando Status se necessário
-        if (!globalStatus) {
-            for (const fileName of statusToTry) {
-                try {
-                    const response = await fetch(`${fileName}?t=${Date.now()}`);
-                    if (response.ok) {
-                        let text = (await response.text()).trim();
-                        text = text.replace(/^(var|const|let)\s+STATUS_MERCADO\s*=\s*/, '');
-                        text = text.replace(/;?\s*$/, ''); 
-                        this.processMercadoData(JSON.parse(text));
-                        break;
-                    }
-                } catch (e) {}
-            }
-        }
-
-        // Carregando Partidas se necessário
-        if (!globalPartidas) {
-            for (const fileName of matchesToTry) {
-                try {
-                    const response = await fetch(`${fileName}?t=${Date.now()}`);
-                    if (response.ok) {
-                        let text = (await response.text()).trim();
-                        text = text.replace(/^(var|const|let)\s+PARTIDAS\s*=\s*/, '');
-                        text = text.replace(/^(var|const|let)\s+partidas\s*=\s*/, '');
-                        text = text.replace(/;?\s*$/, ''); 
-                        this.state.partidasData = JSON.parse(text);
-                        break;
-                    }
-                } catch (e) {}
-            }
-        }
-        
-        if (!this.state.mercadoData && !globalStatus) {
-            const isLocal = window.location.protocol === 'file:';
-            this.state.mercadoData = { 
-                error: true, 
-                details: isLocal 
-                    ? 'Para modo local, o arquivo status.js deve iniciar com: var STATUS_MERCADO = ' 
-                    : 'Dados do mercado não encontrados.'
-            };
-        }
-
-        // 3. CARREGAR DADOS DE ESCALAÇÃO DO PROXY
+        // 2. CARREGAR LINEUPS (ESCALAÇÕES) DO PROXY
         try {
-            console.log('[viewMercado] Buscando dados do proxy...');
-            const [lineupsRes, mercadoRes] = await Promise.all([
-                fetch(`${PROXY_URL}/provaveis/lineups`),
-                fetch(`${PROXY_URL}/provaveis/mercado-images`)
-            ]);
+            const lineupsRes = await fetch('https://josabet-proxy.onrender.com/provaveis/lineups');
             if (lineupsRes.ok) {
                 this.state.lineupsData = await lineupsRes.json();
                 console.log('[viewMercado] Lineups carregadas:', this.state.lineupsData);
             } else {
                 console.warn('[viewMercado] Falha ao carregar lineups:', lineupsRes.status);
             }
-            if (mercadoRes.ok) {
-                const mercadoArray = await mercadoRes.json();
-                // Criar mapa com chaves numéricas E strings para garantir compatibilidade
-                this.state.mercadoImages = new Map();
-                mercadoArray.forEach(item => {
-                    const id = item.atleta_id;
-                    this.state.mercadoImages.set(id, item);
-                    this.state.mercadoImages.set(String(id), item);
-                });
-                console.log('[viewMercado] Mercado images carregadas. Total de jogadores:', this.state.mercadoImages.size / 2); // dividido por 2 porque inserimos chave número e string
-                
-                // Teste de alguns IDs comuns
-                const testIds = [63289, 92171, 111831, 100652, 39148];
-                testIds.forEach(id => {
-                    const jog = this.state.mercadoImages.get(id) || this.state.mercadoImages.get(String(id));
-                    console.log(`[viewMercado] Verificação ID ${id}:`, jog ? jog.apelido : 'NÃO ENCONTRADO');
-                });
-            } else {
-                console.warn('[viewMercado] Falha ao carregar mercado-images:', mercadoRes.status);
-            }
         } catch (error) {
-            console.error('[viewMercado] Erro ao buscar dados do Prováveis:', error);
+            console.error('[viewMercado] Erro ao buscar lineups:', error);
         }
 
         this.render();
@@ -835,7 +741,6 @@ window.app = {
             }).join('');
         };
 
-        // Função para fazer scroll suave até o card
         window.scrollToCard = (index) => {
             const element = document.getElementById(`time-card-${index}`);
             if (element) {
@@ -895,25 +800,20 @@ window.app = {
                         const clubeInfo = partidasData.clubes?.[time.id] || {};
                         const nomeTime = clubeInfo.nome || `Time ${time.id}`;
                         
-                        // Obter escalação do time
                         const cartolaId = time.id;
                         const slug = Object.keys(SLUG_TO_CARTOLA_ID).find(key => SLUG_TO_CARTOLA_ID[key] === cartolaId);
                         const lineup = slug ? this.state.lineupsData?.teams?.[slug] : null;
                         
                         let jogadoresHtml = '';
                         if (lineup) {
-                            console.log(`Renderizando time ${nomeTime} (slug: ${slug})`);
                             jogadoresHtml = lineup.titulares
                                 .filter(p => p.slot !== 'TEC')
                                 .map(p => {
-                                    // Usa a função robusta getJogadorNome
-                                    const nome = getJogadorNome(p.id, this.state.mercadoImages);
-                                    const foto = this.state.mercadoImages?.get(Number(p.id))?.foto || 
-                                                 this.state.mercadoImages?.get(String(p.id))?.foto || 
-                                                 `ESCUDOS_BRASILEIRAO/${time.id}.png`;
+                                    const nome = getJogadorNome(p.id);
+                                    const foto = getJogadorFoto(p.id);
                                     const pos = resolvePos(p.slot, { x: p.x, y: p.y }, lineup.formacao);
                                     const isDuvida = p.sit === 'duvida';
-                                    const duvidaComNome = isDuvida && p.duvida_com ? getJogadorNome(p.duvida_com, this.state.mercadoImages) : '';
+                                    const duvidaComNome = isDuvida && p.duvida_com ? getJogadorNome(p.duvida_com) : '';
                                     
                                     return `
                                         <div class="absolute" style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;">
@@ -927,8 +827,6 @@ window.app = {
                                         </div>
                                     `;
                                 }).join('');
-                        } else {
-                            console.warn(`Lineup não encontrada para o time ${nomeTime} (slug: ${slug})`);
                         }
                         
                         return `
@@ -967,7 +865,6 @@ window.app = {
                                     <div class="absolute bottom-3 left-1/2 -translate-x-1/2 w-24 h-12 border border-b-0 border-white"></div>
                                 </div>
                                 
-                                <!-- Jogadores posicionados -->
                                 ${jogadoresHtml}
                             </div>
                         </div>
