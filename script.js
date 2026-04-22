@@ -68,6 +68,7 @@ window.app = {
         mercadoData: null,
         partidasData: null,
         lineupsData: null,
+        teamUpdatesData: null,
         mercadoImages: null,
         data: null,
         deferredPrompt: null
