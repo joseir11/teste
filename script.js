@@ -876,13 +876,13 @@ window.app = {
                                     }
                                     
                                     return `
-                                        <div class="absolute" style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;">
+                                        <div class="absolute flex flex-col items-center" style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;">
                                             <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/80 p-1 shadow-md ${isDuvida ? 'border-2 border-orange-500' : ''}">
                                                 <img src="${foto}" alt="${nome}" class="w-full h-full object-contain rounded-full" onerror="this.src='ESCUDOS_BRASILEIRAO/${time.id}.png'">
                                             </div>
-                                            <div class="text-center mt-0.5">
-                                                <p class="text-[12px] md:text-[14px] font-mono text-gray-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight font-bold">${nome}</p>
-                                                ${isDuvida && duvidaComNome ? `<p class="text-[9px] md:text-[10px] font-mono text-gray-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight">${duvidaComNome}</p>` : ''}
+                                            <div class="flex flex-col items-center mt-0.5">
+                                                <p class="text-[12px] md:text-[14px] font-mono text-gray-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight font-bold text-center whitespace-nowrap">${nome}</p>
+                                                ${isDuvida && duvidaComNome ? `<p class="text-[9px] md:text-[10px] font-mono text-gray-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight text-center whitespace-nowrap">${duvidaComNome}</p>` : ''}
                                             </div>
                                         </div>
                                     `;
