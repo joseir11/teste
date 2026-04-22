@@ -875,16 +875,11 @@ window.app = {
                                         if (!duvidaComNome) duvidaComNome = `#${p.duvida_com}`;
                                     }
                                     
-// ABREVIA NOMES COMPOSTOS (EX: MATHEUS MARTINS -> M. MARTINS)
-const nomePartes = nome.split(' ');
-let nomeBadge = nome;
-
-if (nomePartes.length > 1) {
-    const primeiroNome = nomePartes[0];
-    const ultimoNome = nomePartes[nomePartes.length - 1];
-    // PEGA A PRIMEIRA LETRA DO PRIMEIRO NOME + PONTO + ÚLTIMO NOME
-    nomeBadge = `${primeiroNome.charAt(0)}. ${ultimoNome}`;
-}
+                                    const nomePartes = nome.split(' ');
+                                    const nomeBadge = nomePartes.length > 1
+                                        ? nomePartes.join('<br>')
+                                        : nome;
+                                    const duvidaBadge = duvidaComNome ? duvidaComNome.split(' ').join('<br>') : '';
                                     return `
                                         <div class="absolute flex flex-col items-center" style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;">
                                             <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/80 p-1 shadow-md ${isDuvida ? 'border-2 border-orange-500' : ''}">
