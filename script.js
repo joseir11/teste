@@ -697,9 +697,10 @@ window.app = {
 
         // 3. CARREGAR DADOS DE ESCALAÇÃO DO PROXY
         try {
-            const [lineupsRes, mercadoRes] = await Promise.all([
+            const [lineupsRes, mercadoRes, teamUpdRes] = await Promise.all([
                 fetch(`${PROXY_URL}/provaveis/lineups`),
-                fetch(`${PROXY_URL}/provaveis/mercado-images`)
+                fetch(`${PROXY_URL}/provaveis/mercado-images`),
+                fetch(`${PROXY_URL}/provaveis/team-updates`)
             ]);
             if (lineupsRes.ok) {
                 this.state.lineupsData = await lineupsRes.json();
@@ -707,6 +708,9 @@ window.app = {
             if (mercadoRes.ok) {
                 const mercadoArray = await mercadoRes.json();
                 this.state.mercadoImages = new Map(mercadoArray.map(item => [item.atleta_id, item]));
+            }
+            if (teamUpdRes.ok) {
+                this.state.teamUpdatesData = await teamUpdRes.json();
             }
         } catch (error) {
             console.warn('Erro ao buscar dados do Prováveis:', error);
@@ -849,6 +853,23 @@ window.app = {
                         const cartolaId = time.id;
                         const slug = Object.keys(SLUG_TO_CARTOLA_ID).find(key => SLUG_TO_CARTOLA_ID[key] === cartolaId);
                         const lineup = slug ? this.state.lineupsData?.teams?.[slug] : null;
+
+                        // Horário de última atualização
+                        const lastUpdate = slug ? this.state.teamUpdatesData?.teams?.[slug]?.last_update : null;
+                        const fmtUpdate = (() => {
+                            if (!lastUpdate) return null;
+                            try {
+                                const now = new Date();
+                                const dt = new Date(lastUpdate);
+                                const pad = n => String(n).padStart(2, '0');
+                                const hhmm = pad(dt.getHours()) + 'h' + pad(dt.getMinutes());
+                                const sameDay = now.toDateString() === dt.toDateString();
+                                const yest = new Date(now); yest.setDate(now.getDate() - 1);
+                                if (sameDay) return 'Hoje ' + hhmm;
+                                if (yest.toDateString() === dt.toDateString()) return 'Ontem ' + hhmm;
+                                return pad(dt.getDate()) + '/' + pad(dt.getMonth()+1) + ' ' + hhmm;
+                            } catch { return null; }
+                        })();
                         
                         let jogadoresHtml = '';
                         if (lineup && this.state.mercadoImages) {
@@ -912,6 +933,7 @@ window.app = {
                                 
                                 <div class="flex-1 min-w-0">
                                     <p class="font-teko text-2xl uppercase leading-tight tracking-wide text-gray-800 truncate">${nomeTime}</p>
+                                    ${fmtUpdate ? `<p class="flex items-center gap-1 text-[10px] font-mono text-gray-400 leading-none mt-0.5"><svg xmlns='http://www.w3.org/2000/svg' class='w-3 h-3 inline-block' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><polyline points='12 6 12 12 16 14'/></svg> Atualizado ${fmtUpdate}</p>` : ''}
                                 </div>
                                 
                                 <div class="flex gap-1.5">
