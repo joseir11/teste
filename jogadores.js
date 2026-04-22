@@ -238,6 +238,7 @@ var JOGADORES = {
   "82455": { "slug": "ze-rafael" },
   "82628": { "slug": "tinga" },
   "82730": { "slug": "marcelo-rangel" },
+  "83048": { "slug": "rafael-thyere" },
   "83263": { "slug": "yuri-lara" },
   "83433": { "slug": "patrick" },
   "83528": { "slug": "leo-pereira" },
