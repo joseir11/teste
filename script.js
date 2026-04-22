@@ -1,5 +1,8 @@
 console.log('script.js: Carregando...');
 
+// ==================== CONFIGURAÇÃO DO PROXY ====================
+const PROXY_URL = 'https://josabet-proxy.onrender.com';
+
 // ==================== MAPEAMENTO DE SLUGS PARA IDs DO CARTOLA ====================
 const SLUG_TO_CARTOLA_ID = {
     "corinthians_v2": 264,
@@ -47,29 +50,12 @@ const POSICOES_POR_FORMACAO = {
     ]
 };
 
-// Função auxiliar para posicionamento
+// Função auxiliar para posicionamento (usando coordenadas do JSON)
 function resolvePos(slot, xy, formacao) {
     if (xy && Number.isFinite(xy.x) && Number.isFinite(xy.y)) {
         return { x: xy.x, y: xy.y };
     }
     return { x: 50, y: 50 };
-}
-
-// Obtém o nome do jogador a partir do arquivo jogadores.js (global JOGADORES)
-function getJogadorNome(id) {
-    const numId = Number(id);
-    if (typeof JOGADORES !== 'undefined' && JOGADORES) {
-        const jogadorSlug = JOGADORES[numId] || JOGADORES[String(numId)];
-        if (jogadorSlug && jogadorSlug.slug) {
-            return jogadorSlug.slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-        }
-    }
-    return `Jogador ${id}`;
-}
-
-// Obtém o caminho da foto do jogador (pasta local /JOGADORES/)
-function getJogadorFoto(id, timeId) {
-    return `/JOGADORES/${id}.webp`;
 }
 
 window.app = {
@@ -82,6 +68,7 @@ window.app = {
         mercadoData: null,
         partidasData: null,
         lineupsData: null,
+        mercadoImages: null,
         data: null,
         deferredPrompt: null
     },
@@ -645,27 +632,83 @@ window.app = {
         this.state.isMercadoView = true;
         this.state.selectedTeam = null;
         this.state.mercadoData = null;
-        this.render();
+        this.render(); // Mostra "Carregando..."
 
-        // 1. CARREGAR STATUS E PARTIDAS (já existente)
+        // 1. TENTA CARREGAR VARIÁVEIS GLOBAIS (Para modo local)
         const globalStatus = typeof STATUS_MERCADO !== 'undefined' ? STATUS_MERCADO : null;
         const globalPartidas = typeof PARTIDAS !== 'undefined' ? PARTIDAS : 
                              (typeof partidas !== 'undefined' ? partidas : null);
 
-        if (globalStatus) this.processMercadoData(JSON.parse(JSON.stringify(globalStatus)));
-        if (globalPartidas) this.state.partidasData = JSON.parse(JSON.stringify(globalPartidas));
+        if (globalStatus) {
+            this.processMercadoData(JSON.parse(JSON.stringify(globalStatus)));
+        }
 
-        // 2. CARREGAR LINEUPS (ESCALAÇÕES) DO PROXY
+        if (globalPartidas) {
+            this.state.partidasData = JSON.parse(JSON.stringify(globalPartidas));
+        }
+
+        // 2. TENTA VIA FETCH (Para Github/Servidor ou se faltar variável local)
+        const statusToTry = ['status.js', 'status.txt', 'status.json'];
+        const matchesToTry = ['partidas.js', 'partidas.txt', 'partidas.json'];
+
+        // Carregando Status se necessário
+        if (!globalStatus) {
+            for (const fileName of statusToTry) {
+                try {
+                    const response = await fetch(`${fileName}?t=${Date.now()}`);
+                    if (response.ok) {
+                        let text = (await response.text()).trim();
+                        text = text.replace(/^(var|const|let)\s+STATUS_MERCADO\s*=\s*/, '');
+                        text = text.replace(/;?\s*$/, ''); 
+                        this.processMercadoData(JSON.parse(text));
+                        break;
+                    }
+                } catch (e) {}
+            }
+        }
+
+        // Carregando Partidas se necessário
+        if (!globalPartidas) {
+            for (const fileName of matchesToTry) {
+                try {
+                    const response = await fetch(`${fileName}?t=${Date.now()}`);
+                    if (response.ok) {
+                        let text = (await response.text()).trim();
+                        text = text.replace(/^(var|const|let)\s+PARTIDAS\s*=\s*/, '');
+                        text = text.replace(/^(var|const|let)\s+partidas\s*=\s*/, '');
+                        text = text.replace(/;?\s*$/, ''); 
+                        this.state.partidasData = JSON.parse(text);
+                        break;
+                    }
+                } catch (e) {}
+            }
+        }
+        
+        if (!this.state.mercadoData && !globalStatus) {
+            const isLocal = window.location.protocol === 'file:';
+            this.state.mercadoData = { 
+                error: true, 
+                details: isLocal 
+                    ? 'Para modo local, o arquivo status.js deve iniciar com: var STATUS_MERCADO = ' 
+                    : 'Dados do mercado não encontrados.'
+            };
+        }
+
+        // 3. CARREGAR DADOS DE ESCALAÇÃO DO PROXY
         try {
-            const lineupsRes = await fetch('https://josabet-proxy.onrender.com/provaveis/lineups');
+            const [lineupsRes, mercadoRes] = await Promise.all([
+                fetch(`${PROXY_URL}/provaveis/lineups`),
+                fetch(`${PROXY_URL}/provaveis/mercado-images`)
+            ]);
             if (lineupsRes.ok) {
                 this.state.lineupsData = await lineupsRes.json();
-                console.log('[viewMercado] Lineups carregadas:', this.state.lineupsData);
-            } else {
-                console.warn('[viewMercado] Falha ao carregar lineups:', lineupsRes.status);
+            }
+            if (mercadoRes.ok) {
+                const mercadoArray = await mercadoRes.json();
+                this.state.mercadoImages = new Map(mercadoArray.map(item => [item.atleta_id, item]));
             }
         } catch (error) {
-            console.error('[viewMercado] Erro ao buscar lineups:', error);
+            console.warn('Erro ao buscar dados do Prováveis:', error);
         }
 
         this.render();
@@ -741,6 +784,7 @@ window.app = {
             }).join('');
         };
 
+        // Função para fazer scroll suave até o card
         window.scrollToCard = (index) => {
             const element = document.getElementById(`time-card-${index}`);
             if (element) {
@@ -800,20 +844,36 @@ window.app = {
                         const clubeInfo = partidasData.clubes?.[time.id] || {};
                         const nomeTime = clubeInfo.nome || `Time ${time.id}`;
                         
+                        // Obter escalação do time
                         const cartolaId = time.id;
                         const slug = Object.keys(SLUG_TO_CARTOLA_ID).find(key => SLUG_TO_CARTOLA_ID[key] === cartolaId);
                         const lineup = slug ? this.state.lineupsData?.teams?.[slug] : null;
                         
                         let jogadoresHtml = '';
-                        if (lineup) {
+                        if (lineup && this.state.mercadoImages) {
                             jogadoresHtml = lineup.titulares
                                 .filter(p => p.slot !== 'TEC')
                                 .map(p => {
-                                    const nome = getJogadorNome(p.id);
-                                    const foto = getJogadorFoto(p.id);
+                                    const jogador = this.state.mercadoImages.get(p.id);
+                                    // Nome: prioridade apelido > nome > JOGADORES > ID
+                                    let nome = jogador?.apelido || jogador?.nome;
+                                    if (!nome && typeof JOGADORES !== 'undefined' && JOGADORES[p.id]?.slug) {
+                                        nome = JOGADORES[p.id].slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                                    }
+                                    if (!nome) nome = `#${p.id}`;
+                                    
+                                    const foto = jogador?.foto || `ESCUDOS_BRASILEIRAO/${time.id}.png`;
                                     const pos = resolvePos(p.slot, { x: p.x, y: p.y }, lineup.formacao);
                                     const isDuvida = p.sit === 'duvida';
-                                    const duvidaComNome = isDuvida && p.duvida_com ? getJogadorNome(p.duvida_com) : '';
+                                    let duvidaComNome = '';
+                                    if (isDuvida && p.duvida_com) {
+                                        const altJogador = this.state.mercadoImages.get(p.duvida_com);
+                                        duvidaComNome = altJogador?.apelido || altJogador?.nome;
+                                        if (!duvidaComNome && typeof JOGADORES !== 'undefined' && JOGADORES[p.duvida_com]?.slug) {
+                                            duvidaComNome = JOGADORES[p.duvida_com].slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                                        }
+                                        if (!duvidaComNome) duvidaComNome = `#${p.duvida_com}`;
+                                    }
                                     
                                     return `
                                         <div class="absolute" style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;">
@@ -865,6 +925,7 @@ window.app = {
                                     <div class="absolute bottom-3 left-1/2 -translate-x-1/2 w-24 h-12 border border-b-0 border-white"></div>
                                 </div>
                                 
+                                <!-- Jogadores posicionados -->
                                 ${jogadoresHtml}
                             </div>
                         </div>
