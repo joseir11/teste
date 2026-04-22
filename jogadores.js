@@ -19,6 +19,7 @@ var JOGADORES = {
   "102256": { "slug": "rollheiser" },
   "102667": { "slug": "nathan-fogaca" },
   "102796": { "slug": "julimar" },
+  "102906": { "slug": "anderson" },
   "102911": { "slug": "ze-ricardo" },
   "102928": { "slug": "canobbio" },
   "103056": { "slug": "gabriel-brazao" },
