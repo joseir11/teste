@@ -875,14 +875,19 @@ window.app = {
                                         if (!duvidaComNome) duvidaComNome = `#${p.duvida_com}`;
                                     }
                                     
+                                    const nomePartes = nome.split(' ');
+                                    const nomeBadge = nomePartes.length > 1
+                                        ? nomePartes.join('<br>')
+                                        : nome;
+                                    const duvidaBadge = duvidaComNome ? duvidaComNome.split(' ').join('<br>') : '';
                                     return `
                                         <div class="absolute flex flex-col items-center" style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;">
                                             <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/80 p-1 shadow-md ${isDuvida ? 'border-2 border-orange-500' : ''}">
                                                 <img src="${foto}" alt="${nome}" class="w-full h-full object-contain rounded-full" onerror="this.src='ESCUDOS_BRASILEIRAO/${time.id}.png'">
                                             </div>
-                                            <div class="flex flex-col items-center mt-0.5">
-                                                <p class="text-[12px] md:text-[14px] font-mono text-gray-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight font-bold text-center whitespace-nowrap">${nome}</p>
-                                                ${isDuvida && duvidaComNome ? `<p class="text-[9px] md:text-[10px] font-mono text-gray-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight text-center whitespace-nowrap">${duvidaComNome}</p>` : ''}
+                                            <div class="mt-1 px-1.5 py-0.5 bg-white/90 rounded-md text-center shadow-sm" style="min-width:52px; max-width:72px;">
+                                                <p class="text-[10px] md:text-[11px] font-bold text-gray-900 leading-tight text-center">${nomeBadge}</p>
+                                                ${isDuvida && duvidaBadge ? `<p class="text-[8px] md:text-[9px] text-gray-400 leading-tight text-center mt-0.5">${duvidaBadge}</p>` : ''}
                                             </div>
                                         </div>
                                     `;
