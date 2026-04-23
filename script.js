@@ -271,26 +271,28 @@ window.app = {
                     </div>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-3">
-                    ${!isMercado ? `
-                        <div class="bg-black/5 p-1 rounded-xl flex gap-1 animate-in fade-in zoom-in duration-300">
-                            <button onclick="app.setSerie('A')" class="px-4 py-1.5 rounded-lg text-lg font-teko uppercase tracking-wider transition-all ${this.state.activeSerie === 'A' ? 'bg-white shadow-sm text-cartola-orange' : 'text-gray-500 hover:text-gray-800'}">SÉRIE A</button>
-                            <button onclick="app.setSerie('B')" class="px-4 py-1.5 rounded-lg text-lg font-teko uppercase tracking-wider transition-all ${this.state.activeSerie === 'B' ? 'bg-white shadow-sm text-cartola-orange' : 'text-gray-500 hover:text-gray-800'}">SÉRIE B</button>
-                        </div>
+                <div class="flex items-center gap-3">
+                    <div class="flex flex-wrap items-center gap-3 flex-1">
+                        ${!isMercado ? `
+                            <div class="bg-black/5 p-1 rounded-xl flex gap-1 animate-in fade-in zoom-in duration-300">
+                                <button onclick="app.setSerie('A')" class="px-4 py-1.5 rounded-lg text-lg font-teko uppercase tracking-wider transition-all ${this.state.activeSerie === 'A' ? 'bg-white shadow-sm text-cartola-orange' : 'text-gray-500 hover:text-gray-800'}">SÉRIE A</button>
+                                <button onclick="app.setSerie('B')" class="px-4 py-1.5 rounded-lg text-lg font-teko uppercase tracking-wider transition-all ${this.state.activeSerie === 'B' ? 'bg-white shadow-sm text-cartola-orange' : 'text-gray-500 hover:text-gray-800'}">SÉRIE B</button>
+                            </div>
 
-                        <div class="relative group animate-in fade-in zoom-in duration-300">
-                            <select onchange="app.setRound(this.value)" class="appearance-none bg-white border border-black/5 rounded-xl px-4 py-2 pr-10 text-lg font-teko uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-cartola-orange/20 transition-all cursor-pointer">
-                                ${Array.from({length: this.getMaxRound()}, (_, i) => i + 1).map(r => `
-                                    <option value="${r}" ${this.state.selectedRound === r ? 'selected' : ''}>Rodada ${r}</option>
-                                `).join('')}
-                            </select>
-                            <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
-                        </div>
-                    ` : ''}
+                            <div class="relative group animate-in fade-in zoom-in duration-300">
+                                <select onchange="app.setRound(this.value)" class="appearance-none bg-white border border-black/5 rounded-xl px-4 py-2 pr-10 text-lg font-teko uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-cartola-orange/20 transition-all cursor-pointer">
+                                    ${Array.from({length: this.getMaxRound()}, (_, i) => i + 1).map(r => `
+                                        <option value="${r}" ${this.state.selectedRound === r ? 'selected' : ''}>Rodada ${r}</option>
+                                    `).join('')}
+                                </select>
+                                <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
+                            </div>
+                        ` : ''}
+                    </div>
 
-                    <button onclick="app.viewMercado()" class="w-12 h-12 flex items-center justify-center rounded-full transition-all group shrink-0 ${isMercado ? 'bg-cartola-orange text-white' : 'bg-black/5 border border-black/5'}" title="Ver Mercado">
+                    <button onclick="app.viewMercado()" class="w-12 h-12 flex items-center justify-center rounded-full shrink-0 bg-cartola-orange/10 border border-cartola-orange/20 hover:bg-cartola-orange/15 transition-colors" title="Ver Mercado">
                         <div class="w-7 h-7 flex items-center justify-center">
-                            <img src="ico_provaveis.png" class="w-full h-full object-contain group-hover:scale-110 transition-transform ${isMercado ? 'brightness-0 invert' : ''}" onerror="this.outerHTML='<i data-lucide=\'shopping-cart\' class=\'${isMercado ? 'text-white' : 'text-gray-500'} w-6 h-6\'></i>'">
+                            <img src="ico_provaveis.png" class="w-full h-full object-contain" onerror="this.outerHTML='<i data-lucide=\'zap\' class=\'text-cartola-orange w-5 h-5\'></i>'">
                         </div>
                     </button>
                 </div>
@@ -872,7 +874,7 @@ window.app = {
                                 + ' ' + pad(dt.getHours()) + 'h' + pad(dt.getMinutes());
                             partidaInfo = {
                                 adversarioNome: adversarioClube.abreviacao || adversarioClube.nome || '???',
-                                adversarioEscudo: `ESCUDOS_BRASILEIRAO/${adversarioId}.png`,
+                                adversarioEscudo: adversarioClube.escudos?.['60x60'] || '',
                                 local: partida.local || '—',
                                 data: dataFmt,
                                 mando: isMandantePartida ? 'Casa' : 'Fora'
