@@ -854,6 +854,31 @@ window.app = {
                         const slug = Object.keys(SLUG_TO_CARTOLA_ID).find(key => SLUG_TO_CARTOLA_ID[key] === cartolaId);
                         const lineup = slug ? this.state.lineupsData?.teams?.[slug] : null;
 
+                        // Dados da partida
+                        const partidasData2 = typeof PARTIDAS !== 'undefined' ? PARTIDAS : null;
+                        const partida = partidasData2?.partidas?.find(p =>
+                            p.clube_casa_id === cartolaId || p.clube_visitante_id === cartolaId
+                        ) || null;
+                        let partidaInfo = null;
+                        if (partida) {
+                            const adversarioId = partida.clube_casa_id === cartolaId
+                                ? partida.clube_visitante_id
+                                : partida.clube_casa_id;
+                            const adversarioClube = partidasData2.clubes?.[adversarioId] || {};
+                            const isMandantePartida = partida.clube_casa_id === cartolaId;
+                            const dt = new Date(partida.partida_data.replace(' ', 'T') + '-03:00');
+                            const pad = n => String(n).padStart(2, '0');
+                            const dataFmt = pad(dt.getDate()) + '/' + pad(dt.getMonth()+1) + '/' + dt.getFullYear()
+                                + ' ' + pad(dt.getHours()) + 'h' + pad(dt.getMinutes());
+                            partidaInfo = {
+                                adversarioNome: adversarioClube.abreviacao || adversarioClube.nome || '???',
+                                adversarioEscudo: adversarioClube.escudos?.['60x60'] || '',
+                                local: partida.local || '—',
+                                data: dataFmt,
+                                mando: isMandantePartida ? 'Casa' : 'Fora'
+                            };
+                        }
+
                         // Horário de última atualização
                         const lastUpdate = slug ? this.state.teamUpdatesData?.teams?.[slug]?.last_update : null;
                         const fmtUpdate = (() => {
@@ -961,6 +986,28 @@ window.app = {
                                 <!-- Jogadores posicionados -->
                                 ${jogadoresHtml}
                             </div>
+
+                            ${partidaInfo ? `
+                            <div class="flex items-center gap-3 px-3 py-2.5 bg-black/[0.04] rounded-xl border border-black/[0.06]">
+                                <div class="flex items-center gap-2 flex-1 min-w-0">
+                                    <span class="text-[10px] font-mono text-gray-400 uppercase shrink-0">ADV</span>
+                                    <img src="${partidaInfo.adversarioEscudo}" alt="${partidaInfo.adversarioNome}"
+                                         class="w-6 h-6 object-contain shrink-0"
+                                         onerror="this.style.display='none'">
+                                    <span class="font-teko text-lg uppercase leading-none text-gray-800 truncate">${partidaInfo.adversarioNome}</span>
+                                    <span class="text-[10px] font-mono text-gray-400 bg-black/5 px-1.5 py-0.5 rounded-full shrink-0">${partidaInfo.mando}</span>
+                                </div>
+                                <div class="flex flex-col items-end shrink-0 gap-0.5">
+                                    <span class="flex items-center gap-1 text-[10px] font-mono text-gray-500">
+                                        <svg xmlns='http://www.w3.org/2000/svg' class='w-3 h-3' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='18' rx='2' ry='2'/><line x1='16' y1='2' x2='16' y2='6'/><line x1='8' y1='2' x2='8' y2='6'/><line x1='3' y1='10' x2='21' y2='10'/></svg>
+                                        ${partidaInfo.data}
+                                    </span>
+                                    <span class="flex items-center gap-1 text-[10px] font-mono text-gray-400 text-right">
+                                        <svg xmlns='http://www.w3.org/2000/svg' class='w-3 h-3 shrink-0' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/><circle cx='12' cy='10' r='3'/></svg>
+                                        ${partidaInfo.local}
+                                    </span>
+                                </div>
+                            </div>` : ''}
                         </div>
                         `;
                     }).join('')}
