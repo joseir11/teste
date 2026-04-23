@@ -810,9 +810,6 @@ renderHeader() {
 
         container.innerHTML = `
             <div class="space-y-6 animate-in fade-in duration-300">
-                <button onclick="app.closeMercado()" class="flex items-center gap-2 text-gray-500 hover:text-cartola-orange font-teko text-xl uppercase">
-                    <i data-lucide="arrow-left" class="w-5 h-5"></i> Voltar
-                </button>
                 
                 <div class="glass-card p-4">
                     <div class="grid grid-cols-3 gap-2 divide-x divide-black/10 items-center">
