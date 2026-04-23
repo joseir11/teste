@@ -61,5 +61,5 @@ var PARTIDAS = {
         
         {"aproveitamento_visitante": ["e", "d", "v", "v", "v"], "aproveitamento_mandante": ["d", "v", "v", "d", "d"], "transmissao": {"label": "", "url": ""}, "local": "Arena MRV", "status_transmissao_tr": "", "status_cronometro_tr": "", "periodo_tr": "", "partida_data": "2026-04-26 20:30:00", "inicio_cronometro_tr": "", "placar_oficial_visitante": null, "placar_oficial_mandante": null, "partida_id": 346384, "clube_visitante_posicao": 2, "clube_visitante_id": 262, "clube_casa_posicao": 12, "clube_casa_id": 282, "timestamp": 1777246200, "campeonato_id": 26, "valida": true}
     ],
-    "rodada": 13
+    "rodada": 13 // Reset deploy
 };
