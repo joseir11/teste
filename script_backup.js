@@ -68,6 +68,7 @@ window.app = {
         mercadoData: null,
         partidasData: null,
         lineupsData: null,
+        teamUpdatesData: null,
         mercadoImages: null,
         data: null,
         deferredPrompt: null
@@ -696,9 +697,10 @@ window.app = {
 
         // 3. CARREGAR DADOS DE ESCALAÇÃO DO PROXY
         try {
-            const [lineupsRes, mercadoRes] = await Promise.all([
+            const [lineupsRes, mercadoRes, teamUpdRes] = await Promise.all([
                 fetch(`${PROXY_URL}/provaveis/lineups`),
-                fetch(`${PROXY_URL}/provaveis/mercado-images`)
+                fetch(`${PROXY_URL}/provaveis/mercado-images`),
+                fetch(`${PROXY_URL}/provaveis/team-updates`)
             ]);
             if (lineupsRes.ok) {
                 this.state.lineupsData = await lineupsRes.json();
@@ -706,6 +708,9 @@ window.app = {
             if (mercadoRes.ok) {
                 const mercadoArray = await mercadoRes.json();
                 this.state.mercadoImages = new Map(mercadoArray.map(item => [item.atleta_id, item]));
+            }
+            if (teamUpdRes.ok) {
+                this.state.teamUpdatesData = await teamUpdRes.json();
             }
         } catch (error) {
             console.warn('Erro ao buscar dados do Prováveis:', error);
@@ -848,6 +853,23 @@ window.app = {
                         const cartolaId = time.id;
                         const slug = Object.keys(SLUG_TO_CARTOLA_ID).find(key => SLUG_TO_CARTOLA_ID[key] === cartolaId);
                         const lineup = slug ? this.state.lineupsData?.teams?.[slug] : null;
+
+                        // Horário de última atualização
+                        const lastUpdate = slug ? this.state.teamUpdatesData?.teams?.[slug]?.last_update : null;
+                        const fmtUpdate = (() => {
+                            if (!lastUpdate) return null;
+                            try {
+                                const now = new Date();
+                                const dt = new Date(lastUpdate);
+                                const pad = n => String(n).padStart(2, '0');
+                                const hhmm = pad(dt.getHours()) + 'h' + pad(dt.getMinutes());
+                                const sameDay = now.toDateString() === dt.toDateString();
+                                const yest = new Date(now); yest.setDate(now.getDate() - 1);
+                                if (sameDay) return 'Hoje ' + hhmm;
+                                if (yest.toDateString() === dt.toDateString()) return 'Ontem ' + hhmm;
+                                return pad(dt.getDate()) + '/' + pad(dt.getMonth()+1) + ' ' + hhmm;
+                            } catch { return null; }
+                        })();
                         
                         let jogadoresHtml = '';
                         if (lineup && this.state.mercadoImages) {
@@ -875,15 +897,25 @@ window.app = {
                                         if (!duvidaComNome) duvidaComNome = `#${p.duvida_com}`;
                                     }
                                     
+                                    const abreviar = (n) => {
+                                        const p = n.trim().split(' ');
+                                        if (p.length <= 1) return n;
+                                        return p[0].charAt(0).toUpperCase() + '. ' + p.slice(1).join(' ');
+                                    };
+                                    const nomeAbrev = abreviar(nome);
+                                    const duvidaAbrev = duvidaComNome ? abreviar(duvidaComNome) : '';
                                     return `
-                                        <div class="absolute" style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;">
+                                        <div class="absolute flex flex-col items-center" style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;">
                                             <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/80 p-1 shadow-md ${isDuvida ? 'border-2 border-orange-500' : ''}">
                                                 <img src="${foto}" alt="${nome}" class="w-full h-full object-contain rounded-full" onerror="this.src='ESCUDOS_BRASILEIRAO/${time.id}.png'">
                                             </div>
-                                            <div class="text-center mt-0.5">
-                                                <p class="text-[12px] md:text-[14px] font-mono text-gray-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight font-bold">${nome}</p>
-                                                ${isDuvida && duvidaComNome ? `<p class="text-[9px] md:text-[10px] font-mono text-gray-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] leading-tight">${duvidaComNome}</p>` : ''}
+                                            <div class="mt-1 px-1.5 py-0.5 bg-white/40 backdrop-blur-sm rounded-md text-center" style="min-width:48px; max-width:70px;">
+                                                <p class="text-[10px] md:text-[11px] font-semibold text-gray-900 leading-tight text-center drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">${nomeAbrev}</p>
                                             </div>
+                                            ${isDuvida && duvidaAbrev ? `
+                                            <div class="mt-0.5 px-1.5 py-0.5 bg-white/25 backdrop-blur-sm rounded-md text-center" style="min-width:48px; max-width:70px;">
+                                                <p class="text-[9px] md:text-[10px] font-medium text-gray-700 leading-tight text-center drop-shadow-[0_1px_1px_rgba(255,255,255,0.6)]">${duvidaAbrev}</p>
+                                            </div>` : ''}
                                         </div>
                                     `;
                                 }).join('');
@@ -901,6 +933,7 @@ window.app = {
                                 
                                 <div class="flex-1 min-w-0">
                                     <p class="font-teko text-2xl uppercase leading-tight tracking-wide text-gray-800 truncate">${nomeTime}</p>
+                                    ${fmtUpdate ? `<p class="flex items-center gap-1 text-[10px] font-mono text-gray-400 leading-none mt-0.5"><svg xmlns='http://www.w3.org/2000/svg' class='w-3 h-3 inline-block' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><polyline points='12 6 12 12 16 14'/></svg> Atualizado ${fmtUpdate}</p>` : ''}
                                 </div>
                                 
                                 <div class="flex gap-1.5">
