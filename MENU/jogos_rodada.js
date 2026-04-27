@@ -1,6 +1,6 @@
 /* ============================================================
    JOGOS DA RODADA — CARTOLA FC
-   VERSÃO: 3.0 — STATUS MERCADO + ESCUDOS LOCAIS + APROVEITAMENTO
+   VERSÃO: 4.0 — CABEÇALHO LARANJA + STATUS MERCADO + ESCUDOS
    ============================================================ */
 
 const mainContent = document.getElementById("main-content");
@@ -71,6 +71,19 @@ function formatarFechamento(fechamento) {
   const hh = String(hora).padStart(2, "0");
   const mi = String(minuto).padStart(2, "0");
   return `${dd}/${mm} ${hh}:${mi}`;
+}
+
+/* ── INTERPRETA STATUS DO MERCADO ─────────────────────── */
+function statusMercado(status) {
+  // 1 = ABERTO | 2 = FECHADO | 3 = ATUALIZAÇÃO | 4 = MANUTENÇÃO | 6 = ENCERRADO
+  const map = {
+    1: { label: "ABERTO", cor: "text-emerald-500", labelTempo: "MERCADO FECHA" },
+    2: { label: "FECHADO", cor: "text-rose-500", labelTempo: "MERCADO ABRE" },
+    3: { label: "ATUALIZANDO", cor: "text-amber-500", labelTempo: "AGUARDE" },
+    4: { label: "MANUTENÇÃO", cor: "text-gray-500", labelTempo: "EM MANUTENÇÃO" },
+    6: { label: "ENCERRADO", cor: "text-gray-500", labelTempo: "FIM DE TEMPORADA" },
+  };
+  return map[status] || { label: "—", cor: "text-gray-400", labelTempo: "—" };
 }
 
 /* ── RENDERIZA O CARD DE STATUS DO MERCADO ────────────── */
