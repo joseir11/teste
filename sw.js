@@ -1,16 +1,14 @@
 /* ============================================================
-   SERVICE WORKER — TAÇA NATTOS 2026
+   SERVICE WORKER — CARTOLA FC PWA
    ============================================================ */
 
-const CACHE_NAME = 'nattos-v2';
+const CACHE_NAME = 'cartola-pwa-v1';
 
-// Arquivos para cache
+// ARQUIVOS ESTÁTICOS PARA CACHE INICIAL
 const ARQUIVOS_ESTATICOS = [
   './',
   './index.html',
-  './script.js',
-  './tabela.js',
-  './escalacoes.js',
+  './API/rotas_proxy.js', // NOVO ARQUIVO DE ROTAS
   './manifest.json',
   'https://cdn.tailwindcss.com',
   'https://unpkg.com/lucide@latest'
@@ -19,9 +17,8 @@ const ARQUIVOS_ESTATICOS = [
 /* ── INSTALAÇÃO ─────────────────────────────────────────── */
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache =>
-      cache.addAll(ARQUIVOS_ESTATICOS)
-    ).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(cache => cache.addAll(ARQUIVOS_ESTATICOS))
+    .then(() => self.skipWaiting())
   );
 });
 
@@ -34,21 +31,26 @@ self.addEventListener('activate', event => {
   );
 });
 
-/* ── FETCH ───────────────────────────────────────────────── */
+/* ── FETCH (ESTRATÉGIA: NETWORK FIRST PARA API) ───────────── */
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
-
-  event.respondWith(
-    caches.match(event.request).then(cached => {
-      const fetchPromise = fetch(event.request).then(response => {
-        if (response && response.ok) {
+  // SE A REQUISIÇÃO FOR PARA O PROXY OU API DA GLOBO, TENTA REDE PRIMEIRO
+  if (event.request.url.includes('onrender.com') || event.request.url.includes('globo.com')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
           const copy = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-        }
-        return response;
-      }).catch(() => null);
+          return response;
+        })
+        .catch(() => caches.match(event.request)) // SE FALHAR A REDE, PEGA O QUE TIVER NO CACHE
+    );
+    return;
+  }
 
-      return cached || fetchPromise;
+  // PARA ARQUIVOS ESTÁTICOS, MANTÉM A LÓGICA ANTERIOR (CACHE FIRST)
+  event.respondWith(
+    caches.match(event.request).then(cached => {
+      return cached || fetch(event.request);
     })
   );
 });
