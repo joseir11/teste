@@ -57,6 +57,14 @@ function renderCardPartida(partida, clubes) {
   const placarVis = partida.placar_oficial_visitante ?? "-";
   const jogoIniciado = partida.placar_oficial_mandante !== null;
 
+  // CAMINHO DOS ESCUDOS LOCAIS
+  const escudoCasa = `./ESCUDOS_BRASILEIRAO/${partida.clube_casa_id}.png`;
+  const escudoVis = `./ESCUDOS_BRASILEIRAO/${partida.clube_visitante_id}.png`;
+
+  // FALLBACK: SE O ESCUDO LOCAL NÃO EXISTIR, USA O DA API DA GLOBO
+  const fallbackCasa = mandante?.escudos?.["60x60"] || "";
+  const fallbackVis = visitante?.escudos?.["60x60"] || "";
+
   return `
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
       <p class="text-[10px] uppercase tracking-widest text-gray-400 text-center mb-3">
@@ -65,9 +73,10 @@ function renderCardPartida(partida, clubes) {
       <div class="flex items-center justify-between gap-2">
         
         <div class="flex flex-col items-center flex-1">
-          <img src="${mandante?.escudos?.["60x60"] || ""}" 
+          <img src="${escudoCasa}" 
+               onerror="this.onerror=null;this.src='${fallbackCasa}';"
                alt="${mandante?.nome || ""}" 
-               class="w-12 h-12 object-contain">
+               class="w-14 h-14 object-contain">
           <span class="text-xs font-bold mt-1 text-center">
             ${mandante?.abreviacao || "?"}
           </span>
@@ -84,9 +93,10 @@ function renderCardPartida(partida, clubes) {
         </div>
 
         <div class="flex flex-col items-center flex-1">
-          <img src="${visitante?.escudos?.["60x60"] || ""}" 
+          <img src="${escudoVis}" 
+               onerror="this.onerror=null;this.src='${fallbackVis}';"
                alt="${visitante?.nome || ""}" 
-               class="w-12 h-12 object-contain">
+               class="w-14 h-14 object-contain">
           <span class="text-xs font-bold mt-1 text-center">
             ${visitante?.abreviacao || "?"}
           </span>
