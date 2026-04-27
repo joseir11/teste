@@ -20,40 +20,49 @@
       },
     };
   </script>
-  <style>
-    body {
-      background-color: #f9fafb;
-      margin: 0;
-      padding-bottom: 100px;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+<style>
+  body {
+    background-color: #f9fafb;
+    margin: 0;
+    padding-bottom: 100px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .loader {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #ff6321;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 40px auto;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
     }
-    .loader {
-      width: 40px;
-      height: 40px;
-      border: 3px solid #e5e7eb;
-      border-top-color: #ff6321;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 40px auto;
-    }
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-    ::-webkit-scrollbar {
-      width: 5px;
-      height: 5px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #ddd;
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-  </style>
+  }
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #ddd;
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* Aumenta e escurece o título "JOGOS DA RODADA" do card superior */
+  #main-content .text-primary,
+  #main-content [class*="text-[#FF6321]"],
+  #main-content [class*="text-orange"] {
+    color: #000 !important;
+    font-size: 1.5rem !important;
+    letter-spacing: 0.05em;
+  }
+</style>
 </head>
 <body class="font-sans">
   <!-- CONTEÚDO PRINCIPAL (card "JOGOS DA RODADA" + jogos vêm aqui via JS) -->
