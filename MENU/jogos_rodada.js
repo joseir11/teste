@@ -94,9 +94,9 @@ function renderStatusMercado(mercado) {
   return `
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mx-4 mb-4 overflow-hidden">
       
-      <!-- FAIXA LARANJA SUAVE — CABEÇALHO -->
-      <div class="bg-orange-100/70 px-4 py-2.5 border-b border-orange-100">
-        <p class="text-[11px] uppercase tracking-[0.25em] font-black text-orange-600 text-center">
+      <!-- FAIXA BEGE SUAVE — CABEÇALHO -->
+      <div class="bg-orange-50 px-4 py-2.5 border-b border-orange-100">
+        <p class="text-[11px] uppercase tracking-[0.25em] font-black text-black text-center">
           Jogos da Rodada
         </p>
       </div>
@@ -183,6 +183,10 @@ function renderCardPartida(partida, clubes) {
   const fallbackCasa = mandante?.escudos?.["60x60"] || "";
   const fallbackVis = visitante?.escudos?.["60x60"] || "";
 
+  // NOMES INTEIROS DOS TIMES (ao invés de abreviação)
+  const nomeCasa = mandante?.nome || "?";
+  const nomeVis = visitante?.nome || "?";
+
   return `
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
       <p class="text-[10px] uppercase tracking-widest text-gray-400 text-center mb-3">
@@ -199,11 +203,11 @@ function renderCardPartida(partida, clubes) {
             </span>
             <img src="${escudoCasa}" 
                  onerror="this.onerror=null;this.src='${fallbackCasa}';"
-                 alt="${mandante?.nome || ""}" 
+                 alt="${nomeCasa}" 
                  class="w-12 h-12 object-contain">
           </div>
           <span class="text-xs font-bold mt-1 text-center">
-            ${mandante?.abreviacao || "?"}
+            ${nomeCasa}
           </span>
           ${aproveitamentoCasa}
         </div>
@@ -224,14 +228,14 @@ function renderCardPartida(partida, clubes) {
           <div class="flex items-center gap-2">
             <img src="${escudoVis}" 
                  onerror="this.onerror=null;this.src='${fallbackVis}';"
-                 alt="${visitante?.nome || ""}" 
+                 alt="${nomeVis}" 
                  class="w-12 h-12 object-contain">
             <span class="text-[11px] font-bold text-gray-400 tabular-nums">
               ${posVis}
             </span>
           </div>
           <span class="text-xs font-bold mt-1 text-center">
-            ${visitante?.abreviacao || "?"}
+            ${nomeVis}
           </span>
           ${aproveitamentoVis}
         </div>
