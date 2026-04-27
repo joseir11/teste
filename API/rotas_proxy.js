@@ -1,15 +1,18 @@
 /* ============================================================
-   ROTAS DA API — CARTOLA FC
+   ROTAS DA API — CARTOLA FC (VIA PROXY CORS)
    ============================================================ */
+
+// PROXY PÚBLICO — BOM PARA TESTES
+// EM PRODUÇÃO, USE SEU PRÓPRIO PROXY (RENDER, VERCEL, CLOUDFLARE)
+const PROXY = "https://corsproxy.io/?url=";
+
 const API_CARTOLA = {
-  BASE: "https://api.cartola.globo.com",
-  MERCADO_STATUS: "https://api.cartola.globo.com/mercado/status",
-  PARTIDAS: "https://api.cartola.globo.com/partidas",
-  CLUBES: "https://api.cartola.globo.com/clubes",
-  // PARTIDAS DE UMA RODADA ESPECÍFICA:
+  MERCADO_STATUS: PROXY + encodeURIComponent("https://api.cartola.globo.com/mercado/status"),
+  PARTIDAS: PROXY + encodeURIComponent("https://api.cartola.globo.com/partidas"),
+  CLUBES: PROXY + encodeURIComponent("https://api.cartola.globo.com/clubes"),
   PARTIDAS_RODADA: (rodada) =>
-    `https://api.cartola.globo.com/partidas/${rodada}`,
+    PROXY + encodeURIComponent(`https://api.cartola.globo.com/partidas/${rodada}`),
 };
 
-// EXPÕE GLOBALMENTE
 window.API_CARTOLA = API_CARTOLA;
+console.log("✅ Rotas API carregadas:", API_CARTOLA);
