@@ -1,54 +1,97 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cartola 2026</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { margin: 0; padding: 0; overflow-x: hidden; background-color: #F4F4F4; font-family: sans-serif; }
-        /* ESPAÇO NO FUNDO PARA NÃO TAPAR O CONTEÚDO COM O MENU */
-        #main-content { padding-bottom: 140px; min-height: 100vh; }
-        
-        .nav-glass {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>JOSA.BET_v2</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./IMAGES/icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#FF6321">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#FF6321',
+          }
         }
-
-        /* ANIMAÇÃO SIMPLES DE CARREGAMENTO */
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #3498db;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F9FAFB;
+      margin: 0;
+      padding-bottom: 120px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .loader {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #E5E7EB;
+      border-top-color: #FF6321;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #DDD;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+  </style>
 </head>
-<body class="antialiased">
+<body class="font-sans">
+  <main id="main-content" class="h-screen flex items-center justify-center">
+    <p class="text-gray-500 text-center px-6">Aguardando seleção...</p>
+  </main>
 
-    <main id="main-content">
-        <div class="flex flex-col justify-center items-center h-screen text-gray-400">
-            <p class="uppercase text-[10px] font-bold tracking-[0.3em]">Aguardando seleção</p>
-        </div>
-    </main>
+  <!-- NAV BAR FIXA NO TOPO DA TELA -->
+  <nav class="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white/80 backdrop-blur-md border-t border-gray-100">
+    <div class="flex justify-around">
+      
+      <!-- BOTÃO JOGOS (EXISTENTE) -->
+      <button id="btn-jogos" 
+              type="button"
+              class="flex flex-col items-center active:scale-95 transition-transform">
+        <span class="text-xs uppercase tracking-wider font-black">JOGOS</span>
+      </button>
+      
+      <!-- NOVO BOTÃO PROVÁVEIS -->
+      <button id="btn-provaveis" 
+              type="button"
+              class="flex flex-col items-center active:scale-95 transition-transform">
+        <img src="./IMAGES/provaveis.png" class="w-6 h-6 mx-auto" alt="Prováveis Escalações">
+        <span class="text-[10px] mt-2 block leading-none font-black">PROVÁVEIS</span>
+      </button>
+      
+    </div>
+  </nav>
 
-    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md nav-glass border border-gray-200 rounded-3xl shadow-2xl z-50 p-4">
-        <div class="flex justify-around items-center">
-            
-            <button id="btn-jogos" class="flex flex-col items-center gap-1 transition-all active:scale-95 group">
-                <img src="./IMAGES/jogos.png" alt="Jogos" class="w-8 h-8 object-contain">
-                <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest group-hover:text-black">Jogos</span>
-            </button>
+  <!-- ARQUIVOS DE SCRIPT ESSENCIAIS -->
+  <script src="./API/rotas_proxy.js"></script>
+  <script src="./MENU/jogos_rodada.js"></script>
 
-        </div>
-    </nav>
-
-    <script src="./API/rotas_proxy.js"></script>
-    <script src="./MENU/jogos_rodada.js"></script>
-
+  <!-- REGISTRA O SERVICE WORKER -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('SW registrado:', reg.scope))
+          .catch(err => console.error('Erro no SW:', err));
+      });
+    }
+  </script>
 </body>
 </html>
