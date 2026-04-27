@@ -73,29 +73,25 @@ function formatarFechamento(fechamento) {
   return `${dd}/${mm} ${hh}:${mi}`;
 }
 
-/* ── INTERPRETA STATUS DO MERCADO ─────────────────────── */
-function statusMercado(status) {
-  // 1 = ABERTO | 2 = FECHADO | 3 = ATUALIZAÇÃO | 4 = MANUTENÇÃO | 6 = ENCERRADO
-  const map = {
-    1: { label: "ABERTO", cor: "text-emerald-500", labelTempo: "MERCADO FECHA" },
-    2: { label: "FECHADO", cor: "text-rose-500", labelTempo: "MERCADO ABRE" },
-    3: { label: "ATUALIZANDO", cor: "text-amber-500", labelTempo: "AGUARDE" },
-    4: { label: "MANUTENÇÃO", cor: "text-gray-500", labelTempo: "EM MANUTENÇÃO" },
-    6: { label: "ENCERRADO", cor: "text-gray-500", labelTempo: "FIM DE TEMPORADA" },
-  };
-  return map[status] || { label: "—", cor: "text-gray-400", labelTempo: "—" };
-}
-
 /* ── RENDERIZA O CARD DE STATUS DO MERCADO ────────────── */
 function renderStatusMercado(mercado) {
   const status = statusMercado(mercado.status_mercado);
   const fechamento = formatarFechamento(mercado.fechamento);
 
   return `
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mx-4 mb-4">
-      <div class="grid grid-cols-3 divide-x divide-gray-100">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mx-4 mb-4 overflow-hidden">
+      
+      <!-- FAIXA LARANJA SUAVE — CABEÇALHO -->
+      <div class="bg-orange-100/70 px-4 py-2.5 border-b border-orange-100">
+        <p class="text-[11px] uppercase tracking-[0.25em] font-black text-orange-600 text-center">
+          Jogos da Rodada
+        </p>
+      </div>
+
+      <!-- CONTEÚDO COM 3 DIVISÕES CENTRALIZADAS -->
+      <div class="grid grid-cols-3 divide-x divide-gray-100 p-5">
         
-        <div class="flex flex-col items-center justify-center px-2">
+        <div class="flex flex-col items-center justify-center text-center">
           <p class="text-[10px] uppercase tracking-[0.2em] text-gray-400 mb-2">
             Rodada Atual
           </p>
@@ -104,7 +100,7 @@ function renderStatusMercado(mercado) {
           </p>
         </div>
 
-        <div class="flex flex-col items-center justify-center px-2">
+        <div class="flex flex-col items-center justify-center text-center">
           <p class="text-[10px] uppercase tracking-[0.2em] text-gray-400 mb-2">
             Status Mercado
           </p>
@@ -113,7 +109,7 @@ function renderStatusMercado(mercado) {
           </p>
         </div>
 
-        <div class="flex flex-col items-center justify-center px-2">
+        <div class="flex flex-col items-center justify-center text-center">
           <p class="text-[10px] uppercase tracking-[0.2em] text-gray-400 mb-2">
             ${status.labelTempo}
           </p>
