@@ -61,27 +61,28 @@
     <p class="text-gray-500 text-center mt-10">Aguardando seleção...</p>
   </main>
 
-  <!-- NAV BAR FLUTUANTE FIXA NO RODAPÉ -->
-  <nav class="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white/80 backdrop-blur-md border-t border-gray-100">
-    <div class="flex justify-around items-center">
-      <button
-        id="btn-jogos"
-        type="button"
-        class="flex flex-col items-center active:scale-95 transition-transform"
-      >
-        <span class="text-xs uppercase tracking-wider font-black">JOGOS</span>
-      </button>
+<!-- NAV BAR FLUTUANTE FIXA NO RODAPÉ -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white/80 backdrop-blur-md border-t border-gray-100">
+  <div class="flex justify-around items-center">
+    <button
+      id="btn-jogos"
+      type="button"
+      class="flex flex-col items-center active:scale-95 transition-transform"
+    >
+      <img src="./IMAGES/jogos.png" class="w-6 h-6 mx-auto" alt="Jogos da Rodada" />
+      <span class="text-[10px] mt-2 block leading-none font-black">JOGOS</span>
+    </button>
 
-      <button
-        id="btn-provaveis"
-        type="button"
-        class="flex flex-col items-center active:scale-95 transition-transform"
-      >
-        <img src="./IMAGES/provaveis.png" class="w-6 h-6 mx-auto" alt="Prováveis Escalações" />
-        <span class="text-[10px] mt-2 block leading-none font-black">PROVÁVEIS</span>
-      </button>
-    </div>
-  </nav>
+    <button
+      id="btn-provaveis"
+      type="button"
+      class="flex flex-col items-center active:scale-95 transition-transform"
+    >
+      <img src="./IMAGES/ico_provaveis.png" class="w-6 h-6 mx-auto" alt="Prováveis Escalações" />
+      <span class="text-[10px] mt-2 block leading-none font-black">PROVÁVEIS</span>
+    </button>
+  </div>
+</nav>
 
   <!-- SCRIPTS -->
   <script src="./API/rotas_proxy.js"></script>
