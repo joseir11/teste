@@ -1,5 +1,5 @@
 /* ============================================================
-   CONFIGURAÇÃO DE ROTAS - PRODUÇÃO GITHUB
+   CONFIGURAÇÃO DE ROTAS - CENTRALIZADO
    ============================================================ */
 
 const PROXY_URL = "https://josabet-proxy.onrender.com";
