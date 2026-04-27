@@ -96,9 +96,9 @@ function renderStatusMercado(mercado) {
       
       <!-- FAIXA LARANJA SUAVE — CABEÇALHO -->
       <div class="bg-orange-100/70 px-4 py-2.5 border-b border-orange-100">
-        <p class="text-[11px] uppercase tracking-[0.25em] font-black text-orange-600 text-center">
-          Jogos da Rodada
-        </p>
+         <p class="text-sm uppercase tracking-[0.25em] font-black text-black text-center">
+           Jogos da Rodada
+         </p>
       </div>
 
       <!-- CONTEÚDO COM 3 DIVISÕES CENTRALIZADAS -->
