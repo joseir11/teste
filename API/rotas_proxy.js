@@ -8,8 +8,12 @@ const API_CARTOLA = {
   MERCADO_STATUS: `${BASE}/mercado/status`,
   PARTIDAS: `${BASE}/partidas`,
   CLUBES: `${BASE}/clubes`,
-  ATLETAS_MERCADO: `${BASE}/atletas/mercado`,
+  ATLETAS_MERCADO: `${BASE}/mercado`, // ATENÇÃO: rota é /mercado, não /atletas/mercado
+  POSICOES: `${BASE}/posicoes`,
+  RODADAS: `${BASE}/rodadas`,
   PARTIDAS_RODADA: (rodada) => `${BASE}/partidas/${rodada}`,
+  PONTUADOS: (rodada) =>
+    rodada ? `${BASE}/atletas/pontuados/${rodada}` : `${BASE}/atletas/pontuados`,
 };
 
 window.API_CARTOLA = API_CARTOLA;
