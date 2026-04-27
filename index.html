@@ -24,25 +24,9 @@
     body {
       background-color: #f9fafb;
       margin: 0;
+      padding-bottom: 100px;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-    }
-    /* Header fixo no topo */
-    #header-rodada {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 40;
-      background: #ffffffcc;
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid #f3f4f6;
-    }
-    /* Conteúdo central com padding pra não ficar atrás do header e nav */
-    #main-content {
-      padding-top: 90px;
-      padding-bottom: 100px;
-      min-height: 100vh;
     }
     .loader {
       width: 40px;
@@ -72,19 +56,8 @@
   </style>
 </head>
 <body class="font-sans">
-  <!-- HEADER FIXO: CARD JOGOS DA RODADA -->
-  <header id="header-rodada" class="px-4 py-3">
-    <div class="bg-primary text-white rounded-2xl px-4 py-3 shadow-lg flex items-center justify-between">
-      <div>
-        <p class="text-[10px] uppercase tracking-wider opacity-80">Brasileirão</p>
-        <h1 class="text-lg font-black leading-tight">JOGOS DA RODADA</h1>
-      </div>
-      <span id="rodada-numero" class="text-2xl font-black">--</span>
-    </div>
-  </header>
-
-  <!-- CONTEÚDO PRINCIPAL (jogos vêm aqui via JS) -->
-  <main id="main-content" class="px-4">
+  <!-- CONTEÚDO PRINCIPAL (card "JOGOS DA RODADA" + jogos vêm aqui via JS) -->
+  <main id="main-content" class="px-4 pt-4">
     <p class="text-gray-500 text-center mt-10">Aguardando seleção...</p>
   </main>
 
@@ -96,8 +69,7 @@
         type="button"
         class="flex flex-col items-center active:scale-95 transition-transform"
       >
-        <img src="./IMAGES/jogos.png" class="w-6 h-6 mx-auto" alt="Jogos da Rodada" />
-        <span class="text-[10px] mt-2 block leading-none font-black">JOGOS</span>
+        <span class="text-xs uppercase tracking-wider font-black">JOGOS</span>
       </button>
 
       <button
