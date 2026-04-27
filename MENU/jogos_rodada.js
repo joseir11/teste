@@ -1,6 +1,6 @@
 /* ============================================================
    JOGOS DA RODADA — CARTOLA FC
-   VERSÃO: 2.0 — ESCUDOS LOCAIS
+   VERSÃO: 3.0 — STATUS MERCADO + ESCUDOS LOCAIS + APROVEITAMENTO
    ============================================================ */
 
 const mainContent = document.getElementById("main-content");
@@ -62,6 +62,71 @@ function formatarPosicao(pos) {
   return `${pos}º`;
 }
 
+/* ── FORMATA TIMESTAMP DE FECHAMENTO -> "DD/MM HH:MM" ── */
+function formatarFechamento(fechamento) {
+  if (!fechamento) return "--/-- --:--";
+  const { dia, mes, hora, minuto } = fechamento;
+  const dd = String(dia).padStart(2, "0");
+  const mm = String(mes).padStart(2, "0");
+  const hh = String(hora).padStart(2, "0");
+  const mi = String(minuto).padStart(2, "0");
+  return `${dd}/${mm} ${hh}:${mi}`;
+}
+
+/* ── INTERPRETA STATUS DO MERCADO ─────────────────────── */
+function statusMercado(status) {
+  // 1 = ABERTO | 2 = FECHADO | 3 = ATUALIZAÇÃO | 4 = MANUTENÇÃO | 6 = ENCERRADO
+  const map = {
+    1: { label: "ABERTO", cor: "text-emerald-500", labelTempo: "MERCADO FECHA" },
+    2: { label: "FECHADO", cor: "text-rose-500", labelTempo: "MERCADO ABRE" },
+    3: { label: "ATUALIZANDO", cor: "text-amber-500", labelTempo: "AGUARDE" },
+    4: { label: "MANUTENÇÃO", cor: "text-gray-500", labelTempo: "EM MANUTENÇÃO" },
+    6: { label: "ENCERRADO", cor: "text-gray-500", labelTempo: "FIM DE TEMPORADA" },
+  };
+  return map[status] || { label: "—", cor: "text-gray-400", labelTempo: "—" };
+}
+
+/* ── RENDERIZA O CARD DE STATUS DO MERCADO ────────────── */
+function renderStatusMercado(mercado) {
+  const status = statusMercado(mercado.status_mercado);
+  const fechamento = formatarFechamento(mercado.fechamento);
+
+  return `
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mx-4 mb-4">
+      <div class="grid grid-cols-3 divide-x divide-gray-100">
+        
+        <div class="flex flex-col items-center justify-center px-2">
+          <p class="text-[10px] uppercase tracking-[0.2em] text-gray-400 mb-2">
+            Rodada Atual
+          </p>
+          <p class="text-2xl font-black text-black tabular-nums">
+            ${mercado.rodada_atual ?? "-"}
+          </p>
+        </div>
+
+        <div class="flex flex-col items-center justify-center px-2">
+          <p class="text-[10px] uppercase tracking-[0.2em] text-gray-400 mb-2">
+            Status Mercado
+          </p>
+          <p class="text-2xl font-black ${status.cor}">
+            ${status.label}
+          </p>
+        </div>
+
+        <div class="flex flex-col items-center justify-center px-2">
+          <p class="text-[10px] uppercase tracking-[0.2em] text-gray-400 mb-2">
+            ${status.labelTempo}
+          </p>
+          <p class="text-lg font-black text-black tabular-nums">
+            ${fechamento}
+          </p>
+        </div>
+
+      </div>
+    </div>
+  `;
+}
+
 /* ── RENDERIZA AS BOLINHAS DE APROVEITAMENTO ──────────── */
 function renderAproveitamento(aproveitamento) {
   if (!Array.isArray(aproveitamento) || aproveitamento.length === 0) return "";
@@ -103,7 +168,7 @@ function renderCardPartida(partida, clubes) {
   const aproveitamentoCasa = renderAproveitamento(partida.aproveitamento_mandante);
   const aproveitamentoVis = renderAproveitamento(partida.aproveitamento_visitante);
 
-  // ESCUDOS LOCAIS COM FALLBACK
+  // ESCUDOS LOCAIS COM FALLBACK PARA API
   const escudoCasa = `${ESCUDOS_PATH}/${idCasa}.png`;
   const escudoVis = `${ESCUDOS_PATH}/${idVis}.png`;
   const fallbackCasa = mandante?.escudos?.["60x60"] || "";
@@ -170,9 +235,8 @@ function renderCardPartida(partida, clubes) {
 /* ── FUNÇÃO PRINCIPAL — BUSCA E RENDERIZA OS JOGOS ────── */
 async function carregarJogos() {
   console.log("🟢 BOTÃO JOGOS CLICADO");
-  console.log("🔗 URL da API:", API_CARTOLA?.PARTIDAS);
 
-  if (!window.API_CARTOLA || !API_CARTOLA.PARTIDAS) {
+  if (!window.API_CARTOLA) {
     renderError("API_CARTOLA não está definida. Verifique rotas_proxy.js");
     return;
   }
@@ -183,24 +247,37 @@ async function carregarJogos() {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 60000);
 
-    const res = await fetch(API_CARTOLA.PARTIDAS, {
-      signal: controller.signal,
-      cache: "no-store", // FORÇA BUSCAR DA REDE
-    });
+    // BUSCA MERCADO E PARTIDAS EM PARALELO
+    const [resMercado, resPartidas] = await Promise.all([
+      fetch(API_CARTOLA.MERCADO_STATUS, {
+        signal: controller.signal,
+        cache: "no-store",
+      }),
+      fetch(API_CARTOLA.PARTIDAS, {
+        signal: controller.signal,
+        cache: "no-store",
+      }),
+    ]);
     clearTimeout(timeoutId);
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
+    if (!resMercado.ok) throw new Error(`Mercado HTTP ${resMercado.status}`);
+    if (!resPartidas.ok) throw new Error(`Partidas HTTP ${resPartidas.status}`);
 
-    console.log("✅ Resposta recebida:", data);
+    const mercado = await resMercado.json();
+    const dataPartidas = await resPartidas.json();
 
-    const partidas = data.partidas || [];
-    const clubes = data.clubes || {};
-    const rodada = data.rodada || "?";
+    console.log("✅ Mercado:", mercado);
+    console.log("✅ Partidas:", dataPartidas);
+
+    const partidas = dataPartidas.partidas || [];
+    const clubes = dataPartidas.clubes || {};
 
     if (partidas.length === 0) {
       mainContent.innerHTML = `
-        <div class="flex flex-col justify-center items-center h-screen">
+        <div class="pt-6">
+          ${renderStatusMercado(mercado)}
+        </div>
+        <div class="flex flex-col justify-center items-center py-20">
           <p class="text-sm text-gray-400">Nenhum jogo encontrado.</p>
         </div>
       `;
@@ -210,12 +287,9 @@ async function carregarJogos() {
     const cards = partidas.map((p) => renderCardPartida(p, clubes)).join("");
 
     mainContent.innerHTML = `
-      <header class="px-5 pt-8 pb-4">
-        <p class="text-[10px] uppercase tracking-[0.3em] text-gray-400">
-          Brasileirão
-        </p>
-        <h1 class="text-2xl font-black">Rodada ${rodada}</h1>
-      </header>
+      <div class="pt-6">
+        ${renderStatusMercado(mercado)}
+      </div>
       <section class="px-4">
         ${cards}
       </section>
