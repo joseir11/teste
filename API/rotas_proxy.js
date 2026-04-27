@@ -1,15 +1,15 @@
 /* ============================================================
-   CONFIGURAÇÃO DE ROTAS - CENTRALIZADO
+   ROTAS DA API — CARTOLA FC
    ============================================================ */
-
-const PROXY_URL = "https://josabet-proxy.onrender.com";
-const BASE_URL = "https://api.cartolafc.globo.com";
-
-const API_ROUTES = {
-    MERCADO_STATUS: `${PROXY_URL}/${BASE_URL}/mercado/status`,
-    ATLETAS_MERCADO: `${PROXY_URL}/${BASE_URL}/atletas/mercado`,
-    ATLETAS_PONTUADOS: `${PROXY_URL}/${BASE_URL}/atletas/pontuados`,
-    CLUBES: `${PROXY_URL}/${BASE_URL}/clubes`,
-    PARTIDAS: `${PROXY_URL}/${BASE_URL}/partidas`,
-    RODADAS: `${PROXY_URL}/${BASE_URL}/rodadas`
+const API_CARTOLA = {
+  BASE: "https://api.cartola.globo.com",
+  MERCADO_STATUS: "https://api.cartola.globo.com/mercado/status",
+  PARTIDAS: "https://api.cartola.globo.com/partidas",
+  CLUBES: "https://api.cartola.globo.com/clubes",
+  // PARTIDAS DE UMA RODADA ESPECÍFICA:
+  PARTIDAS_RODADA: (rodada) =>
+    `https://api.cartola.globo.com/partidas/${rodada}`,
 };
+
+// EXPÕE GLOBALMENTE
+window.API_CARTOLA = API_CARTOLA;
