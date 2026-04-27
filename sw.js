@@ -1,9 +1,9 @@
 /* ============================================================
    SERVICE WORKER — CARTOLA FC PWA
-   VERSÃO: v6 — INCREMENTADA PARA SUPORTE AOS PROVÁVEIS
+   VERSÃO: v4 — INCREMENTE A VERSÃO A CADA ATUALIZAÇÃO
    ============================================================ */
 
-const CACHE_NAME = "cartola-pwa-v6";
+const CACHE_NAME = "cartola-pwa-v4";
 
 // ARQUIVOS ESTÁTICOS PARA CACHE INICIAL
 const ARQUIVOS_ESTATICOS = [
@@ -12,8 +12,6 @@ const ARQUIVOS_ESTATICOS = [
   "./manifest.json",
   "./API/rotas_proxy.js",
   "./MENU/jogos_rodada.js",
-  "./MENU/provaveis.js",
-  "./IMAGES/provaveis.png",
   "https://cdn.tailwindcss.com",
 ];
 
@@ -79,7 +77,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   // ESTRATÉGIA 2: ESCUDOS — CACHE FIRST (RARO MUDAR)
-  if (url.includes("/ESCUDOS_BRASILEIRAO/") || url.includes("/IMAGES/")) {
+  if (url.includes("/ESCUDOS_BRASILEIRAO/")) {
     event.respondWith(
       caches.match(event.request).then((cached) => {
         return (
@@ -112,7 +110,7 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
-/* ── ESCUTA MENSAGEM PARA FORÇAR ATUALIZAÇÃO ────────────── */
+/* ── ESCUTA MENSAGEM PARA FORÇAR ATUALIZAÇÃO ──────────── */
 self.addEventListener("message", (event) => {
   if (event.data === "skipWaiting") {
     self.skipWaiting();
