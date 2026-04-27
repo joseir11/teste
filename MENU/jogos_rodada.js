@@ -1,23 +1,30 @@
 /* ============================================================
    JOGOS DA RODADA — CARTOLA FC
+   VERSÃO: 2.0 — ESCUDOS LOCAIS
    ============================================================ */
 
 const mainContent = document.getElementById("main-content");
 const btnJogos = document.getElementById("btn-jogos");
 
-// HTML DO LOADER
+// CAMINHO BASE DOS ESCUDOS LOCAIS
+const ESCUDOS_PATH = "./ESCUDOS_BRASILEIRAO";
+
+/* ── HTML DO LOADER ────────────────────────────────────── */
 function renderLoader() {
   mainContent.innerHTML = `
-    <div class="flex flex-col justify-center items-center h-screen gap-3">
+    <div class="flex flex-col justify-center items-center h-screen gap-3 px-6 text-center">
       <div class="loader"></div>
       <p class="uppercase text-[10px] font-bold tracking-[0.3em] text-gray-400">
         Carregando jogos...
+      </p>
+      <p class="text-[10px] text-gray-300 mt-2">
+        O servidor pode levar até 50s para acordar
       </p>
     </div>
   `;
 }
 
-// HTML DE ERRO
+/* ── HTML DE ERRO ──────────────────────────────────────── */
 function renderError(msg) {
   mainContent.innerHTML = `
     <div class="flex flex-col justify-center items-center h-screen gap-2 px-6 text-center">
@@ -33,10 +40,11 @@ function renderError(msg) {
   `;
 }
 
-// FORMATA DATA ISO -> "DD/MM HH:MM"
+/* ── FORMATA DATA ISO -> "DD/MM • HH:MM" ──────────────── */
 function formatarData(iso) {
   if (!iso) return "A definir";
   const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
   const data = d.toLocaleDateString("pt-BR", {
     day: "2-digit",
     month: "2-digit",
@@ -48,22 +56,30 @@ function formatarData(iso) {
   return `${data} • ${hora}`;
 }
 
-// RENDERIZA UM CARD DE PARTIDA
+/* ── RENDERIZA UM CARD DE PARTIDA ─────────────────────── */
 function renderCardPartida(partida, clubes) {
-  const mandante = clubes[partida.clube_casa_id];
-  const visitante = clubes[partida.clube_visitante_id];
+  const idCasa = partida.clube_casa_id;
+  const idVis = partida.clube_visitante_id;
+
+  const mandante = clubes[idCasa];
+  const visitante = clubes[idVis];
 
   const placarCasa = partida.placar_oficial_mandante ?? "-";
   const placarVis = partida.placar_oficial_visitante ?? "-";
   const jogoIniciado = partida.placar_oficial_mandante !== null;
 
-  // CAMINHO DOS ESCUDOS LOCAIS
-  const escudoCasa = `./ESCUDOS_BRASILEIRAO/${partida.clube_casa_id}.png`;
-  const escudoVis = `./ESCUDOS_BRASILEIRAO/${partida.clube_visitante_id}.png`;
+  // ESCUDOS LOCAIS
+  const escudoCasa = `${ESCUDOS_PATH}/${idCasa}.png`;
+  const escudoVis = `${ESCUDOS_PATH}/${idVis}.png`;
 
-  // FALLBACK: SE O ESCUDO LOCAL NÃO EXISTIR, USA O DA API DA GLOBO
+  // FALLBACK PARA API CASO O ARQUIVO LOCAL NÃO EXISTA
   const fallbackCasa = mandante?.escudos?.["60x60"] || "";
   const fallbackVis = visitante?.escudos?.["60x60"] || "";
+
+  // LOG PARA DEBUG
+  console.log(`⚽ ${mandante?.abreviacao} (${idCasa}) x ${visitante?.abreviacao} (${idVis})`);
+  console.log(`   Escudo casa: ${escudoCasa}`);
+  console.log(`   Escudo vis : ${escudoVis}`);
 
   return `
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
@@ -74,7 +90,7 @@ function renderCardPartida(partida, clubes) {
         
         <div class="flex flex-col items-center flex-1">
           <img src="${escudoCasa}" 
-               onerror="this.onerror=null;this.src='${fallbackCasa}';"
+               onerror="this.onerror=null;this.src='${fallbackCasa}';console.warn('⚠️ Escudo não encontrado: ${idCasa}.png');"
                alt="${mandante?.nome || ""}" 
                class="w-14 h-14 object-contain">
           <span class="text-xs font-bold mt-1 text-center">
@@ -94,7 +110,7 @@ function renderCardPartida(partida, clubes) {
 
         <div class="flex flex-col items-center flex-1">
           <img src="${escudoVis}" 
-               onerror="this.onerror=null;this.src='${fallbackVis}';"
+               onerror="this.onerror=null;this.src='${fallbackVis}';console.warn('⚠️ Escudo não encontrado: ${idVis}.png');"
                alt="${visitante?.nome || ""}" 
                class="w-14 h-14 object-contain">
           <span class="text-xs font-bold mt-1 text-center">
@@ -106,14 +122,32 @@ function renderCardPartida(partida, clubes) {
   `;
 }
 
-// FUNÇÃO PRINCIPAL — BUSCA E RENDERIZA OS JOGOS
+/* ── FUNÇÃO PRINCIPAL — BUSCA E RENDERIZA OS JOGOS ────── */
 async function carregarJogos() {
+  console.log("🟢 BOTÃO JOGOS CLICADO");
+  console.log("🔗 URL da API:", API_CARTOLA?.PARTIDAS);
+
+  if (!window.API_CARTOLA || !API_CARTOLA.PARTIDAS) {
+    renderError("API_CARTOLA não está definida. Verifique rotas_proxy.js");
+    return;
+  }
+
   renderLoader();
 
   try {
-    const res = await fetch(API_CARTOLA.PARTIDAS);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+    const res = await fetch(API_CARTOLA.PARTIDAS, {
+      signal: controller.signal,
+      cache: "no-store", // FORÇA BUSCAR DA REDE
+    });
+    clearTimeout(timeoutId);
+
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
+
+    console.log("✅ Resposta recebida:", data);
 
     const partidas = data.partidas || [];
     const clubes = data.clubes || {};
@@ -128,9 +162,7 @@ async function carregarJogos() {
       return;
     }
 
-    const cards = partidas
-      .map((p) => renderCardPartida(p, clubes))
-      .join("");
+    const cards = partidas.map((p) => renderCardPartida(p, clubes)).join("");
 
     mainContent.innerHTML = `
       <header class="px-5 pt-8 pb-4">
@@ -144,13 +176,15 @@ async function carregarJogos() {
       </section>
     `;
   } catch (err) {
-    console.error("Erro ao carregar jogos:", err);
-    renderError(err.message);
+    console.error("❌ Erro ao carregar jogos:", err);
+    renderError(
+      err.name === "AbortError"
+        ? "Tempo esgotado. Tente novamente."
+        : err.message
+    );
   }
 }
 
-// LIGA O BOTÃO
+/* ── LIGA O BOTÃO E CARREGA AUTOMATICAMENTE ──────────── */
 btnJogos.addEventListener("click", carregarJogos);
-
-// CARREGA AUTOMATICAMENTE NA ABERTURA (OPCIONAL)
 document.addEventListener("DOMContentLoaded", carregarJogos);
