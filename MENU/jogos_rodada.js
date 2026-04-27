@@ -1,40 +1,46 @@
 /* ============================================================
-   LÓGICA: JOGOS DA RODADA (100% AUTOMATIZADO)
+   LÓGICA: JOGOS DA RODADA - CORREÇÃO DE CLIQUE E RENDER
    ============================================================ */
 
-const btnJogos = document.getElementById('btn-jogos');
-const appContent = document.getElementById('main-content'); // USANDO SEU ID PADRÃO
-
-if (btnJogos) {
-    btnJogos.addEventListener('click', carregarTelaJogos);
-}
+// USA DELEGAÇÃO DE EVENTO PARA GARANTIR QUE O CLIQUE FUNCIONE NO GITHUB
+document.addEventListener('click', function (event) {
+    const btn = event.target.closest('#btn-jogos');
+    if (btn) {
+        console.log('BOTÃO JOGOS CLICADO'); // VERIFIQUE NO F12
+        carregarTelaJogos();
+    }
+});
 
 async function carregarTelaJogos() {
-    // LOADING INSTANTÂNEO
-    appContent.innerHTML = `
+    const mainContent = document.getElementById('main-content');
+    if (!mainContent) return;
+
+    // FEEDBACK VISUAL RÁPIDO
+    mainContent.innerHTML = `
         <div class="flex justify-center pt-20">
             <div class="animate-spin h-8 w-8 border-4 border-gray-200 border-t-orange-500 rounded-full"></div>
         </div>
     `;
 
     try {
-        // BUSCA DADOS DIRETOS DA API VIA PROXY
         const res = await fetch(API_ROUTES.PARTIDAS);
-        if (!res.ok) throw new Error("FALHA NA CONEXÃO");
+        if (!res.ok) throw new Error("FALHA NA API");
         const data = await res.json();
         
         renderizarPartidas(data);
     } catch (e) {
-        appContent.innerHTML = `
+        console.error("ERRO AO CARREGAR:", e);
+        mainContent.innerHTML = `
             <div class="p-10 text-center glass-card">
-                <p class="text-red-500 font-black text-xs uppercase tracking-widest">Erro de Sincronização</p>
-                <p class="text-gray-400 text-[10px] mt-2">O PROXY PODE ESTAR INICIANDO. TENTE NOVAMENTE EM INSTANTES.</p>
+                <p class="text-red-500 font-black text-xs uppercase">Erro de Sincronização</p>
+                <p class="text-gray-400 text-[10px] mt-2 font-bold uppercase">Verifique o Proxy ou Conexão</p>
             </div>
         `;
     }
 }
 
 function renderizarPartidas(data) {
+    const mainContent = document.getElementById('main-content');
     const { partidas, clubes } = data;
 
     let html = `
@@ -42,13 +48,13 @@ function renderizarPartidas(data) {
             <h1 class="text-center text-gray-400 font-teko text-2xl uppercase tracking-[0.2em] mb-8">
                 Jogos da Rodada
             </h1>
-            <div class="grid grid-cols-1 gap-4">
+            <div class="flex flex-col gap-4">
     `;
 
     partidas.forEach(jogo => {
         const casa = clubes[jogo.clube_casa_id];
         const vste = clubes[jogo.clube_visitante_id];
-        const status = jogo.status_transmissao_tr === "ENCERRADA" ? "ENCERRADO" : "AO VIVO";
+        const status = jogo.status_transmissao_tr === "ENCERRADA" ? "ENCERRADO" : "A DEFINIR";
 
         html += `
             <div class="bg-white/80 backdrop-blur-md rounded-3xl p-6 flex items-center justify-between shadow-sm border border-white/50">
@@ -66,9 +72,6 @@ function renderizarPartidas(data) {
                     <div class="mt-3 bg-orange-500 text-white text-[9px] px-4 py-1 rounded-full font-black uppercase tracking-widest">
                         ${status}
                     </div>
-                    <span class="text-[8px] text-gray-400 mt-3 font-bold uppercase text-center leading-tight">
-                        ${jogo.local || 'ARENA'}
-                    </span>
                 </div>
 
                 <div class="flex flex-col items-center w-1/3">
@@ -80,5 +83,5 @@ function renderizarPartidas(data) {
     });
 
     html += `</div></div>`;
-    appContent.innerHTML = html;
+    mainContent.innerHTML = html;
 }
