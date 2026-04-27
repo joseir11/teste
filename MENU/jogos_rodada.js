@@ -1,6 +1,6 @@
 /* ============================================================
    JOGOS DA RODADA — CARTOLA FC
-   VERSÃO: 5.0 — INTEGRADO COM PROVÁVEIS
+   VERSÃO: 4.0 — CABEÇALHO LARANJA + STATUS MERCADO + ESCUDOS
    ============================================================ */
 
 const mainContent = document.getElementById("main-content");
@@ -96,7 +96,7 @@ function renderStatusMercado(mercado) {
       
       <!-- FAIXA LARANJA SUAVE — CABEÇALHO -->
       <div class="bg-orange-100/70 px-4 py-2.5 border-b border-orange-100">
-        <p class="text-sm uppercase tracking-[0.25em] font-black text-black text-center">
+        <p class="text-[11px] uppercase tracking-[0.25em] font-black text-orange-600 text-center">
           Jogos da Rodada
         </p>
       </div>
@@ -313,33 +313,6 @@ async function carregarJogos() {
   }
 }
 
-/* ── LIGA O BOTÃO PROVÁVEIS ───────────────────────────── */
-function initBtnProvaveis() {
-  const btnProvaveis = document.getElementById("btn-provaveis");
-  if (!btnProvaveis) return;
-  
-  btnProvaveis.removeEventListener("click", carregarProvaveis);
-  btnProvaveis.addEventListener("click", carregarProvaveis);
-}
-
-/* ── CARREGA MÓDULO PROVÁVEIS ──────────────────────────── */
-function carregarProvaveis() {
-  console.log("🔵 Mudando para PROVÁVEIS");
-  
-  // Remove event listeners atuais
-  document.getElementById("btn-jogos")?.removeEventListener("click", carregarJogos);
-  
-  // Carrega o novo módulo
-  const script = document.createElement("script");
-  script.src = "./MENU/provaveis.js";
-  script.onerror = () => {
-    renderError("Erro ao carregar módulo de prováveis. Recarregue a página.");
-  };
-  document.head.appendChild(script);
-}
-
-/* ── LIGA OS BOTÕES DO MENU ───────────────────────────── */
-document.addEventListener("DOMContentLoaded", () => {
-  initBtnProvaveis();
-  carregarJogos();
-});
+/* ── LIGA O BOTÃO E CARREGA AUTOMATICAMENTE ──────────── */
+btnJogos.addEventListener("click", carregarJogos);
+document.addEventListener("DOMContentLoaded", carregarJogos);
