@@ -15,36 +15,55 @@
         extend: {
           colors: {
             primary: '#FF6321',
-          }
-        }
-      }
-    }
+          },
+        },
+      },
+    };
   </script>
   <style>
     body {
-      background-color: #F9FAFB;
+      background-color: #f9fafb;
       margin: 0;
-      padding-bottom: 120px;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+    }
+    /* Header fixo no topo */
+    #header-rodada {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 40;
+      background: #ffffffcc;
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #f3f4f6;
+    }
+    /* Conteúdo central com padding pra não ficar atrás do header e nav */
+    #main-content {
+      padding-top: 90px;
+      padding-bottom: 100px;
+      min-height: 100vh;
     }
     .loader {
       width: 40px;
       height: 40px;
-      border: 3px solid #E5E7EB;
-      border-top-color: #FF6321;
+      border: 3px solid #e5e7eb;
+      border-top-color: #ff6321;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
+      margin: 40px auto;
     }
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
     ::-webkit-scrollbar {
       width: 5px;
       height: 5px;
     }
     ::-webkit-scrollbar-thumb {
-      background: #DDD;
+      background: #ddd;
       border-radius: 10px;
     }
     ::-webkit-scrollbar-track {
@@ -53,43 +72,56 @@
   </style>
 </head>
 <body class="font-sans">
-  <main id="main-content" class="h-screen flex items-center justify-center">
-    <p class="text-gray-500 text-center px-6">Aguardando seleção...</p>
+  <!-- HEADER FIXO: CARD JOGOS DA RODADA -->
+  <header id="header-rodada" class="px-4 py-3">
+    <div class="bg-primary text-white rounded-2xl px-4 py-3 shadow-lg flex items-center justify-between">
+      <div>
+        <p class="text-[10px] uppercase tracking-wider opacity-80">Brasileirão</p>
+        <h1 class="text-lg font-black leading-tight">JOGOS DA RODADA</h1>
+      </div>
+      <span id="rodada-numero" class="text-2xl font-black">--</span>
+    </div>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL (jogos vêm aqui via JS) -->
+  <main id="main-content" class="px-4">
+    <p class="text-gray-500 text-center mt-10">Aguardando seleção...</p>
   </main>
 
-  <!-- NAV BAR FIXA NO TOPO DA TELA -->
+  <!-- NAV BAR FLUTUANTE FIXA NO RODAPÉ -->
   <nav class="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white/80 backdrop-blur-md border-t border-gray-100">
-    <div class="flex justify-around">
-      
-      <!-- BOTÃO JOGOS (EXISTENTE) -->
-      <button id="btn-jogos" 
-              type="button"
-              class="flex flex-col items-center active:scale-95 transition-transform">
-        <span class="text-xs uppercase tracking-wider font-black">JOGOS</span>
+    <div class="flex justify-around items-center">
+      <button
+        id="btn-jogos"
+        type="button"
+        class="flex flex-col items-center active:scale-95 transition-transform"
+      >
+        <img src="./IMAGES/jogos.png" class="w-6 h-6 mx-auto" alt="Jogos da Rodada" />
+        <span class="text-[10px] mt-2 block leading-none font-black">JOGOS</span>
       </button>
-      
-      <!-- NOVO BOTÃO PROVÁVEIS -->
-      <button id="btn-provaveis" 
-              type="button"
-              class="flex flex-col items-center active:scale-95 transition-transform">
-        <img src="./IMAGES/provaveis.png" class="w-6 h-6 mx-auto" alt="Prováveis Escalações">
+
+      <button
+        id="btn-provaveis"
+        type="button"
+        class="flex flex-col items-center active:scale-95 transition-transform"
+      >
+        <img src="./IMAGES/provaveis.png" class="w-6 h-6 mx-auto" alt="Prováveis Escalações" />
         <span class="text-[10px] mt-2 block leading-none font-black">PROVÁVEIS</span>
       </button>
-      
     </div>
   </nav>
 
-  <!-- ARQUIVOS DE SCRIPT ESSENCIAIS -->
+  <!-- SCRIPTS -->
   <script src="./API/rotas_proxy.js"></script>
   <script src="./MENU/jogos_rodada.js"></script>
 
-  <!-- REGISTRA O SERVICE WORKER -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('SW registrado:', reg.scope))
-          .catch(err => console.error('Erro no SW:', err));
+        navigator.serviceWorker
+          .register('./sw.js')
+          .then((reg) => console.log('SW registrado:', reg.scope))
+          .catch((err) => console.error('Erro no SW:', err));
       });
     }
   </script>
