@@ -56,6 +56,33 @@ function formatarData(iso) {
   return `${data} • ${hora}`;
 }
 
+/* ── FORMATA POSIÇÃO -> "8º" ──────────────────────────── */
+function formatarPosicao(pos) {
+  if (!pos || pos === 0) return "";
+  return `${pos}º`;
+}
+
+/* ── RENDERIZA AS BOLINHAS DE APROVEITAMENTO ──────────── */
+function renderAproveitamento(aproveitamento) {
+  if (!Array.isArray(aproveitamento) || aproveitamento.length === 0) return "";
+
+  // CORES SUTIS / PASTEL
+  const cores = {
+    v: "bg-emerald-200", // VITÓRIA
+    d: "bg-rose-200",    // DERROTA
+    e: "bg-gray-200",    // EMPATE
+  };
+
+  const bolinhas = aproveitamento
+    .map((r) => {
+      const cor = cores[r] || "bg-gray-100";
+      return `<span class="w-2 h-2 rounded-full ${cor}"></span>`;
+    })
+    .join("");
+
+  return `<div class="flex items-center justify-center gap-1 mt-2">${bolinhas}</div>`;
+}
+
 /* ── RENDERIZA UM CARD DE PARTIDA ─────────────────────── */
 function renderCardPartida(partida, clubes) {
   const idCasa = partida.clube_casa_id;
@@ -68,37 +95,47 @@ function renderCardPartida(partida, clubes) {
   const placarVis = partida.placar_oficial_visitante ?? "-";
   const jogoIniciado = partida.placar_oficial_mandante !== null;
 
-  // ESCUDOS LOCAIS
+  // POSIÇÕES NA TABELA
+  const posCasa = formatarPosicao(partida.clube_casa_posicao);
+  const posVis = formatarPosicao(partida.clube_visitante_posicao);
+
+  // APROVEITAMENTOS (ÚLTIMOS 5 JOGOS)
+  const aproveitamentoCasa = renderAproveitamento(partida.aproveitamento_mandante);
+  const aproveitamentoVis = renderAproveitamento(partida.aproveitamento_visitante);
+
+  // ESCUDOS LOCAIS COM FALLBACK
   const escudoCasa = `${ESCUDOS_PATH}/${idCasa}.png`;
   const escudoVis = `${ESCUDOS_PATH}/${idVis}.png`;
-
-  // FALLBACK PARA API CASO O ARQUIVO LOCAL NÃO EXISTA
   const fallbackCasa = mandante?.escudos?.["60x60"] || "";
   const fallbackVis = visitante?.escudos?.["60x60"] || "";
-
-  // LOG PARA DEBUG
-  console.log(`⚽ ${mandante?.abreviacao} (${idCasa}) x ${visitante?.abreviacao} (${idVis})`);
-  console.log(`   Escudo casa: ${escudoCasa}`);
-  console.log(`   Escudo vis : ${escudoVis}`);
 
   return `
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
       <p class="text-[10px] uppercase tracking-widest text-gray-400 text-center mb-3">
         ${formatarData(partida.partida_data)} • ${partida.local || "Local a definir"}
       </p>
-      <div class="flex items-center justify-between gap-2">
+
+      <div class="flex items-start justify-between gap-2">
         
+        <!-- MANDANTE -->
         <div class="flex flex-col items-center flex-1">
-          <img src="${escudoCasa}" 
-               onerror="this.onerror=null;this.src='${fallbackCasa}';console.warn('⚠️ Escudo não encontrado: ${idCasa}.png');"
-               alt="${mandante?.nome || ""}" 
-               class="w-14 h-14 object-contain">
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-bold text-gray-400 tabular-nums">
+              ${posCasa}
+            </span>
+            <img src="${escudoCasa}" 
+                 onerror="this.onerror=null;this.src='${fallbackCasa}';"
+                 alt="${mandante?.nome || ""}" 
+                 class="w-12 h-12 object-contain">
+          </div>
           <span class="text-xs font-bold mt-1 text-center">
             ${mandante?.abreviacao || "?"}
           </span>
+          ${aproveitamentoCasa}
         </div>
 
-        <div class="flex items-center gap-3 px-2">
+        <!-- PLACAR -->
+        <div class="flex items-center gap-3 px-2 pt-3">
           <span class="text-2xl font-black ${jogoIniciado ? "text-black" : "text-gray-300"}">
             ${placarCasa}
           </span>
@@ -108,15 +145,23 @@ function renderCardPartida(partida, clubes) {
           </span>
         </div>
 
+        <!-- VISITANTE -->
         <div class="flex flex-col items-center flex-1">
-          <img src="${escudoVis}" 
-               onerror="this.onerror=null;this.src='${fallbackVis}';console.warn('⚠️ Escudo não encontrado: ${idVis}.png');"
-               alt="${visitante?.nome || ""}" 
-               class="w-14 h-14 object-contain">
+          <div class="flex items-center gap-2">
+            <img src="${escudoVis}" 
+                 onerror="this.onerror=null;this.src='${fallbackVis}';"
+                 alt="${visitante?.nome || ""}" 
+                 class="w-12 h-12 object-contain">
+            <span class="text-[11px] font-bold text-gray-400 tabular-nums">
+              ${posVis}
+            </span>
+          </div>
           <span class="text-xs font-bold mt-1 text-center">
             ${visitante?.abreviacao || "?"}
           </span>
+          ${aproveitamentoVis}
         </div>
+
       </div>
     </div>
   `;
