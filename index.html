@@ -1,44 +1,126 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cartola PWA 2026</title>
+    <title>Taça Nattos 2026 - Cartola BMP</title>
+    
+    <link rel="manifest" href="manifest.json?v=2">
+    <meta name="theme-color" content="#FF6321">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Taça Nattos">
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Teko:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cartola: {
+                            orange: '#FF6321',
+                            black: '#1A1A1A',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        teko: ['Teko', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    
     <style>
-        body { margin: 0; padding: 0; overflow-x: hidden; background-color: #F4F4F4; }
-        #app-content { padding-bottom: 120px; min-height: 100vh; }
+        body {
+            background-color: #F9FAFB;
+            background-image: 
+                radial-gradient(at 100% 0%, rgba(255, 99, 33, 0.05) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(26, 26, 26, 0.02) 0px, transparent 50%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+            border-radius: 24px;
+        }
+
         .nav-glass {
-            background: rgba(255, 255, 255, 0.7); /* UM POUCO MAIS VISÍVEL PARA DAR FEEDBACK */
+            background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
         }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
     </style>
 </head>
-<body class="font-sans antialiased">
+<body class="p-4 md:p-8 pb-32">
 
-    <main id="app-content">
-        <div class="flex flex-col justify-center items-center h-screen text-gray-300">
-            <i data-lucide="ballpoker" class="w-12 h-12 mb-2 opacity-10"></i>
-            <p class="uppercase text-[10px] font-bold tracking-widest">Aguardando comando...</p>
-        </div>
-    </main>
+    <div class="max-w-[1200px] mx-auto space-y-8">
+        <header id="header" class="glass-card p-6 text-center">
+            <h1 class="text-3xl md:text-5xl font-teko uppercase tracking-wider text-cartola-black leading-none">
+                Taça Nattos <span class="text-cartola-orange">2026</span>
+            </h1>
+            <p class="text-[10px] font-mono text-gray-400 uppercase tracking-[0.3em] mt-2">Dashboard Oficial • Cartola BMP</p>
+        </header>
+
+        <main id="main-content" class="min-h-[60vh]">
+            <div class="flex flex-col justify-center items-center h-64 text-gray-300">
+                <i data-lucide="layout-dashboard" class="w-12 h-12 mb-2 opacity-20"></i>
+                <p class="uppercase text-[10px] font-bold tracking-widest font-teko">Selecione uma opção no menu</p>
+            </div>
+        </main>
+
+        <footer class="py-12 text-center">
+            <p class="text-[10px] font-mono text-gray-400 uppercase tracking-[0.3em]">
+                Taça Nattos &copy; 2026 • Design by JOSA • Cartola BMP
+            </p>
+        </footer>
+    </div>
 
     <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md nav-glass border border-white/40 rounded-3xl shadow-2xl z-50 p-3">
         <div class="flex justify-around items-center">
             <button id="btn-jogos" class="flex flex-col items-center gap-1 transition-all active:scale-90 group">
-                <i data-lucide="circle-dot" id="icon-ball" class="w-7 h-7 text-gray-400"></i>
-                <span class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Jogos</span>
+                <i data-lucide="football" class="w-7 h-7 text-gray-400 group-hover:text-cartola-orange"></i>
+                <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest group-hover:text-cartola-orange font-teko">Jogos</span>
             </button>
         </div>
     </nav>
 
     <script src="./API/rotas_proxy.js"></script>
     <script src="./MENU/jogos_rodada.js"></script>
+    
     <script>
-        // ÍCONE DE BOLA DO LUCIDE (SUBSTITUIÇÃO MANUAL PARA GARANTIR)
-        lucide.createIcons();
+        // Inicialização Global
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+
+        // Registro do Service Worker para PWA (apenas em produção/HTTPS)
+        if (window.location.protocol !== 'file:' && 'serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log("PWA Ativo"))
+                .catch(err => console.error("Erro PWA:", err));
+        }
+
+        // Captura de erros global para debug no GitHub
+        window.onerror = function(msg, url, lineNo) {
+            console.error('Erro:', msg, '\nLinha:', lineNo);
+            return false;
+        };
     </script>
 </body>
 </html>
