@@ -1,0 +1,27 @@
+// CONFIGURAÇÃO DE ROTAS PARA CONSULTA VIA PROXY NO RENDER
+// ESTE ARQUIVO CENTRALIZA OS ENDPOINTS DO CARTOLA FC
+
+const PROXY_URL = "https://josabet-proxy.onrender.com/";
+const BASE_URL = "https://api.cartolafc.globo.com";
+
+const API_ROUTES = {
+    // CONSULTA O ESTADO ATUAL DO MERCADO
+    MERCADO_STATUS: `${PROXY_URL}${BASE_URL}/mercado/status`,
+
+    // LISTA TODOS OS ATLETAS E SEUS STATUS
+    ATLETAS_MERCADO: `${PROXY_URL}${BASE_URL}/atletas/mercado`,
+
+    // PONTUAÇÕES EM TEMPO REAL DURANTE A RODADA
+    ATLETAS_PONTUADOS: `${PROXY_URL}${BASE_URL}/atletas/pontuados`,
+
+    // LISTA DE CLUBES DA SÉRIE A
+    CLUBES: `${PROXY_URL}${BASE_URL}/clubes`,
+
+    // CONFRONTOS DA RODADA ATUAL
+    PARTIDAS: `${PROXY_URL}${BASE_URL}/partidas`,
+
+    // CALENDÁRIO DE TODAS AS RODADAS
+    RODADAS: `${PROXY_URL}${BASE_URL}/rodadas`
+};
+
+export default API_ROUTES;
