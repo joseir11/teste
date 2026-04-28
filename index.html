@@ -63,7 +63,7 @@
       background: transparent;
     }
 
-    /* ===== APLICA FONT_JOGOS NOS DESTAQUES ===== */
+    /* Aplica a fonte personalizada nos elementos de destaque */
     #main-content .text-primary,
     #main-content [class*="text-[#FF6321]"],
     #main-content [class*="text-orange"],
@@ -86,32 +86,65 @@
     <p class="text-gray-500 text-center mt-10">Aguardando seleção...</p>
   </main>
 
+  <!-- NAV BAR FLUTUANTE FIXA NO RODAPÉ -->
   <nav class="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white/80 backdrop-blur-md border-t border-gray-100">
     <div class="flex justify-around items-center">
       <button id="btn-jogos" type="button" class="flex flex-col items-center active:scale-95 transition-transform">
         <img src="./IMAGES/jogos.png" class="w-6 h-6 mx-auto" alt="Jogos da Rodada" />
         <span class="text-[10px] mt-2 block leading-none font-black">JOGOS</span>
       </button>
+
       <button id="btn-provaveis" type="button" class="flex flex-col items-center active:scale-95 transition-transform">
         <img src="./IMAGES/ico_provaveis.png" class="w-6 h-6 mx-auto" alt="Prováveis Escalações" />
         <span class="text-[10px] mt-2 block leading-none font-black">PROVÁVEIS</span>
       </button>
+
+      <!-- Botão de instalação do PWA (inicialmente oculto) -->
+      <button id="btn-install-pwa" type="button" class="flex flex-col items-center active:scale-95 transition-transform hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 4v12m0 0l-3-3m3 3l3-3" />
+        </svg>
+        <span class="text-[10px] mt-2 block leading-none font-black">INSTALAR</span>
+      </button>
     </div>
   </nav>
 
-  <!-- SCRIPTS: ordem correta -->
+  <!-- SCRIPTS -->
   <script src="./API/rotas_proxy.js"></script>
   <script src="./MENU/jogos_rodada.js"></script>
-  <script src="./jogadores.js"></script>        <!-- JOGADORES global (na raiz) -->
+  <script src="./jogadores.js"></script>
   <script src="./MENU/provaveis.js"></script>
 
+  <!-- PWA Installation Logic -->
   <script>
+    let deferredPrompt = null;
+
+    // Captura o evento beforeinstallprompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const installBtn = document.getElementById('btn-install-pwa');
+      if (installBtn) installBtn.classList.remove('hidden');
+    });
+
+    // Lida com o clique do botão de instalação
+    document.getElementById('btn-install-pwa')?.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`Instalação PWA: ${outcome}`);
+      deferredPrompt = null;
+      const installBtn = document.getElementById('btn-install-pwa');
+      if (installBtn) installBtn.classList.add('hidden');
+    });
+
+    // Registra o Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker
           .register('./sw.js')
-          .then((reg) => console.log('SW registrado:', reg.scope))
-          .catch((err) => console.error('Erro no SW:', err));
+          .then(reg => console.log('SW registrado:', reg.scope))
+          .catch(err => console.error('Erro no SW:', err));
       });
     }
   </script>
