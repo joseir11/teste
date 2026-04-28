@@ -96,7 +96,7 @@ function renderStatusMercado(mercado) {
       
       <!-- FAIXA BEGE SUAVE — CABEÇALHO -->
       <div class="bg-orange-50 px-4 py-2.5 border-b border-orange-100">
-        <p class="text-[11px] uppercase tracking-[0.25em] font-black text-black text-center">
+        <p class="text-xl font-black text-black text-center">
           Jogos da Rodada
         </p>
       </div>
@@ -183,9 +183,9 @@ function renderCardPartida(partida, clubes) {
   const fallbackCasa = mandante?.escudos?.["60x60"] || "";
   const fallbackVis = visitante?.escudos?.["60x60"] || "";
 
-  // NOMES INTEIROS DOS TIMES (ao invés de abreviação)
-  const nomeCasa = mandante?.nome || "?";
-  const nomeVis = visitante?.nome || "?";
+  // NOMES INTEIROS DOS TIMES
+  const nomeCasa = mandante?.nome_fantasia || mandante?.nome || "?";
+  const nomeVis = visitante?.nome_fantasia || visitante?.nome || "?";
 
   return `
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
@@ -206,7 +206,7 @@ function renderCardPartida(partida, clubes) {
                  alt="${nomeCasa}" 
                  class="w-12 h-12 object-contain">
           </div>
-          <span class="text-xs font-bold mt-1 text-center">
+          <span class="text-sm font-black mt-1 text-center leading-tight">
             ${nomeCasa}
           </span>
           ${aproveitamentoCasa}
@@ -234,7 +234,7 @@ function renderCardPartida(partida, clubes) {
               ${posVis}
             </span>
           </div>
-          <span class="text-xs font-bold mt-1 text-center">
+          <span class="text-sm font-black mt-1 text-center leading-tight">
             ${nomeVis}
           </span>
           ${aproveitamentoVis}
