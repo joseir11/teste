@@ -5,6 +5,7 @@
 
 const mainContent = document.getElementById("main-content");
 const btnJogos = document.getElementById("btn-jogos");
+const btnProvaveis = document.getElementById("btn-provaveis");
 
 // CAMINHO BASE DOS ESCUDOS LOCAIS
 const ESCUDOS_PATH = "./ESCUDOS_BRASILEIRAO";
@@ -19,6 +20,18 @@ function renderLoader() {
       </p>
       <p class="text-[10px] text-gray-300 mt-2">
         O servidor pode levar até 50s para acordar
+      </p>
+    </div>
+  `;
+}
+
+/* ── HTML DE LOADER PARA PROVÁVEIS ─────────────────────── */
+function renderLoaderProvaveis() {
+  mainContent.innerHTML = `
+    <div class="flex flex-col justify-center items-center h-screen gap-3 px-6 text-center">
+      <div class="loader"></div>
+      <p class="uppercase text-[10px] font-bold tracking-[0.3em] text-gray-400">
+        Carregando prováveis escalações...
       </p>
     </div>
   `;
@@ -317,6 +330,21 @@ async function carregarJogos() {
   }
 }
 
-/* ── LIGA O BOTÃO E CARREGA AUTOMATICAMENTE ──────────── */
+/* ── FUNÇÃO PARA CARREGAR PROVÁVEIS ───────────────────── */
+async function carregarProvaveis() {
+  console.log("🟢 BOTÃO PROVÁVEIS CLICADO");
+
+  renderLoaderProvaveis();
+
+  // Chamar a função do provaveis.js
+  if (typeof renderProvaveis === "function") {
+    await renderProvaveis();
+  } else {
+    renderError("Módulo de prováveis não carregado. Verifique provaveis.js");
+  }
+}
+
+/* ── LIGA OS BOTÕES E CARREGA AUTOMATICAMENTE ─────────── */
 btnJogos.addEventListener("click", carregarJogos);
+btnProvaveis.addEventListener("click", carregarProvaveis);
 document.addEventListener("DOMContentLoaded", carregarJogos);
