@@ -1,12 +1,15 @@
 /* ============================================================
    PROVÁVEIS ESCALAÇÕES — CARTOLA FC + JOSA.BET
-   VERSÃO: 2.0 (integrada com proxy e lógica do projeto original)
+   VERSÃO: 2.2 (completa)
+   - Nomes dos jogadores via jogadores.js
+   - Imagens locais no formato ./JOGADORES/[ID]_[NOME].webp
+   - Nome completo dos times
+   - Animação de borda laranja ao clicar nos escudos
+   - Botão flutuante "voltar ao topo"
    ============================================================ */
 
-// ========== CONFIGURAÇÕES GLOBAIS ==========
 const PROXY_URL = 'https://josabet-proxy.onrender.com';
 
-// Mapeamento slug -> ID do clube no Cartola
 const SLUG_TO_CARTOLA_ID = {
   corinthians_v2: 264,
   palmeiras_v2: 275,
@@ -34,16 +37,16 @@ const SLUG_TO_CARTOLA_ID = {
   juventude_v2: 143,
 };
 
-// Estado local para cache dos dados
 let provavelState = {
-  lineupsData: null,      // escalações via /provaveis/lineups
-  mercadoImages: null,    // map de atleta_id -> dados (foto, apelido, etc.)
-  teamUpdatesData: null,  // timestamps de atualização
-  partidasData: null,     // dados das partidas (vindos do módulo jogos_rodada.js)
+  lineupsData: null,
+  mercadoImages: null,
+  teamUpdatesData: null,
+  partidasData: null,
+  jogadoresMap: null,
   loading: false,
 };
 
-// ========== FUNÇÕES AUXILIARES ==========
+// ========== LOADER E ERRO ==========
 function renderLoaderProvaveis() {
   const main = document.getElementById('main-content');
   if (main) {
@@ -79,7 +82,40 @@ function renderError(msg) {
   }
 }
 
-// Renderiza bolinhas de aproveitamento (últimos 5 jogos)
+// ========== BOTÃO VOLTAR AO TOPO ==========
+function initScrollToTop() {
+  if (document.getElementById('scrollToTopProvaveis')) return;
+  
+  const btn = document.createElement('button');
+  btn.id = 'scrollToTopProvaveis';
+  btn.className = 'fixed bottom-24 right-4 w-12 h-12 bg-[#FF6321] text-white rounded-full shadow-lg flex items-center justify-center opacity-0 invisible transition-all duration-300 z-50 hover:scale-110';
+  btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>';
+  btn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.body.appendChild(btn);
+
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+      btn.classList.remove('opacity-0', 'invisible');
+      btn.classList.add('opacity-100', 'visible');
+    } else {
+      btn.classList.add('opacity-0', 'invisible');
+      btn.classList.remove('opacity-100', 'visible');
+    }
+  });
+}
+
+// ========== DESTAQUE DO CARD (BORDA LARANJA) ==========
+function highlightCard(cardId) {
+  const card = document.getElementById(cardId);
+  if (!card) return;
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  card.classList.add('ring-4', 'ring-[#FF6321]', 'ring-offset-2', 'transition-all', 'duration-300');
+  setTimeout(() => {
+    card.classList.remove('ring-4', 'ring-[#FF6321]', 'ring-offset-2');
+  }, 2000);
+}
+
+// ========== FUNÇÕES AUXILIARES ==========
 function renderAproveitamentoBolinhas(aprov) {
   if (!aprov || !Array.isArray(aprov)) return '';
   return aprov.map(resultado => {
@@ -91,7 +127,6 @@ function renderAproveitamentoBolinhas(aprov) {
   }).join('');
 }
 
-// Formata data ISO para "DD/MM • HH:MM"
 function formatarDataPartida(iso) {
   if (!iso) return 'A definir';
   const d = new Date(iso);
@@ -101,7 +136,6 @@ function formatarDataPartida(iso) {
   return `${data} • ${hora}`;
 }
 
-// Resolve posição do jogador (usa x,y do JSON, ou fallback central)
 function resolvePos(slot, xy) {
   if (xy && Number.isFinite(xy.x) && Number.isFinite(xy.y)) {
     return { x: xy.x, y: xy.y };
@@ -109,90 +143,119 @@ function resolvePos(slot, xy) {
   return { x: 50, y: 50 };
 }
 
-// ========== BUSCA DE DADOS VIA PROXY ==========
-async function fetchLineups() {
-  try {
-    const res = await fetch(`${PROXY_URL}/provaveis/lineups`, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    provavelState.lineupsData = data;
-    console.log('✅ Escalações carregadas');
-    return data;
-  } catch (err) {
-    console.error('❌ Erro ao buscar escalações:', err);
-    return null;
-  }
+// ========== CARREGAR JOGADORES.JS ==========
+function carregarJogadoresMap() {
+  return new Promise((resolve) => {
+    if (typeof JOGADORES !== 'undefined' && JOGADORES) {
+      const map = new Map();
+      for (const [id, slug] of Object.entries(JOGADORES)) {
+        const nomeFormatado = slug
+          .split('-')
+          .map(palavra => palavra.charAt(0).toUpperCase() + palavra.slice(1))
+          .join(' ');
+        map.set(parseInt(id), { slug, nome: nomeFormatado });
+      }
+      provavelState.jogadoresMap = map;
+      console.log(`✅ Jogadores carregados: ${map.size} atletas`);
+      resolve(map);
+    } else {
+      console.warn('⚠️ Objeto JOGADORES não encontrado. Nomes dos jogadores serão apenas IDs.');
+      provavelState.jogadoresMap = new Map();
+      resolve(new Map());
+    }
+  });
 }
 
-async function fetchMercadoImages() {
-  try {
-    const res = await fetch(`${PROXY_URL}/provaveis/mercado-images`, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json(); // array de { atleta_id, foto, apelido, nome }
-    const map = new Map();
-    data.forEach(item => map.set(item.atleta_id, item));
-    provavelState.mercadoImages = map;
-    console.log('✅ Imagens de atletas carregadas:', map.size);
-    return map;
-  } catch (err) {
-    console.error('❌ Erro ao buscar mercado-images:', err);
-    return new Map();
+// Obtém nome amigável do jogador
+function getNomeJogador(id) {
+  if (provavelState.jogadoresMap && provavelState.jogadoresMap.has(id)) {
+    return provavelState.jogadoresMap.get(id).nome;
   }
+  const fromProxy = provavelState.mercadoImages?.get(id)?.apelido || provavelState.mercadoImages?.get(id)?.nome;
+  if (fromProxy) return fromProxy;
+  return `#${id}`;
 }
 
-async function fetchTeamUpdates() {
-  try {
-    const res = await fetch(`${PROXY_URL}/provaveis/team-updates`, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    provavelState.teamUpdatesData = data;
-    console.log('✅ Atualizações de times carregadas');
-    return data;
-  } catch (err) {
-    console.error('❌ Erro ao buscar team-updates:', err);
-    return null;
-  }
+// ========== FUNÇÕES PARA IMAGEM LOCAL PADRÃO ID_NOME.webp ==========
+function slugifyNomeJogador(nome) {
+  if (!nome) return '';
+  return nome
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '');
 }
 
-// Os dados de partidas já devem estar disponíveis globalmente (vindos do módulo jogos_rodada.js)
-// Mas se não estiverem, buscamos via proxy também
-async function ensurePartidasData() {
-  if (provavelState.partidasData && provavelState.partidasData.partidas) {
-    return provavelState.partidasData;
+function getNomeArquivoJogador(id) {
+  let nome = provavelState.mercadoImages?.get(id)?.apelido || 
+             provavelState.mercadoImages?.get(id)?.nome;
+  if (nome) return slugifyNomeJogador(nome);
+  
+  if (provavelState.jogadoresMap && provavelState.jogadoresMap.has(id)) {
+    const slug = provavelState.jogadoresMap.get(id).slug;
+    return slug.toUpperCase().replace(/-/g, '');
   }
-  // Tenta pegar da variável global definida pelo jogos_rodada.js (se existir)
-  if (window.ultimasPartidas) {
-    provavelState.partidasData = window.ultimasPartidas;
-    return provavelState.partidasData;
-  }
-  // Fallback: buscar via proxy
-  try {
-    const res = await fetch(`${PROXY_URL}/partidas`, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    provavelState.partidasData = data;
-    console.log('✅ Partidas carregadas via proxy');
-    return data;
-  } catch (err) {
-    console.error('❌ Erro ao buscar partidas:', err);
-    return null;
-  }
+  return '';
 }
 
-// ========== RENDERIZAÇÃO DO CARD DE UM TIME ==========
+// ========== RENDERIZAÇÃO DO CAMPO (com imagem local ID_NOME.webp) ==========
+function renderJogadoresCampo(lineup, timeId) {
+  if (!lineup || !provavelState.mercadoImages) return '';
+
+  return lineup.titulares
+    .filter(p => p.slot !== 'TEC')
+    .map(p => {
+      const id = p.id;
+      const nome = getNomeJogador(id);
+      const nomeArquivo = getNomeArquivoJogador(id);
+      const fotoLocal = nomeArquivo ? `./JOGADORES/${id}_${nomeArquivo}.webp` : null;
+      const fotoProxy = provavelState.mercadoImages.get(id)?.foto || '';
+      const foto = fotoLocal || fotoProxy || `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
+
+      const pos = resolvePos(p.slot, { x: p.x, y: p.y });
+      const isDuvida = p.sit === 'duvida';
+      let duvidaComNome = '';
+      if (isDuvida && p.duvida_com) {
+        duvidaComNome = getNomeJogador(p.duvida_com);
+      }
+
+      const abreviar = (n) => {
+        const partes = n.trim().split(' ');
+        if (partes.length <= 1) return n;
+        return partes[0].charAt(0).toUpperCase() + '. ' + partes.slice(1).join(' ');
+      };
+      const nomeAbrev = abreviar(nome);
+      const duvidaAbrev = duvidaComNome ? abreviar(duvidaComNome) : '';
+
+      return `
+        <div class="absolute flex flex-col items-center" style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;">
+          <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/80 p-1 shadow-md ${isDuvida ? 'border-2 border-orange-500' : ''}">
+            <img src="${foto}" alt="${nome}" class="w-full h-full object-contain rounded-full" 
+                 onerror="this.onerror=null; this.src='${fotoProxy || `./ESCUDOS_BRASILEIRAO/${timeId}.png`}'">
+          </div>
+          <div class="mt-1 px-1.5 py-0.5 bg-white/40 backdrop-blur-sm rounded-md text-center" style="min-width:48px; max-width:70px;">
+            <p class="text-[10px] md:text-[11px] font-semibold text-gray-900 leading-tight text-center">${nomeAbrev}</p>
+          </div>
+          ${isDuvida && duvidaAbrev ? `
+            <div class="mt-0.5 px-1.5 py-0.5 bg-white/25 backdrop-blur-sm rounded-md text-center" style="min-width:48px; max-width:70px;">
+              <p class="text-[9px] md:text-[10px] font-medium text-gray-700 leading-tight text-center">${duvidaAbrev}</p>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+}
+
+// ========== RENDERIZAÇÃO DO CARD DO TIME ==========
 function renderTimeCard(timeId, partida, timesNaOrdem, index) {
   const clubeInfo = provavelState.partidasData?.clubes?.[timeId] || {};
-  const nomeTime = clubeInfo.nome || `Time ${timeId}`;
+  const nomeTime = clubeInfo.nome_fantasia || clubeInfo.nome || `Time ${timeId}`;
 
-  // Slug do time (para buscar escalação)
   const slug = Object.keys(SLUG_TO_CARTOLA_ID).find(
     key => SLUG_TO_CARTOLA_ID[key] === timeId
   );
-
   const lineup = slug ? provavelState.lineupsData?.teams?.[slug] : null;
   const lastUpdate = slug ? provavelState.teamUpdatesData?.teams?.[slug]?.last_update : null;
 
-  // Formata última atualização
   let fmtUpdate = null;
   if (lastUpdate) {
     try {
@@ -209,7 +272,6 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index) {
     } catch (e) {}
   }
 
-  // Informações da partida
   let partidaInfo = null;
   if (partida) {
     const adversarioId = partida.clube_casa_id === timeId
@@ -220,7 +282,7 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index) {
     const dataFmt = formatarDataPartida(partida.partida_data);
 
     partidaInfo = {
-      adversarioNome: adversarioClube.abreviacao || adversarioClube.nome || '???',
+      adversarioNome: adversarioClube.nome_fantasia || adversarioClube.nome || '???',
       adversarioEscudo: `./ESCUDOS_BRASILEIRAO/${adversarioId}.png`,
       local: partida.local || '—',
       data: dataFmt,
@@ -228,51 +290,7 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index) {
     };
   }
 
-  // Geração do campo com jogadores
-  let jogadoresHtml = '';
-  if (lineup && provavelState.mercadoImages) {
-    jogadoresHtml = lineup.titulares
-      .filter(p => p.slot !== 'TEC') // exclui técnico
-      .map(p => {
-        const jogador = provavelState.mercadoImages.get(p.id);
-        let nome = jogador?.apelido || jogador?.nome;
-        if (!nome) nome = `#${p.id}`;
-
-        const foto = jogador?.foto || `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
-        const pos = resolvePos(p.slot, { x: p.x, y: p.y });
-        const isDuvida = p.sit === 'duvida';
-        let duvidaComNome = '';
-        if (isDuvida && p.duvida_com) {
-          const alt = provavelState.mercadoImages.get(p.duvida_com);
-          duvidaComNome = alt?.apelido || alt?.nome || `#${p.duvida_com}`;
-        }
-
-        const abreviar = (n) => {
-          const partes = n.trim().split(' ');
-          if (partes.length <= 1) return n;
-          return partes[0].charAt(0).toUpperCase() + '. ' + partes.slice(1).join(' ');
-        };
-        const nomeAbrev = abreviar(nome);
-        const duvidaAbrev = duvidaComNome ? abreviar(duvidaComNome) : '';
-
-        return `
-          <div class="absolute flex flex-col items-center" style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;">
-            <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/80 p-1 shadow-md ${isDuvida ? 'border-2 border-orange-500' : ''}">
-              <img src="${foto}" alt="${nome}" class="w-full h-full object-contain rounded-full" onerror="this.src='./ESCUDOS_BRASILEIRAO/${timeId}.png'">
-            </div>
-            <div class="mt-1 px-1.5 py-0.5 bg-white/40 backdrop-blur-sm rounded-md text-center" style="min-width:48px; max-width:70px;">
-              <p class="text-[10px] md:text-[11px] font-semibold text-gray-900 leading-tight text-center drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">${nomeAbrev}</p>
-            </div>
-            ${isDuvida && duvidaAbrev ? `
-              <div class="mt-0.5 px-1.5 py-0.5 bg-white/25 backdrop-blur-sm rounded-md text-center" style="min-width:48px; max-width:70px;">
-                <p class="text-[9px] md:text-[10px] font-medium text-gray-700 leading-tight text-center drop-shadow-[0_1px_1px_rgba(255,255,255,0.6)]">${duvidaAbrev}</p>
-              </div>
-            ` : ''}
-          </div>
-        `;
-      }).join('');
-  }
-
+  const jogadoresHtml = lineup ? renderJogadoresCampo(lineup, timeId) : '';
   const timeData = timesNaOrdem.find(t => t.id === timeId) || {};
 
   return `
@@ -304,7 +322,6 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index) {
         </div>
       </div>
 
-      <!-- Campo tático -->
       <div class="relative w-full aspect-[4/5] rounded-xl overflow-hidden border border-white/30 shadow-inner bg-gradient-to-b from-green-600 to-green-800">
         <div class="absolute inset-0 opacity-30 pointer-events-none">
           <div class="absolute inset-3 border border-white rounded"></div>
@@ -346,6 +363,76 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index) {
   `;
 }
 
+// ========== BUSCA DOS DADOS VIA PROXY ==========
+async function fetchLineups() {
+  try {
+    const res = await fetch(`${PROXY_URL}/provaveis/lineups`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    provavelState.lineupsData = data;
+    console.log('✅ Escalações carregadas');
+    return data;
+  } catch (err) {
+    console.error('❌ Erro ao buscar escalações:', err);
+    return null;
+  }
+}
+
+async function fetchMercadoImages() {
+  try {
+    const res = await fetch(`${PROXY_URL}/provaveis/mercado-images`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const map = new Map();
+    data.forEach(item => map.set(item.atleta_id, item));
+    provavelState.mercadoImages = map;
+    console.log('✅ Imagens de atletas carregadas:', map.size);
+    return map;
+  } catch (err) {
+    console.error('❌ Erro ao buscar mercado-images:', err);
+    return new Map();
+  }
+}
+
+async function fetchTeamUpdates() {
+  try {
+    const res = await fetch(`${PROXY_URL}/provaveis/team-updates`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    provavelState.teamUpdatesData = data;
+    console.log('✅ Atualizações de times carregadas');
+    return data;
+  } catch (err) {
+    console.error('❌ Erro ao buscar team-updates:', err);
+    return null;
+  }
+}
+
+async function ensurePartidasData() {
+  if (provavelState.partidasData) return provavelState.partidasData;
+  // Tenta usar a variável global do módulo jogos_rodada.js (se tiver sido armazenada)
+  if (window.ultimasPartidas) {
+    provavelState.partidasData = window.ultimasPartidas;
+    return provavelState.partidasData;
+  }
+  // Tenta usar API_CARTOLA.PARTIDAS (definida em rotas_proxy.js)
+  if (window.API_CARTOLA && window.API_CARTOLA.PARTIDAS) {
+    try {
+      const res = await fetch(window.API_CARTOLA.PARTIDAS, { cache: 'no-store' });
+      const data = await res.json();
+      provavelState.partidasData = data;
+      return data;
+    } catch (err) {
+      console.warn('Falha ao buscar partidas via API_CARTOLA', err);
+    }
+  }
+  // Fallback: proxy
+  const res = await fetch(`${PROXY_URL}/partidas`, { cache: 'no-store' });
+  const data = await res.json();
+  provavelState.partidasData = data;
+  return data;
+}
+
 // ========== FUNÇÃO PRINCIPAL ==========
 window.renderProvaveis = async function() {
   const main = document.getElementById('main-content');
@@ -355,7 +442,7 @@ window.renderProvaveis = async function() {
   provavelState.loading = true;
 
   try {
-    // 1. Carregar partidas (prioriza dados já existentes)
+    await carregarJogadoresMap();
     const partidasData = await ensurePartidasData();
     if (!partidasData || !partidasData.partidas || partidasData.partidas.length === 0) {
       throw new Error('Nenhuma partida encontrada para esta rodada.');
@@ -363,40 +450,26 @@ window.renderProvaveis = async function() {
     provavelState.partidasData = partidasData;
     const partidas = partidasData.partidas;
 
-    // 2. Carregar escalações, fotos e atualizações em paralelo
     await Promise.all([
       fetchLineups(),
       fetchMercadoImages(),
       fetchTeamUpdates(),
     ]);
 
-    // Valida se temos escalações (opcional, pode continuar mesmo sem)
-    if (!provavelState.lineupsData) {
-      console.warn('⚠️ Nenhuma escalação disponível. Exibindo apenas informações básicas.');
-    }
+    if (!provavelState.lineupsData) console.warn('⚠️ Nenhuma escalação disponível.');
 
-    // Construir lista de times na ordem das partidas
     let timesNaOrdem = [];
     partidas.forEach(p => {
-      timesNaOrdem.push({
-        id: p.clube_casa_id,
-        aproveitamento: p.aproveitamento_mandante,
-        isMandante: true,
-      });
-      timesNaOrdem.push({
-        id: p.clube_visitante_id,
-        aproveitamento: p.aproveitamento_visitante,
-        isMandante: false,
-      });
+      timesNaOrdem.push({ id: p.clube_casa_id, aproveitamento: p.aproveitamento_mandante, isMandante: true });
+      timesNaOrdem.push({ id: p.clube_visitante_id, aproveitamento: p.aproveitamento_visitante, isMandante: false });
     });
 
-    // Renderizar grid de escudos (atalho para scroll)
     const gridEscudos = `
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4">
         <div class="grid grid-cols-5 gap-2 md:gap-4 justify-items-center">
           ${timesNaOrdem.map((time, idx) => `
             <div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-black/5 rounded-full p-2 flex items-center justify-center border border-black/5 hover:bg-black/10 transition-all shadow-sm cursor-pointer hover:scale-110"
-                 onclick="document.getElementById('time-card-${idx}')?.scrollIntoView({ behavior: 'smooth', block: 'center' })">
+                 onclick="highlightCard('time-card-${idx}')">
               <img src="./ESCUDOS_BRASILEIRAO/${time.id}.png" 
                    alt="Time ${time.id}" 
                    class="w-full h-full object-contain drop-shadow-sm"
@@ -407,7 +480,6 @@ window.renderProvaveis = async function() {
       </div>
     `;
 
-    // Renderizar cards de cada time (dois por partida)
     const cardsHtml = partidas.flatMap((partida, idx) => {
       const casaIdx = timesNaOrdem.findIndex(t => t.id === partida.clube_casa_id);
       const visIdx = timesNaOrdem.findIndex(t => t.id === partida.clube_visitante_id);
@@ -426,8 +498,9 @@ window.renderProvaveis = async function() {
       </div>
     `;
 
+    initScrollToTop();
     provavelState.loading = false;
-    console.log('✅ Prováveis escalações renderizadas com sucesso');
+    console.log('✅ Prováveis escalações renderizadas com sucesso (v2.2)');
   } catch (err) {
     console.error('❌ Erro em renderProvaveis:', err);
     renderError(err.message || 'Falha ao carregar os dados. Tente novamente.');
@@ -435,5 +508,7 @@ window.renderProvaveis = async function() {
   }
 };
 
-// Exporta a função para o escopo global (já está)
-console.log('✅ provaveis.js v2.0 carregado');
+// Disponibiliza a função highlightCard globalmente para ser chamada pelo onclick do grid
+window.highlightCard = highlightCard;
+
+console.log('✅ provaveis.js v2.2 carregado');
