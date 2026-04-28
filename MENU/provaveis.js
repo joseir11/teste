@@ -1,11 +1,6 @@
 /* ============================================================
    PROVÁVEIS ESCALAÇÕES — CARTOLA FC + JOSA.BET
-   VERSÃO: 2.2 (completa)
-   - Nomes dos jogadores via jogadores.js
-   - Imagens locais no formato ./JOGADORES/[ID]_[NOME].webp
-   - Nome completo dos times
-   - Animação de borda laranja ao clicar nos escudos
-   - Botão flutuante "voltar ao topo"
+   VERSÃO: 3.0 (com nomes via JOGADORES global + fallback)
    ============================================================ */
 
 const PROXY_URL = 'https://josabet-proxy.onrender.com';
@@ -42,7 +37,6 @@ let provavelState = {
   mercadoImages: null,
   teamUpdatesData: null,
   partidasData: null,
-  jogadoresMap: null,
   loading: false,
 };
 
@@ -104,7 +98,7 @@ function initScrollToTop() {
   });
 }
 
-// ========== DESTAQUE DO CARD (BORDA LARANJA) ==========
+// ========== DESTAQUE DO CARD ==========
 function highlightCard(cardId) {
   const card = document.getElementById(cardId);
   if (!card) return;
@@ -143,79 +137,53 @@ function resolvePos(slot, xy) {
   return { x: 50, y: 50 };
 }
 
-// ========== CARREGAR JOGADORES.JS ==========
-function carregarJogadoresMap() {
-  return new Promise((resolve) => {
-    if (typeof JOGADORES !== 'undefined' && JOGADORES) {
-      const map = new Map();
-      for (const [id, slug] of Object.entries(JOGADORES)) {
-        const nomeFormatado = slug
-          .split('-')
-          .map(palavra => palavra.charAt(0).toUpperCase() + palavra.slice(1))
-          .join(' ');
-        map.set(parseInt(id), { slug, nome: nomeFormatado });
-      }
-      provavelState.jogadoresMap = map;
-      console.log(`✅ Jogadores carregados: ${map.size} atletas`);
-      resolve(map);
-    } else {
-      console.warn('⚠️ Objeto JOGADORES não encontrado. Nomes dos jogadores serão apenas IDs.');
-      provavelState.jogadoresMap = new Map();
-      resolve(new Map());
-    }
-  });
-}
-
-// Obtém nome amigável do jogador
-function getNomeJogador(id) {
-  if (provavelState.jogadoresMap && provavelState.jogadoresMap.has(id)) {
-    return provavelState.jogadoresMap.get(id).nome;
-  }
-  const fromProxy = provavelState.mercadoImages?.get(id)?.apelido || provavelState.mercadoImages?.get(id)?.nome;
-  if (fromProxy) return fromProxy;
-  return `#${id}`;
-}
-
-// ========== FUNÇÕES PARA IMAGEM LOCAL PADRÃO ID_NOME.webp ==========
-function slugifyNomeJogador(nome) {
-  if (!nome) return '';
-  return nome
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, '');
-}
-
-function getNomeArquivoJogador(id) {
-  let nome = provavelState.mercadoImages?.get(id)?.apelido || 
-             provavelState.mercadoImages?.get(id)?.nome;
-  if (nome) return slugifyNomeJogador(nome);
+// ========== OBTÉM NOME DO JOGADOR (MESMA LÓGICA DO PROJETO ORIGINAL) ==========
+function getNomeJogador(id, mercadoImagesMap) {
+  // Tenta do proxy primeiro (apelido ou nome)
+  const jogador = mercadoImagesMap?.get(id);
+  let nome = jogador?.apelido || jogador?.nome;
   
-  if (provavelState.jogadoresMap && provavelState.jogadoresMap.has(id)) {
-    const slug = provavelState.jogadoresMap.get(id).slug;
-    return slug.toUpperCase().replace(/-/g, '');
+  // Se não achou no proxy, tenta do JOGADORES global (exatamente como no original)
+  if (!nome && typeof JOGADORES !== 'undefined' && JOGADORES[id] && JOGADORES[id].slug) {
+    nome = JOGADORES[id].slug.split('-').map(palavra => palavra.charAt(0).toUpperCase() + palavra.slice(1)).join(' ');
+  }
+  
+  return nome || `#${id}`;
+}
+
+// ========== GERA NOME DO ARQUIVO DE IMAGEM LOCAL ==========
+function getNomeArquivoJogador(id, mercadoImagesMap) {
+  // Tenta do JOGADORES primeiro (slug)
+  if (typeof JOGADORES !== 'undefined' && JOGADORES[id] && JOGADORES[id].slug) {
+    return JOGADORES[id].slug.toUpperCase().replace(/-/g, '');
+  }
+  // Depois tenta do proxy
+  const nome = mercadoImagesMap?.get(id)?.apelido || mercadoImagesMap?.get(id)?.nome;
+  if (nome) {
+    return nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '');
   }
   return '';
 }
 
-// ========== RENDERIZAÇÃO DO CAMPO (com imagem local ID_NOME.webp) ==========
-function renderJogadoresCampo(lineup, timeId) {
-  if (!lineup || !provavelState.mercadoImages) return '';
+// ========== RENDERIZA OS JOGADORES NO CAMPO ==========
+function renderJogadoresCampo(lineup, timeId, mercadoImagesMap) {
+  if (!lineup || !mercadoImagesMap) return '';
 
   return lineup.titulares
     .filter(p => p.slot !== 'TEC')
     .map(p => {
       const id = p.id;
-      const nome = getNomeJogador(id);
-      const nomeArquivo = getNomeArquivoJogador(id);
+      const nome = getNomeJogador(id, mercadoImagesMap);
+      const nomeArquivo = getNomeArquivoJogador(id, mercadoImagesMap);
       const fotoLocal = nomeArquivo ? `./JOGADORES/${id}_${nomeArquivo}.webp` : null;
-      const fotoProxy = provavelState.mercadoImages.get(id)?.foto || '';
+      const fotoProxy = mercadoImagesMap.get(id)?.foto || '';
       const foto = fotoLocal || fotoProxy || `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
 
       const pos = resolvePos(p.slot, { x: p.x, y: p.y });
       const isDuvida = p.sit === 'duvida';
       let duvidaComNome = '';
       if (isDuvida && p.duvida_com) {
-        duvidaComNome = getNomeJogador(p.duvida_com);
+        duvidaComNome = getNomeJogador(p.duvida_com, mercadoImagesMap);
       }
 
       const abreviar = (n) => {
@@ -245,14 +213,12 @@ function renderJogadoresCampo(lineup, timeId) {
     }).join('');
 }
 
-// ========== RENDERIZAÇÃO DO CARD DO TIME ==========
-function renderTimeCard(timeId, partida, timesNaOrdem, index) {
+// ========== RENDERIZA O CARD DE UM TIME ==========
+function renderTimeCard(timeId, partida, timesNaOrdem, index, mercadoImagesMap) {
   const clubeInfo = provavelState.partidasData?.clubes?.[timeId] || {};
   const nomeTime = clubeInfo.nome_fantasia || clubeInfo.nome || `Time ${timeId}`;
 
-  const slug = Object.keys(SLUG_TO_CARTOLA_ID).find(
-    key => SLUG_TO_CARTOLA_ID[key] === timeId
-  );
+  const slug = Object.keys(SLUG_TO_CARTOLA_ID).find(key => SLUG_TO_CARTOLA_ID[key] === timeId);
   const lineup = slug ? provavelState.lineupsData?.teams?.[slug] : null;
   const lastUpdate = slug ? provavelState.teamUpdatesData?.teams?.[slug]?.last_update : null;
 
@@ -274,9 +240,7 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index) {
 
   let partidaInfo = null;
   if (partida) {
-    const adversarioId = partida.clube_casa_id === timeId
-      ? partida.clube_visitante_id
-      : partida.clube_casa_id;
+    const adversarioId = partida.clube_casa_id === timeId ? partida.clube_visitante_id : partida.clube_casa_id;
     const adversarioClube = provavelState.partidasData.clubes?.[adversarioId] || {};
     const isMandante = partida.clube_casa_id === timeId;
     const dataFmt = formatarDataPartida(partida.partida_data);
@@ -290,7 +254,7 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index) {
     };
   }
 
-  const jogadoresHtml = lineup ? renderJogadoresCampo(lineup, timeId) : '';
+  const jogadoresHtml = lineup ? renderJogadoresCampo(lineup, timeId, mercadoImagesMap) : '';
   const timeData = timesNaOrdem.find(t => t.id === timeId) || {};
 
   return `
@@ -304,22 +268,10 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index) {
         </div>
         <div class="flex-1 min-w-0">
           <p class="font-black text-lg uppercase tracking-wide text-gray-800 truncate">${nomeTime}</p>
-          ${fmtUpdate ? `
-            <p class="flex items-center gap-1 text-[10px] font-mono text-gray-400 leading-none mt-0.5">
-              <svg xmlns='http://www.w3.org/2000/svg' class='w-3 h-3' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'>
-                <circle cx='12' cy='12' r='10'/><polyline points='12 6 12 12 16 14'/>
-              </svg> Atualizado ${fmtUpdate}
-            </p>
-          ` : ''}
+          ${fmtUpdate ? `<p class="flex items-center gap-1 text-[10px] font-mono text-gray-400 leading-none mt-0.5"><svg xmlns='http://www.w3.org/2000/svg' class='w-3 h-3' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='12' r='10'/><polyline points='12 6 12 12 16 14'/></svg> Atualizado ${fmtUpdate}</p>` : ''}
         </div>
-        <div class="flex gap-1.5">
-          ${renderAproveitamentoBolinhas(timeData.aproveitamento)}
-        </div>
-        <div class="shrink-0">
-          <span class="text-[10px] font-mono text-gray-500 uppercase bg-black/5 px-2 py-1 rounded-full">
-            ${timeData.isMandante ? 'Casa' : 'Fora'}
-          </span>
-        </div>
+        <div class="flex gap-1.5">${renderAproveitamentoBolinhas(timeData.aproveitamento)}</div>
+        <div class="shrink-0"><span class="text-[10px] font-mono text-gray-500 uppercase bg-black/5 px-2 py-1 rounded-full">${timeData.isMandante ? 'Casa' : 'Fora'}</span></div>
       </div>
 
       <div class="relative w-full aspect-[4/5] rounded-xl overflow-hidden border border-white/30 shadow-inner bg-gradient-to-b from-green-600 to-green-800">
@@ -337,25 +289,13 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index) {
         <div class="flex items-center gap-3 px-3 py-2.5 bg-black/[0.04] rounded-xl border border-black/[0.06]">
           <div class="flex items-center gap-2 flex-1 min-w-0">
             <span class="text-[10px] font-mono text-gray-400 uppercase shrink-0">ADV</span>
-            <img src="${partidaInfo.adversarioEscudo}" alt="${partidaInfo.adversarioNome}"
-                 class="w-6 h-6 object-contain shrink-0"
-                 onerror="this.style.display='none'">
+            <img src="${partidaInfo.adversarioEscudo}" class="w-6 h-6 object-contain shrink-0" onerror="this.style.display='none'">
             <span class="font-black text-base uppercase leading-none text-gray-800 truncate">${partidaInfo.adversarioNome}</span>
             <span class="text-[10px] font-mono text-gray-400 bg-black/5 px-1.5 py-0.5 rounded-full shrink-0">${partidaInfo.mando}</span>
           </div>
           <div class="flex flex-col items-end shrink-0 gap-0.5">
-            <span class="flex items-center gap-1 text-[10px] font-mono text-gray-500">
-              <svg xmlns='http://www.w3.org/2000/svg' class='w-3 h-3' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'>
-                <rect x='3' y='4' width='18' height='18' rx='2' ry='2'/><line x1='16' y1='2' x2='16' y2='6'/><line x1='8' y1='2' x2='8' y2='6'/><line x1='3' y1='10' x2='21' y2='10'/>
-              </svg>
-              ${partidaInfo.data}
-            </span>
-            <span class="flex items-center gap-1 text-[10px] font-mono text-gray-400 text-right">
-              <svg xmlns='http://www.w3.org/2000/svg' class='w-3 h-3 shrink-0' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'>
-                <path d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/><circle cx='12' cy='10' r='3'/>
-              </svg>
-              ${partidaInfo.local}
-            </span>
+            <span class="flex items-center gap-1 text-[10px] font-mono text-gray-500"><svg xmlns='http://www.w3.org/2000/svg' class='w-3 h-3' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><rect x='3' y='4' width='18' height='18' rx='2' ry='2'/><line x1='16' y1='2' x2='16' y2='6'/><line x1='8' y1='2' x2='8' y2='6'/><line x1='3' y1='10' x2='21' y2='10'/></svg> ${partidaInfo.data}</span>
+            <span class="flex items-center gap-1 text-[10px] font-mono text-gray-400 text-right"><svg xmlns='http://www.w3.org/2000/svg' class='w-3 h-3 shrink-0' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/><circle cx='12' cy='10' r='3'/></svg> ${partidaInfo.local}</span>
           </div>
         </div>
       ` : ''}
@@ -363,19 +303,14 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index) {
   `;
 }
 
-// ========== BUSCA DOS DADOS VIA PROXY ==========
+// ========== BUSCAS VIA PROXY ==========
 async function fetchLineups() {
   try {
     const res = await fetch(`${PROXY_URL}/provaveis/lineups`, { cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    provavelState.lineupsData = data;
+    provavelState.lineupsData = await res.json();
     console.log('✅ Escalações carregadas');
-    return data;
-  } catch (err) {
-    console.error('❌ Erro ao buscar escalações:', err);
-    return null;
-  }
+  } catch (err) { console.error('❌ Erro ao buscar escalações:', err); }
 }
 
 async function fetchMercadoImages() {
@@ -387,76 +322,46 @@ async function fetchMercadoImages() {
     data.forEach(item => map.set(item.atleta_id, item));
     provavelState.mercadoImages = map;
     console.log('✅ Imagens de atletas carregadas:', map.size);
-    return map;
-  } catch (err) {
-    console.error('❌ Erro ao buscar mercado-images:', err);
-    return new Map();
-  }
+  } catch (err) { console.error('❌ Erro ao buscar mercado-images:', err); }
 }
 
 async function fetchTeamUpdates() {
   try {
     const res = await fetch(`${PROXY_URL}/provaveis/team-updates`, { cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    provavelState.teamUpdatesData = data;
+    provavelState.teamUpdatesData = await res.json();
     console.log('✅ Atualizações de times carregadas');
-    return data;
-  } catch (err) {
-    console.error('❌ Erro ao buscar team-updates:', err);
-    return null;
-  }
+  } catch (err) { console.error('❌ Erro ao buscar team-updates:', err); }
 }
 
 async function ensurePartidasData() {
   if (provavelState.partidasData) return provavelState.partidasData;
-  // Tenta usar a variável global do módulo jogos_rodada.js (se tiver sido armazenada)
-  if (window.ultimasPartidas) {
-    provavelState.partidasData = window.ultimasPartidas;
-    return provavelState.partidasData;
-  }
-  // Tenta usar API_CARTOLA.PARTIDAS (definida em rotas_proxy.js)
-  if (window.API_CARTOLA && window.API_CARTOLA.PARTIDAS) {
+  if (window.API_CARTOLA?.PARTIDAS) {
     try {
       const res = await fetch(window.API_CARTOLA.PARTIDAS, { cache: 'no-store' });
-      const data = await res.json();
-      provavelState.partidasData = data;
-      return data;
-    } catch (err) {
-      console.warn('Falha ao buscar partidas via API_CARTOLA', err);
-    }
+      provavelState.partidasData = await res.json();
+      return provavelState.partidasData;
+    } catch (err) {}
   }
-  // Fallback: proxy
   const res = await fetch(`${PROXY_URL}/partidas`, { cache: 'no-store' });
-  const data = await res.json();
-  provavelState.partidasData = data;
-  return data;
+  provavelState.partidasData = await res.json();
+  return provavelState.partidasData;
 }
 
 // ========== FUNÇÃO PRINCIPAL ==========
 window.renderProvaveis = async function() {
   const main = document.getElementById('main-content');
   if (!main) return;
-
   renderLoaderProvaveis();
   provavelState.loading = true;
 
   try {
-    await carregarJogadoresMap();
     const partidasData = await ensurePartidasData();
-    if (!partidasData || !partidasData.partidas || partidasData.partidas.length === 0) {
-      throw new Error('Nenhuma partida encontrada para esta rodada.');
-    }
+    if (!partidasData?.partidas?.length) throw new Error('Nenhuma partida encontrada.');
     provavelState.partidasData = partidasData;
     const partidas = partidasData.partidas;
 
-    await Promise.all([
-      fetchLineups(),
-      fetchMercadoImages(),
-      fetchTeamUpdates(),
-    ]);
-
-    if (!provavelState.lineupsData) console.warn('⚠️ Nenhuma escalação disponível.');
+    await Promise.all([fetchLineups(), fetchMercadoImages(), fetchTeamUpdates()]);
 
     let timesNaOrdem = [];
     partidas.forEach(p => {
@@ -464,51 +369,26 @@ window.renderProvaveis = async function() {
       timesNaOrdem.push({ id: p.clube_visitante_id, aproveitamento: p.aproveitamento_visitante, isMandante: false });
     });
 
-    const gridEscudos = `
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4">
-        <div class="grid grid-cols-5 gap-2 md:gap-4 justify-items-center">
-          ${timesNaOrdem.map((time, idx) => `
-            <div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-black/5 rounded-full p-2 flex items-center justify-center border border-black/5 hover:bg-black/10 transition-all shadow-sm cursor-pointer hover:scale-110"
-                 onclick="highlightCard('time-card-${idx}')">
-              <img src="./ESCUDOS_BRASILEIRAO/${time.id}.png" 
-                   alt="Time ${time.id}" 
-                   class="w-full h-full object-contain drop-shadow-sm"
-                   onerror="this.style.display='none'">
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
+    const gridEscudos = `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4"><div class="grid grid-cols-5 gap-2 md:gap-4 justify-items-center">${timesNaOrdem.map((time, idx) => `<div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-black/5 rounded-full p-2 flex items-center justify-center border border-black/5 hover:bg-black/10 transition-all shadow-sm cursor-pointer hover:scale-110" onclick="highlightCard('time-card-${idx}')"><img src="./ESCUDOS_BRASILEIRAO/${time.id}.png" class="w-full h-full object-contain drop-shadow-sm" onerror="this.style.display='none'"></div>`).join('')}</div></div>`;
 
     const cardsHtml = partidas.flatMap((partida, idx) => {
       const casaIdx = timesNaOrdem.findIndex(t => t.id === partida.clube_casa_id);
       const visIdx = timesNaOrdem.findIndex(t => t.id === partida.clube_visitante_id);
       return [
-        renderTimeCard(partida.clube_casa_id, partida, timesNaOrdem, casaIdx),
-        renderTimeCard(partida.clube_visitante_id, partida, timesNaOrdem, visIdx),
+        renderTimeCard(partida.clube_casa_id, partida, timesNaOrdem, casaIdx, provavelState.mercadoImages),
+        renderTimeCard(partida.clube_visitante_id, partida, timesNaOrdem, visIdx, provavelState.mercadoImages),
       ];
     }).join('');
 
-    main.innerHTML = `
-      <div class="space-y-6 animate-in fade-in duration-300 pt-6">
-        ${gridEscudos}
-        <div class="space-y-4 px-4">
-          ${cardsHtml}
-        </div>
-      </div>
-    `;
-
+    main.innerHTML = `<div class="space-y-6 animate-in fade-in duration-300 pt-6">${gridEscudos}<div class="space-y-4 px-4">${cardsHtml}</div></div>`;
     initScrollToTop();
-    provavelState.loading = false;
-    console.log('✅ Prováveis escalações renderizadas com sucesso (v2.2)');
+    console.log('✅ Prováveis escalações renderizadas com sucesso (v3.0)');
   } catch (err) {
-    console.error('❌ Erro em renderProvaveis:', err);
-    renderError(err.message || 'Falha ao carregar os dados. Tente novamente.');
-    provavelState.loading = false;
+    console.error('❌ Erro:', err);
+    renderError(err.message || 'Falha ao carregar os dados.');
   }
+  provavelState.loading = false;
 };
 
-// Disponibiliza a função highlightCard globalmente para ser chamada pelo onclick do grid
 window.highlightCard = highlightCard;
-
-console.log('✅ provaveis.js v2.2 carregado');
+console.log('✅ provaveis.js v3.0 carregado');
