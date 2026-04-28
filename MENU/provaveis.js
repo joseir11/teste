@@ -26,10 +26,6 @@ const SLUG_TO_CARTOLA_ID = {
   chapecoense_v2: 315,
   coritiba_v2: 294,
   remo_v2: 364,
-  fortaleza_v2: 131,
-  sport_v2: 79,
-  ceara_v2: 105,
-  juventude_v2: 143,
 };
 
 let provavelState = {
