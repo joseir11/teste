@@ -1,227 +1,484 @@
 /* ============================================================
-   PROVÁVEIS ESCALAÇÕES — CARTOLA FC
-   VERSÃO: 1.0 — INTEGRAÇÃO BÁSICA
+   PROVÁVEIS ESCALAÇÕES — CARTOLA FC + JOSA.BET
+   VERSÃO: 1.0 — Busca de APIs + Visualização em Campo
    ============================================================ */
 
-const mainContent = document.getElementById("main-content");
-const btnJogos = document.getElementById("btn-jogos");
+const PROXY_URL = 'https://josabet-proxy.onrender.com';
 
-// URL DA API PARA PROVÁVEIS
-const URL_PROVAVEIS = window.API_CARTOLA?.PROVAVEIS_LINEUPS || 
-                     "https://josabet-proxy.onrender.com/provaveis/lineups";
+const SLUG_TO_CARTOLA_ID = {
+  corinthians_v2: 264,
+  palmeiras_v2: 275,
+  flamengo_v2: 262,
+  vasco_v2: 267,
+  'atletico-mg_v2': 282,
+  cruzeiro_v2: 283,
+  gremio_v2: 284,
+  internacional_v2: 285,
+  botafogo_v2: 263,
+  fluminense_v2: 266,
+  'sao-paulo_v2': 276,
+  santos_v2: 277,
+  bragantino_v2: 280,
+  'athletico-pr_v2': 293,
+  bahia_v2: 265,
+  vitoria_v2: 287,
+  mirassol_v2: 2305,
+  chapecoense_v2: 315,
+  coritiba_v2: 294,
+  remo_v2: 364,
+  fortaleza_v2: 131,
+  sport_v2: 79,
+  ceara_v2: 105,
+  juventude_v2: 143,
+};
 
-/* ── HTML DO LOADER ────────────────────────────────────── */
-function renderLoader() {
-  mainContent.innerHTML = `
-    <div class="flex flex-col justify-center items-center h-screen gap-3 px-6 text-center">
-      <div class="loader"></div>
-      <p class="uppercase text-[10px] font-bold tracking-[0.3em] text-gray-400">
-        Carregando escalações...
-      </p>
-      <p class="text-[10px] text-gray-300 mt-2">
-        O servidor pode levar até 50s para acordar
-      </p>
-    </div>
-  `;
+// Mapear ID Cartola para Nome do Time
+const CARTOLA_ID_TO_NAME = Object.entries(SLUG_TO_CARTOLA_ID).reduce(
+  (acc, [slug, id]) => {
+    const nome = slug.replace(/_v2$/, '').replace('-', ' ').toUpperCase();
+    acc[id] = nome;
+    return acc;
+  },
+  {}
+);
+
+let provavelState = {
+  lineupsData: null,
+  mercadoImages: null,
+  teamUpdatesData: null,
+  partidasData: null,
+  loading: false,
+};
+
+// ========== BUSCAR PARTIDAS DA API ==========
+async function fetchPartidas() {
+  try {
+    const response = await fetch(
+      'https://api.cartolafc.globo.com/partidas',
+      { cache: 'no-store' }
+    );
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    provavelState.partidasData = data;
+    return data;
+  } catch (error) {
+    console.error('❌ Erro ao buscar partidas:', error);
+    return null;
+  }
 }
 
-/* ── HTML DE ERRO ──────────────────────────────────────── */
-function renderError(msg) {
-  mainContent.innerHTML = `
-    <div class="flex flex-col justify-center items-center h-screen gap-2 px-6 text-center">
-      <p class="uppercase text-xs font-bold tracking-widest text-red-500">
-        Erro ao carregar
-      </p>
-      <p class="text-sm text-gray-500">${msg}</p>
-      <button onclick="carregarProvaveis()" 
-        class="mt-4 px-4 py-2 bg-black text-white text-xs uppercase tracking-widest rounded-full">
-        Tentar novamente
-      </button>
-    </div>
-  `;
+// ========== BUSCAR ATLETAS/MERCADO DA API ==========
+async function fetchAtletas() {
+  try {
+    const response = await fetch(
+      'https://api.cartola.globo.com/atletas/mercado',
+      { cache: 'no-store' }
+    );
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    // Mapear por ID para lookup rápido
+    const mercadoMap = new Map();
+    (data.atletas || []).forEach((atleta) => {
+      mercadoMap.set(atleta.atleta_id, atleta);
+    });
+    provavelState.mercadoImages = mercadoMap;
+    return mercadoMap;
+  } catch (error) {
+    console.error('❌ Erro ao buscar atletas:', error);
+    return new Map();
+  }
 }
 
-/* ── CABEÇALHO DA TELA ─────────────────────────────────── */
-function renderHeader() {
-  return `
-    <header class="px-5 pt-8 pb-4">
-      <p class="text-[10px] uppercase tracking-[0.3em] text-gray-400">
-        Brasileirão 2026
-      </p>
-      <h1 class="text-2xl font-black">Prováveis Escalações</h1>
-    </header>
-  `;
+// ========== BUSCAR ESCALAÇÕES DO PROXY ==========
+async function fetchLineups() {
+  try {
+    const response = await fetch(`${PROXY_URL}/provaveis/lineups`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    provavelState.lineupsData = data;
+    return data;
+  } catch (error) {
+    console.error('❌ Erro ao buscar escalações:', error);
+    return null;
+  }
 }
 
-/* ── RENDERIZA UM CARD DE PROVÁVEL ─────────────────────── */
-function renderCardProvavel(clube, jogadores) {
-  // Verifica se há escudo personalizado
-  const temEscudoLocal = Number.isInteger(clube.id) && clube.id > 0;
-  const escudoUrl = temEscudoLocal 
-    ? `./ESCUDOS_BRASILEIRAO/${clube.id}.png`
-    : (clube.escudos?.["60x60"] || "");
+// ========== BUSCAR ATUALIZAÇÕES DE TIME ==========
+async function fetchTeamUpdates() {
+  try {
+    const response = await fetch(`${PROXY_URL}/provaveis/team-updates`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    provavelState.teamUpdatesData = data;
+    return data;
+  } catch (error) {
+    console.error('❌ Erro ao buscar atualizações:', error);
+    return null;
+  }
+}
 
-  return `
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-4">
-      <div class="flex items-center gap-3 mb-3">
-        ${escudoUrl 
-          ? `<img src="${escudoUrl}" 
-                onerror="this.onerror=null;this.src='${escapeHtml(clube.escudos?.["60x60"] || "")}';"
-                alt="${escapeHtml(clube.nome || "")}" 
-                class="w-12 h-12 object-contain">` 
-          : ""
+// ========== RENDERIZAR APROVEITAMENTO (BOLINHAS) ==========
+function renderAproveitamentoBolinhas(aprov) {
+  if (!aprov || !Array.isArray(aprov)) return '';
+  return aprov
+    .map((resultado) => {
+      let colorClass = '';
+      if (resultado === 'v') colorClass = 'bg-green-500';
+      else if (resultado === 'e') colorClass = 'bg-gray-400';
+      else if (resultado === 'd') colorClass = 'bg-red-500';
+      return `<div class="w-2.5 h-2.5 rounded-full ${colorClass} shadow-sm border border-white/50"></div>`;
+    })
+    .join('');
+}
+
+// ========== FORMATAR DATA ==========
+function formatarDataPartida(iso) {
+  if (!iso) return 'A definir';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  const data = d.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+  });
+  const hora = d.toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  return `${data} • ${hora}`;
+}
+
+// ========== RESOLVER POSIÇÃO DO JOGADOR ==========
+function resolvePos(slot, xy) {
+  if (xy && Number.isFinite(xy.x) && Number.isFinite(xy.y)) {
+    return { x: xy.x, y: xy.y };
+  }
+  return { x: 50, y: 50 };
+}
+
+// ========== RENDERIZAR CARD DO TIME ==========
+function renderTimeCard(timeId, partida, timesNaOrdem, index) {
+  const clubeInfo = provavelState.partidasData?.clubes?.[timeId] || {};
+  const nomeTime = clubeInfo.nome || `Time ${timeId}`;
+
+  // Encontrar slug correspondente
+  const slug = Object.keys(SLUG_TO_CARTOLA_ID).find(
+    (key) => SLUG_TO_CARTOLA_ID[key] === timeId
+  );
+
+  // Obter escalação
+  const lineup = slug ? provavelState.lineupsData?.teams?.[slug] : null;
+
+  // Dados da partida
+  let partidaInfo = null;
+  if (partida) {
+    const adversarioId =
+      partida.clube_casa_id === timeId
+        ? partida.clube_visitante_id
+        : partida.clube_casa_id;
+    const adversarioClube =
+      provavelState.partidasData.clubes?.[adversarioId] || {};
+    const isMandante = partida.clube_casa_id === timeId;
+    const dt = new Date(partida.partida_data.replace(' ', 'T') + '-03:00');
+    const pad = (n) => String(n).padStart(2, '0');
+    const dataFmt =
+      pad(dt.getDate()) +
+      '/' +
+      pad(dt.getMonth() + 1) +
+      '/' +
+      dt.getFullYear() +
+      ' ' +
+      pad(dt.getHours()) +
+      'h' +
+      pad(dt.getMinutes());
+
+    partidaInfo = {
+      adversarioNome: adversarioClube.abreviacao || adversarioClube.nome || '???',
+      adversarioEscudo: `./ESCUDOS_BRASILEIRAO/${adversarioId}.png`,
+      local: partida.local || '—',
+      data: dataFmt,
+      mando: isMandante ? 'Casa' : 'Fora',
+    };
+  }
+
+  // Horário de última atualização
+  const lastUpdate = slug
+    ? provavelState.teamUpdatesData?.teams?.[slug]?.last_update
+    : null;
+  const fmtUpdate = (() => {
+    if (!lastUpdate) return null;
+    try {
+      const now = new Date();
+      const dt = new Date(lastUpdate);
+      const pad = (n) => String(n).padStart(2, '0');
+      const hhmm = pad(dt.getHours()) + 'h' + pad(dt.getMinutes());
+      const sameDay = now.toDateString() === dt.toDateString();
+      const yest = new Date(now);
+      yest.setDate(now.getDate() - 1);
+      if (sameDay) return 'Hoje ' + hhmm;
+      if (yest.toDateString() === dt.toDateString()) return 'Ontem ' + hhmm;
+      return pad(dt.getDate()) + '/' + pad(dt.getMonth() + 1) + ' ' + hhmm;
+    } catch {
+      return null;
+    }
+  })();
+
+  // Renderizar jogadores no campo
+  let jogadoresHtml = '';
+  if (lineup && provavelState.mercadoImages) {
+    jogadoresHtml = lineup.titulares
+      .filter((p) => p.slot !== 'TEC')
+      .map((p) => {
+        const jogador = provavelState.mercadoImages.get(p.id);
+
+        // Nome: apelido > nome > slug > ID
+        let nome = jogador?.apelido || jogador?.nome;
+        if (!nome) {
+          nome = `#${p.id}`;
         }
-        <div>
-          <p class="font-black text-sm">${escapeHtml(clube.nome || "")}</p>
-          <p class="text-gray-500 text-xs">${escapeHtml(clube.estado || "")}</p>
+
+        const foto = jogador?.foto || `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
+        const pos = resolvePos(p.slot, { x: p.x, y: p.y });
+        const isDuvida = p.sit === 'duvida';
+        let duvidaComNome = '';
+
+        if (isDuvida && p.duvida_com) {
+          const altJogador = provavelState.mercadoImages.get(p.duvida_com);
+          duvidaComNome = altJogador?.apelido || altJogador?.nome;
+          if (!duvidaComNome) duvidaComNome = `#${p.duvida_com}`;
+        }
+
+        const abreviar = (n) => {
+          const partes = n.trim().split(' ');
+          if (partes.length <= 1) return n;
+          return (
+            partes[0].charAt(0).toUpperCase() +
+            '. ' +
+            partes.slice(1).join(' ')
+          );
+        };
+
+        const nomeAbrev = abreviar(nome);
+        const duvidaAbrev = duvidaComNome ? abreviar(duvidaComNome) : '';
+
+        return `
+          <div class="absolute flex flex-col items-center" style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;">
+            <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/80 p-1 shadow-md ${isDuvida ? 'border-2 border-orange-500' : ''}">
+              <img src="${foto}" alt="${nome}" class="w-full h-full object-contain rounded-full" onerror="this.src='./ESCUDOS_BRASILEIRAO/${timeId}.png'">
+            </div>
+            <div class="mt-1 px-1.5 py-0.5 bg-white/40 backdrop-blur-sm rounded-md text-center" style="min-width:48px; max-width:70px;">
+              <p class="text-[10px] md:text-[11px] font-semibold text-gray-900 leading-tight text-center drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">${nomeAbrev}</p>
+            </div>
+            ${
+              isDuvida && duvidaAbrev
+                ? `
+            <div class="mt-0.5 px-1.5 py-0.5 bg-white/25 backdrop-blur-sm rounded-md text-center" style="min-width:48px; max-width:70px;">
+              <p class="text-[9px] md:text-[10px] font-medium text-gray-700 leading-tight text-center drop-shadow-[0_1px_1px_rgba(255,255,255,0.6)]">${duvidaAbrev}</p>
+            </div>`
+                : ''
+            }
+          </div>
+        `;
+      })
+      .join('');
+  }
+
+  const timeData = timesNaOrdem.find((t) => t.id === timeId) || {};
+
+  return `
+    <div id="time-card-${index}" class="glass-card p-4 space-y-3 scroll-mt-20 transition-all duration-300">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 shrink-0 bg-white rounded-xl p-1.5 shadow-md border border-white/50">
+          <img src="./ESCUDOS_BRASILEIRAO/${timeId}.png" 
+               alt="${nomeTime}" 
+               class="w-full h-full object-contain"
+               onerror="this.src='./ESCUDOS/default.png'">
+        </div>
+        
+        <div class="flex-1 min-w-0">
+          <p class="font-teko text-2xl uppercase leading-tight tracking-wide text-gray-800 truncate" style="font-family: 'FontJogos', 'Teko', sans-serif;">${nomeTime}</p>
+          ${
+            fmtUpdate
+              ? `<p class="flex items-center gap-1 text-[10px] font-mono text-gray-400 leading-none mt-0.5">
+              <svg xmlns='http://www.w3.org/2000/svg' class='w-3 h-3 inline-block' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><polyline points='12 6 12 12 16 14'/></svg> Atualizado ${fmtUpdate}
+            </p>`
+              : ''
+          }
+        </div>
+        
+        <div class="flex gap-1.5">
+          ${renderAproveitamentoBolinhas(timeData.aproveitamento)}
+        </div>
+        
+        <div class="shrink-0">
+          <span class="text-[10px] font-mono text-gray-500 uppercase bg-black/5 px-2 py-1 rounded-full">
+            ${timeData.isMandante ? 'Casa' : 'Fora'}
+          </span>
         </div>
       </div>
 
-      <div class="space-y-2">
-        ${jogadores.slice(0, 5).map(jogador => `
-          <div class="flex items-center justify-between py-1 border-b border-gray-100 last:border-0">
-            <div>
-              <p class="font-bold text-xs">${escapeHtml(jogador.atleta.nome_popular || jogador.atleta.apelido || "Sem nome")}</p>
-              <p class="text-gray-500 text-[10px]">${escapeHtml(jogador.posicao?.nome || "")}</p>
-            </div>
-            <span class="text-xs font-black bg-orange-100 text-orange-700 rounded-full px-2 py-1">
-              ${jogador.goleiro ? "G" : jogador.capitao ? "C" : "I"}
-            </span>
-          </div>
-        `).join('')}
+      <div class="relative w-full aspect-[4/5] rounded-xl overflow-hidden border border-white/30 shadow-inner">
+        <div class="absolute inset-0 bg-gradient-to-b from-green-600/40 to-green-800/40"></div>
+        
+        <div class="absolute inset-0 opacity-30 pointer-events-none">
+          <div class="absolute inset-3 border border-white rounded"></div>
+          <div class="absolute top-1/2 left-0 right-0 h-px bg-white"></div>
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 border border-white rounded-full"></div>
+          <div class="absolute top-3 left-1/2 -translate-x-1/2 w-24 h-12 border border-t-0 border-white"></div>
+          <div class="absolute bottom-3 left-1/2 -translate-x-1/2 w-24 h-12 border border-b-0 border-white"></div>
+        </div>
+        
+        <!-- Jogadores posicionados -->
+        ${jogadoresHtml}
       </div>
 
-      ${jogadores.length > 5 
-        ? `<p class="text-gray-500 text-xs mt-2 text-center">+ ${jogadores.length - 5} jogadores</p>` 
-        : ""
+      ${
+        partidaInfo
+          ? `
+      <div class="flex items-center gap-3 px-3 py-2.5 bg-black/[0.04] rounded-xl border border-black/[0.06]">
+        <div class="flex items-center gap-2 flex-1 min-w-0">
+          <span class="text-[10px] font-mono text-gray-400 uppercase shrink-0">ADV</span>
+          <img src="${partidaInfo.adversarioEscudo}" alt="${partidaInfo.adversarioNome}"
+               class="w-6 h-6 object-contain shrink-0"
+               onerror="this.style.display='none'">
+          <span class="font-teko text-lg uppercase leading-none text-gray-800 truncate" style="font-family: 'FontJogos', 'Teko', sans-serif;">${partidaInfo.adversarioNome}</span>
+          <span class="text-[10px] font-mono text-gray-400 bg-black/5 px-1.5 py-0.5 rounded-full shrink-0">${partidaInfo.mando}</span>
+        </div>
+        <div class="flex flex-col items-end shrink-0 gap-0.5">
+          <span class="flex items-center gap-1 text-[10px] font-mono text-gray-500">
+            <svg xmlns='http://www.w3.org/2000/svg' class='w-3 h-3' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='18' rx='2' ry='2'/><line x1='16' y1='2' x2='16' y2='6'/><line x1='8' y1='2' x2='8' y2='6'/><line x1='3' y1='10' x2='21' y2='10'/></svg>
+            ${partidaInfo.data}
+          </span>
+          <span class="flex items-center gap-1 text-[10px] font-mono text-gray-400 text-right">
+            <svg xmlns='http://www.w3.org/2000/svg' class='w-3 h-3 shrink-0' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/><circle cx='12' cy='10' r='3'/></svg>
+            ${partidaInfo.local}
+          </span>
+        </div>
+      </div>`
+          : ''
       }
     </div>
   `;
 }
 
-/* ── ESCAPE HTML BASICO ────────────────────────────────── */
-function escapeHtml(unsafe) {
-  return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
+// ========== RENDERIZAR PROVÁVEIS ==========
+async function renderProvaveis() {
+  const mainContent = document.getElementById('main-content');
 
-/* ── FUNÇÃO PRINCIPAL ──────────────────────────────────── */
-async function carregarProvaveis() {
-  console.log("🔵 BOTÃO PROVÁVEIS CLICADO");
-  
-  if (!window.API_CARTOLA) {
-    renderError("API_CARTOLA não está definida. Verifique rotas_proxy.js");
+  if (!mainContent) {
+    console.error('❌ main-content não encontrado');
     return;
   }
 
-  renderLoader();
-  
+  // Mostra loading
+  mainContent.innerHTML = `
+    <div class="flex flex-col justify-center items-center h-screen gap-3 px-6 text-center">
+      <div class="loader"></div>
+      <p class="uppercase text-[10px] font-bold tracking-[0.3em] text-gray-400">
+        Carregando prováveis escalações...
+      </p>
+    </div>
+  `;
+
+  provavelState.loading = true;
+
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000);
+    // Buscar dados em paralelo
+    await Promise.all([
+      fetchPartidas(),
+      fetchAtletas(),
+      fetchLineups(),
+      fetchTeamUpdates(),
+    ]);
 
-    const res = await fetch(URL_PROVAVEIS, {
-      signal: controller.signal,
-      cache: "no-store",
-    });
-    clearTimeout(timeoutId);
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const data = await res.json();
-    const rodada = data.rodada || "Atual";
-    const clubs = data.times || [];
-
-    console.log("✅ Prováveis recebidos:", data);
-
-    // Verifica se tem dados
-    if (clubs.length === 0) {
-      mainContent.innerHTML = `
-        ${renderHeader()}
-        <div class="px-4 py-6 bg-gray-50 rounded-2xl border border-gray-100 mx-4 mb-4">
-          <p class="text-center text-gray-500 text-sm">
-            Nenhuma escalação prevista para esta rodada
-          </p>
-        </div>
-      `;
-      return;
+    if (!provavelState.partidasData) {
+      throw new Error('Não foi possível carregar as partidas');
     }
 
-    // Filtra times válidos com pelo menos 1 jogador
-    const validClubs = clubs.filter(clube => 
-      clube.jogadores && Array.isArray(clube.jogadores) && clube.jogadores.length > 0
-    );
-
-    if (validClubs.length === 0) {
-      mainContent.innerHTML = `
-        ${renderHeader()}
-        <div class="px-4 py-6 bg-gray-50 rounded-2xl border border-gray-100 mx-4 mb-4">
-          <p class="text-center text-gray-500 text-sm">
-            Dados incompletos disponíveis para visualização
-          </p>
-        </div>
-      `;
-      return;
+    // Organizar times na ordem das partidas
+    let timesNaOrdem = [];
+    if (provavelState.partidasData.partidas) {
+      provavelState.partidasData.partidas.forEach((p) => {
+        timesNaOrdem.push({
+          id: p.clube_casa_id,
+          aproveitamento: p.aproveitamento_mandante,
+          isMandante: true,
+        });
+        timesNaOrdem.push({
+          id: p.clube_visitante_id,
+          aproveitamento: p.aproveitamento_visitante,
+          isMandante: false,
+        });
+      });
     }
 
-    // Monta os cards dos times
-    const cards = validClubs.map(clube => 
-      renderCardProvavel(clube.time, clube.jogadores)
-    ).join('');
+    // Renderizar cards
+    const cardsHtml = provavelState.partidasData.partidas
+      .flatMap((partida, idx) => {
+        const casaIdx = timesNaOrdem.findIndex(
+          (t) => t.id === partida.clube_casa_id
+        );
+        const visIdx = timesNaOrdem.findIndex(
+          (t) => t.id === partida.clube_visitante_id
+        );
+
+        return [
+          renderTimeCard(partida.clube_casa_id, partida, timesNaOrdem, casaIdx),
+          renderTimeCard(
+            partida.clube_visitante_id,
+            partida,
+            timesNaOrdem,
+            visIdx
+          ),
+        ];
+      })
+      .join('');
 
     mainContent.innerHTML = `
-      ${renderHeader()}
-      
-      <div class="px-4">
-        <p class="text-[10px] uppercase tracking-[0.3em] text-gray-400 mb-2">
-          Rodada ${rodada}
-        </p>
-        <div class="text-xs text-gray-500 mb-4">
-          ⚠️ Informações baseadas em análises jornalísticas e podem não refletir o time real do Cartola FC
+      <div class="space-y-6 animate-in fade-in duration-300">
+        
+        <!-- Grid de escudos para scroll rápido -->
+        <div class="glass-card p-6">
+          <div class="grid grid-cols-5 gap-2 md:gap-4 justify-items-center">
+            ${timesNaOrdem
+              .map(
+                (time, index) => `
+              <div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-black/5 rounded-full p-2 flex items-center justify-center border border-black/5 hover:bg-black/10 transition-colors shadow-sm cursor-pointer hover:scale-110 transition-transform duration-200" 
+                   onclick="document.getElementById('time-card-${index}').scrollIntoView({ behavior: 'smooth', block: 'center' })"
+                   title="Ver card do time">
+                <img src="./ESCUDOS_BRASILEIRAO/${time.id}.png" 
+                     alt="Time ${time.id}" 
+                     class="w-full h-full object-contain drop-shadow-sm"
+                     onerror="this.style.display='none'">
+              </div>
+            `
+              )
+              .join('')}
+          </div>
+        </div>
+
+        <!-- Cards dos times -->
+        <div class="space-y-4">
+          ${cardsHtml}
         </div>
       </div>
-
-      <section class="px-4">
-        ${cards}
-      </section>
     `;
-  } catch (err) {
-    console.error("❌ Erro ao carregar prováveis:", err);
-    
-    // Mensagem amigável para timeout (Render Free)
-    if (err.name === "AbortError") {
-      mainContent.innerHTML = `
-        ${renderHeader()}
-        <div class="px-4 py-6 bg-gray-50 rounded-2xl border border-gray-100 mx-4 mb-4">
-          <p class="text-center text-gray-500 text-sm">
-            O servidor ainda está acordando...<br>Demora até 50s na primeira requisição
-          </p>
-        </div>
-      `;
-      return;
-    }
-    
-    renderError(err.message);
+
+    provavelState.loading = false;
+  } catch (error) {
+    console.error('❌ Erro ao renderizar prováveis:', error);
+    mainContent.innerHTML = `
+      <div class="glass-card p-12 text-center space-y-4">
+        <p class="text-red-500 font-teko text-2xl uppercase">Erro ao carregar</p>
+        <p class="text-xs text-gray-500">${error.message}</p>
+        <button onclick="renderProvaveis()" class="px-6 py-2 bg-cartola-orange text-white rounded-lg font-teko uppercase">
+          Tentar Novamente
+        </button>
+      </div>
+    `;
   }
 }
 
-/* ── LIGA O BOTÃO DE RETORNO AOS JOGOS ─────────────────── */
-if (btnJogos) {
-  btnJogos.addEventListener("click", () => {
-    console.log("🟢 Voltando para JOGOS");
-    
-    const script = document.createElement("script");
-    script.src = "./MENU/jogos_rodada.js";
-    script.onerror = () => {
-      alert("Erro ao carregar tela de jogos. Recarregue a página.");
-    };
-    document.head.appendChild(script);
-  });
-}
+// ========== EXPORTAR PARA USO GLOBAL ==========
+window.renderProvaveis = renderProvaveis;
 
-// Executa automaticamente ao carregar o módulo
-document.addEventListener("DOMContentLoaded", carregarProvaveis);
+console.log('✅ provaveis.js carregado com sucesso');
