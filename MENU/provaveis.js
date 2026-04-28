@@ -1,7 +1,7 @@
 /* ============================================================
    PROVÁVEIS ESCALAÇÕES — CARTOLA FC + JOSA.BET
-   VERSÃO: 2.2 (completa)
-   - Nomes dos jogadores via jogadores.js
+   VERSÃO: 3.0 (autônoma, com busca direta de atletas)
+   - Busca nomes e fotos diretamente da API do Cartola
    - Imagens locais no formato ./JOGADORES/[ID]_[NOME].webp
    - Nome completo dos times
    - Animação de borda laranja ao clicar nos escudos
@@ -39,10 +39,9 @@ const SLUG_TO_CARTOLA_ID = {
 
 let provavelState = {
   lineupsData: null,
-  mercadoImages: null,
+  atletasData: null,      // dados completos da API /atletas/mercado
   teamUpdatesData: null,
   partidasData: null,
-  jogadoresMap: null,
   loading: false,
 };
 
@@ -143,41 +142,52 @@ function resolvePos(slot, xy) {
   return { x: 50, y: 50 };
 }
 
-// ========== CARREGAR JOGADORES.JS ==========
-function carregarJogadoresMap() {
-  return new Promise((resolve) => {
-    if (typeof JOGADORES !== 'undefined' && JOGADORES) {
-      const map = new Map();
-      for (const [id, slug] of Object.entries(JOGADORES)) {
-        const nomeFormatado = slug
-          .split('-')
-          .map(palavra => palavra.charAt(0).toUpperCase() + palavra.slice(1))
-          .join(' ');
-        map.set(parseInt(id), { slug, nome: nomeFormatado });
-      }
-      provavelState.jogadoresMap = map;
-      console.log(`✅ Jogadores carregados: ${map.size} atletas`);
-      resolve(map);
-    } else {
-      console.warn('⚠️ Objeto JOGADORES não encontrado. Nomes dos jogadores serão apenas IDs.');
-      provavelState.jogadoresMap = new Map();
-      resolve(new Map());
+// ========== BUSCAR ATLETAS DIRETAMENTE DA API DO CARTOLA ==========
+async function fetchAtletasData() {
+  try {
+    console.log('📡 Buscando dados de atletas na API do Cartola...');
+    const response = await fetch('https://api.cartola.globo.com/atletas/mercado', { cache: 'no-store' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    
+    // Mapear por ID para fácil acesso
+    const atletasMap = new Map();
+    if (data.atletas && Array.isArray(data.atletas)) {
+      data.atletas.forEach(atleta => {
+        atletasMap.set(atleta.atleta_id, {
+          nome: atleta.nome,
+          apelido: atleta.apelido,
+          foto: atleta.foto,
+          slug: atleta.slug,
+        });
+      });
     }
-  });
+    provavelState.atletasData = atletasMap;
+    console.log(`✅ Atletas carregados: ${atletasMap.size} jogadores`);
+    return atletasMap;
+  } catch (err) {
+    console.error('❌ Erro ao buscar atletas:', err);
+    return new Map();
+  }
 }
 
-// Obtém nome amigável do jogador
+// Obtém nome do jogador (prioriza apelido, depois nome, depois ID)
 function getNomeJogador(id) {
-  if (provavelState.jogadoresMap && provavelState.jogadoresMap.has(id)) {
-    return provavelState.jogadoresMap.get(id).nome;
+  const atleta = provavelState.atletasData?.get(id);
+  if (atleta) {
+    return atleta.apelido || atleta.nome || `#${id}`;
   }
-  const fromProxy = provavelState.mercadoImages?.get(id)?.apelido || provavelState.mercadoImages?.get(id)?.nome;
-  if (fromProxy) return fromProxy;
   return `#${id}`;
 }
 
-// ========== FUNÇÕES PARA IMAGEM LOCAL PADRÃO ID_NOME.webp ==========
-function slugifyNomeJogador(nome) {
+// Obtém slug do jogador para montar nome do arquivo local
+function getSlugJogador(id) {
+  const atleta = provavelState.atletasData?.get(id);
+  return atleta?.slug || null;
+}
+
+// Converte nome para formato de arquivo (maiúsculas, sem acentos, sem espaços)
+function slugifyParaArquivo(nome) {
   if (!nome) return '';
   return nome
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -185,21 +195,23 @@ function slugifyNomeJogador(nome) {
     .replace(/[^A-Z0-9]/g, '');
 }
 
+// Gera nome do arquivo de imagem local no padrão ID_NOME.webp
 function getNomeArquivoJogador(id) {
-  let nome = provavelState.mercadoImages?.get(id)?.apelido || 
-             provavelState.mercadoImages?.get(id)?.nome;
-  if (nome) return slugifyNomeJogador(nome);
-  
-  if (provavelState.jogadoresMap && provavelState.jogadoresMap.has(id)) {
-    const slug = provavelState.jogadoresMap.get(id).slug;
-    return slug.toUpperCase().replace(/-/g, '');
+  const atleta = provavelState.atletasData?.get(id);
+  let nomeBase = atleta?.apelido || atleta?.nome;
+  if (nomeBase) {
+    return slugifyParaArquivo(nomeBase);
+  }
+  // Fallback: tenta usar o slug
+  if (atleta?.slug) {
+    return atleta.slug.toUpperCase().replace(/-/g, '');
   }
   return '';
 }
 
-// ========== RENDERIZAÇÃO DO CAMPO (com imagem local ID_NOME.webp) ==========
+// ========== RENDERIZAÇÃO DO CAMPO (com imagem local + fallback) ==========
 function renderJogadoresCampo(lineup, timeId) {
-  if (!lineup || !provavelState.mercadoImages) return '';
+  if (!lineup || !provavelState.atletasData) return '';
 
   return lineup.titulares
     .filter(p => p.slot !== 'TEC')
@@ -208,8 +220,9 @@ function renderJogadoresCampo(lineup, timeId) {
       const nome = getNomeJogador(id);
       const nomeArquivo = getNomeArquivoJogador(id);
       const fotoLocal = nomeArquivo ? `./JOGADORES/${id}_${nomeArquivo}.webp` : null;
-      const fotoProxy = provavelState.mercadoImages.get(id)?.foto || '';
-      const foto = fotoLocal || fotoProxy || `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
+      const atleta = provavelState.atletasData.get(id);
+      const fotoApi = atleta?.foto || '';
+      const foto = fotoLocal || fotoApi || `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
 
       const pos = resolvePos(p.slot, { x: p.x, y: p.y });
       const isDuvida = p.sit === 'duvida';
@@ -230,7 +243,7 @@ function renderJogadoresCampo(lineup, timeId) {
         <div class="absolute flex flex-col items-center" style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;">
           <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/80 p-1 shadow-md ${isDuvida ? 'border-2 border-orange-500' : ''}">
             <img src="${foto}" alt="${nome}" class="w-full h-full object-contain rounded-full" 
-                 onerror="this.onerror=null; this.src='${fotoProxy || `./ESCUDOS_BRASILEIRAO/${timeId}.png`}'">
+                 onerror="this.onerror=null; this.src='${fotoApi || `./ESCUDOS_BRASILEIRAO/${timeId}.png`}'">
           </div>
           <div class="mt-1 px-1.5 py-0.5 bg-white/40 backdrop-blur-sm rounded-md text-center" style="min-width:48px; max-width:70px;">
             <p class="text-[10px] md:text-[11px] font-semibold text-gray-900 leading-tight text-center">${nomeAbrev}</p>
@@ -363,7 +376,7 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index) {
   `;
 }
 
-// ========== BUSCA DOS DADOS VIA PROXY ==========
+// ========== BUSCA DOS DEMAIS DADOS VIA PROXY ==========
 async function fetchLineups() {
   try {
     const res = await fetch(`${PROXY_URL}/provaveis/lineups`, { cache: 'no-store' });
@@ -375,22 +388,6 @@ async function fetchLineups() {
   } catch (err) {
     console.error('❌ Erro ao buscar escalações:', err);
     return null;
-  }
-}
-
-async function fetchMercadoImages() {
-  try {
-    const res = await fetch(`${PROXY_URL}/provaveis/mercado-images`, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    const map = new Map();
-    data.forEach(item => map.set(item.atleta_id, item));
-    provavelState.mercadoImages = map;
-    console.log('✅ Imagens de atletas carregadas:', map.size);
-    return map;
-  } catch (err) {
-    console.error('❌ Erro ao buscar mercado-images:', err);
-    return new Map();
   }
 }
 
@@ -410,23 +407,18 @@ async function fetchTeamUpdates() {
 
 async function ensurePartidasData() {
   if (provavelState.partidasData) return provavelState.partidasData;
-  // Tenta usar a variável global do módulo jogos_rodada.js (se tiver sido armazenada)
   if (window.ultimasPartidas) {
     provavelState.partidasData = window.ultimasPartidas;
     return provavelState.partidasData;
   }
-  // Tenta usar API_CARTOLA.PARTIDAS (definida em rotas_proxy.js)
   if (window.API_CARTOLA && window.API_CARTOLA.PARTIDAS) {
     try {
       const res = await fetch(window.API_CARTOLA.PARTIDAS, { cache: 'no-store' });
       const data = await res.json();
       provavelState.partidasData = data;
       return data;
-    } catch (err) {
-      console.warn('Falha ao buscar partidas via API_CARTOLA', err);
-    }
+    } catch (err) {}
   }
-  // Fallback: proxy
   const res = await fetch(`${PROXY_URL}/partidas`, { cache: 'no-store' });
   const data = await res.json();
   provavelState.partidasData = data;
@@ -442,7 +434,10 @@ window.renderProvaveis = async function() {
   provavelState.loading = true;
 
   try {
-    await carregarJogadoresMap();
+    // Busca dados de atletas (API direta)
+    await fetchAtletasData();
+
+    // Busca partidas
     const partidasData = await ensurePartidasData();
     if (!partidasData || !partidasData.partidas || partidasData.partidas.length === 0) {
       throw new Error('Nenhuma partida encontrada para esta rodada.');
@@ -450,11 +445,8 @@ window.renderProvaveis = async function() {
     provavelState.partidasData = partidasData;
     const partidas = partidasData.partidas;
 
-    await Promise.all([
-      fetchLineups(),
-      fetchMercadoImages(),
-      fetchTeamUpdates(),
-    ]);
+    // Busca escalações e atualizações via proxy
+    await Promise.all([fetchLineups(), fetchTeamUpdates()]);
 
     if (!provavelState.lineupsData) console.warn('⚠️ Nenhuma escalação disponível.');
 
@@ -500,7 +492,7 @@ window.renderProvaveis = async function() {
 
     initScrollToTop();
     provavelState.loading = false;
-    console.log('✅ Prováveis escalações renderizadas com sucesso (v2.2)');
+    console.log('✅ Prováveis escalações renderizadas com sucesso (v3.0)');
   } catch (err) {
     console.error('❌ Erro em renderProvaveis:', err);
     renderError(err.message || 'Falha ao carregar os dados. Tente novamente.');
@@ -508,7 +500,5 @@ window.renderProvaveis = async function() {
   }
 };
 
-// Disponibiliza a função highlightCard globalmente para ser chamada pelo onclick do grid
 window.highlightCard = highlightCard;
-
-console.log('✅ provaveis.js v2.2 carregado');
+console.log('✅ provaveis.js v3.0 carregado');
