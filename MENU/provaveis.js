@@ -47,7 +47,7 @@ function renderLoaderProvaveis() {
           Carregando escalações prováveis...
         </p>
         <p class="text-[10px] text-gray-300 mt-2">
-          O servidor pode levar até 50s para acordar
+          Aguarde até que o servidor responda.
         </p>
       </div>
     `;
