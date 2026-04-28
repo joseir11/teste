@@ -32,16 +32,6 @@ const SLUG_TO_CARTOLA_ID = {
   juventude_v2: 143,
 };
 
-// Mapear ID Cartola para Nome do Time
-const CARTOLA_ID_TO_NAME = Object.entries(SLUG_TO_CARTOLA_ID).reduce(
-  (acc, [slug, id]) => {
-    const nome = slug.replace(/_v2$/, '').replace('-', ' ').toUpperCase();
-    acc[id] = nome;
-    return acc;
-  },
-  {}
-);
-
 let provavelState = {
   lineupsData: null,
   mercadoImages: null,
@@ -53,12 +43,14 @@ let provavelState = {
 // ========== BUSCAR PARTIDAS DA API ==========
 async function fetchPartidas() {
   try {
+    console.log('📡 Buscando partidas...');
     const response = await fetch(
       'https://api.cartolafc.globo.com/partidas',
       { cache: 'no-store' }
     );
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
+    console.log('✅ Partidas carregadas:', data);
     provavelState.partidasData = data;
     return data;
   } catch (error) {
@@ -70,17 +62,22 @@ async function fetchPartidas() {
 // ========== BUSCAR ATLETAS/MERCADO DA API ==========
 async function fetchAtletas() {
   try {
+    console.log('📡 Buscando atletas...');
     const response = await fetch(
       'https://api.cartola.globo.com/atletas/mercado',
       { cache: 'no-store' }
     );
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
+    
     // Mapear por ID para lookup rápido
     const mercadoMap = new Map();
-    (data.atletas || []).forEach((atleta) => {
-      mercadoMap.set(atleta.atleta_id, atleta);
-    });
+    if (data.atletas && Array.isArray(data.atletas)) {
+      data.atletas.forEach((atleta) => {
+        mercadoMap.set(atleta.atleta_id, atleta);
+      });
+    }
+    console.log('✅ Atletas carregados:', mercadoMap.size);
     provavelState.mercadoImages = mercadoMap;
     return mercadoMap;
   } catch (error) {
@@ -92,9 +89,11 @@ async function fetchAtletas() {
 // ========== BUSCAR ESCALAÇÕES DO PROXY ==========
 async function fetchLineups() {
   try {
+    console.log('📡 Buscando escalações...');
     const response = await fetch(`${PROXY_URL}/provaveis/lineups`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
+    console.log('✅ Escalações carregadas');
     provavelState.lineupsData = data;
     return data;
   } catch (error) {
@@ -106,9 +105,11 @@ async function fetchLineups() {
 // ========== BUSCAR ATUALIZAÇÕES DE TIME ==========
 async function fetchTeamUpdates() {
   try {
+    console.log('📡 Buscando atualizações...');
     const response = await fetch(`${PROXY_URL}/provaveis/team-updates`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
+    console.log('✅ Atualizações carregadas');
     provavelState.teamUpdatesData = data;
     return data;
   } catch (error) {
@@ -230,7 +231,7 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index) {
       .map((p) => {
         const jogador = provavelState.mercadoImages.get(p.id);
 
-        // Nome: apelido > nome > slug > ID
+        // Nome: apelido > nome > ID
         let nome = jogador?.apelido || jogador?.nome;
         if (!nome) {
           nome = `#${p.id}`;
@@ -295,7 +296,7 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index) {
         </div>
         
         <div class="flex-1 min-w-0">
-          <p class="font-teko text-2xl uppercase leading-tight tracking-wide text-gray-800 truncate" style="font-family: 'FontJogos', 'Teko', sans-serif;">${nomeTime}</p>
+          <p class="font-teko text-2xl uppercase leading-tight tracking-wide text-gray-800 truncate">${nomeTime}</p>
           ${
             fmtUpdate
               ? `<p class="flex items-center gap-1 text-[10px] font-mono text-gray-400 leading-none mt-0.5">
@@ -340,7 +341,7 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index) {
           <img src="${partidaInfo.adversarioEscudo}" alt="${partidaInfo.adversarioNome}"
                class="w-6 h-6 object-contain shrink-0"
                onerror="this.style.display='none'">
-          <span class="font-teko text-lg uppercase leading-none text-gray-800 truncate" style="font-family: 'FontJogos', 'Teko', sans-serif;">${partidaInfo.adversarioNome}</span>
+          <span class="font-teko text-lg uppercase leading-none text-gray-800 truncate">${partidaInfo.adversarioNome}</span>
           <span class="text-[10px] font-mono text-gray-400 bg-black/5 px-1.5 py-0.5 rounded-full shrink-0">${partidaInfo.mando}</span>
         </div>
         <div class="flex flex-col items-end shrink-0 gap-0.5">
@@ -369,19 +370,11 @@ async function renderProvaveis() {
     return;
   }
 
-  // Mostra loading
-  mainContent.innerHTML = `
-    <div class="flex flex-col justify-center items-center h-screen gap-3 px-6 text-center">
-      <div class="loader"></div>
-      <p class="uppercase text-[10px] font-bold tracking-[0.3em] text-gray-400">
-        Carregando prováveis escalações...
-      </p>
-    </div>
-  `;
-
   provavelState.loading = true;
 
   try {
+    console.log('🚀 Iniciando carregamento de prováveis...');
+
     // Buscar dados em paralelo
     await Promise.all([
       fetchPartidas(),
@@ -390,29 +383,37 @@ async function renderProvaveis() {
       fetchTeamUpdates(),
     ]);
 
-    if (!provavelState.partidasData) {
-      throw new Error('Não foi possível carregar as partidas');
+    console.log('📊 Estado após fetch:', provavelState);
+
+    // Validar dados
+    if (!provavelState.partidasData || !provavelState.partidasData.partidas) {
+      throw new Error(
+        'Dados de partidas inválidos. Verifique a API do Cartola.'
+      );
+    }
+
+    const partidas = provavelState.partidasData.partidas || [];
+    if (partidas.length === 0) {
+      throw new Error('Nenhuma partida encontrada para esta rodada.');
     }
 
     // Organizar times na ordem das partidas
     let timesNaOrdem = [];
-    if (provavelState.partidasData.partidas) {
-      provavelState.partidasData.partidas.forEach((p) => {
-        timesNaOrdem.push({
-          id: p.clube_casa_id,
-          aproveitamento: p.aproveitamento_mandante,
-          isMandante: true,
-        });
-        timesNaOrdem.push({
-          id: p.clube_visitante_id,
-          aproveitamento: p.aproveitamento_visitante,
-          isMandante: false,
-        });
+    partidas.forEach((p) => {
+      timesNaOrdem.push({
+        id: p.clube_casa_id,
+        aproveitamento: p.aproveitamento_mandante,
+        isMandante: true,
       });
-    }
+      timesNaOrdem.push({
+        id: p.clube_visitante_id,
+        aproveitamento: p.aproveitamento_visitante,
+        isMandante: false,
+      });
+    });
 
     // Renderizar cards
-    const cardsHtml = provavelState.partidasData.partidas
+    const cardsHtml = partidas
       .flatMap((partida, idx) => {
         const casaIdx = timesNaOrdem.findIndex(
           (t) => t.id === partida.clube_casa_id
@@ -422,7 +423,12 @@ async function renderProvaveis() {
         );
 
         return [
-          renderTimeCard(partida.clube_casa_id, partida, timesNaOrdem, casaIdx),
+          renderTimeCard(
+            partida.clube_casa_id,
+            partida,
+            timesNaOrdem,
+            casaIdx
+          ),
           renderTimeCard(
             partida.clube_visitante_id,
             partida,
@@ -443,7 +449,7 @@ async function renderProvaveis() {
               .map(
                 (time, index) => `
               <div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-black/5 rounded-full p-2 flex items-center justify-center border border-black/5 hover:bg-black/10 transition-colors shadow-sm cursor-pointer hover:scale-110 transition-transform duration-200" 
-                   onclick="document.getElementById('time-card-${index}').scrollIntoView({ behavior: 'smooth', block: 'center' })"
+                   onclick="document.getElementById('time-card-${index}') && document.getElementById('time-card-${index}').scrollIntoView({ behavior: 'smooth', block: 'center' })"
                    title="Ver card do time">
                 <img src="./ESCUDOS_BRASILEIRAO/${time.id}.png" 
                      alt="Time ${time.id}" 
@@ -457,24 +463,29 @@ async function renderProvaveis() {
         </div>
 
         <!-- Cards dos times -->
-        <div class="space-y-4">
+        <div class="space-y-4 px-4">
           ${cardsHtml}
         </div>
       </div>
     `;
 
     provavelState.loading = false;
+    console.log('✅ Prováveis renderizadas com sucesso');
   } catch (error) {
     console.error('❌ Erro ao renderizar prováveis:', error);
     mainContent.innerHTML = `
-      <div class="glass-card p-12 text-center space-y-4">
+      <div class="flex flex-col justify-center items-center h-screen gap-3 px-6 text-center">
+        <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto">
+          <svg xmlns='http://www.w3.org/2000/svg' class='w-8 h-8' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='12' r='10'/><line x1='12' y1='8' x2='12' y2='12'/><line x1='12' y1='16' x2='12.01' y2='16'/></svg>
+        </div>
         <p class="text-red-500 font-teko text-2xl uppercase">Erro ao carregar</p>
-        <p class="text-xs text-gray-500">${error.message}</p>
-        <button onclick="renderProvaveis()" class="px-6 py-2 bg-cartola-orange text-white rounded-lg font-teko uppercase">
+        <p class="text-xs text-gray-500 max-w-sm">${error.message}</p>
+        <button onclick="renderProvaveis()" class="mt-4 px-6 py-2 bg-black text-white text-xs uppercase tracking-widest rounded-full">
           Tentar Novamente
         </button>
       </div>
     `;
+    provavelState.loading = false;
   }
 }
 
