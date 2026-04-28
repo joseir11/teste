@@ -64,20 +64,16 @@
     }
 
     /* ===== APLICA FONT_JOGOS NOS DESTAQUES ===== */
-
-    /* Título "JOGOS DA RODADA", "ABERTO", "14", "02/05 15:59" */
     #main-content .text-primary,
     #main-content [class*="text-[#FF6321]"],
     #main-content [class*="text-orange"],
     #main-content [class*="text-green"],
     #main-content [class*="text-emerald"],
-    /* Nomes dos times: BOT, FLA, PAL, REM, SAN... */
     #main-content .font-black,
     #main-content .font-bold {
       font-family: 'FontJogos', sans-serif !important;
     }
 
-    /* Título "JOGOS DA RODADA": cor preta e tamanho igual ao "14" */
     #main-content .text-primary {
       color: #000 !important;
       font-size: 1.5rem !important;
@@ -86,37 +82,27 @@
   </style>
 </head>
 <body class="font-sans">
-  <!-- CONTEÚDO PRINCIPAL (card "JOGOS DA RODADA" + jogos vêm aqui via JS) -->
   <main id="main-content" class="px-4 pt-4">
     <p class="text-gray-500 text-center mt-10">Aguardando seleção...</p>
   </main>
 
-  <!-- NAV BAR FLUTUANTE FIXA NO RODAPÉ -->
   <nav class="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white/80 backdrop-blur-md border-t border-gray-100">
     <div class="flex justify-around items-center">
-      <button
-        id="btn-jogos"
-        type="button"
-        class="flex flex-col items-center active:scale-95 transition-transform"
-      >
+      <button id="btn-jogos" type="button" class="flex flex-col items-center active:scale-95 transition-transform">
         <img src="./IMAGES/jogos.png" class="w-6 h-6 mx-auto" alt="Jogos da Rodada" />
         <span class="text-[10px] mt-2 block leading-none font-black">JOGOS</span>
       </button>
-
-      <button
-        id="btn-provaveis"
-        type="button"
-        class="flex flex-col items-center active:scale-95 transition-transform"
-      >
+      <button id="btn-provaveis" type="button" class="flex flex-col items-center active:scale-95 transition-transform">
         <img src="./IMAGES/ico_provaveis.png" class="w-6 h-6 mx-auto" alt="Prováveis Escalações" />
         <span class="text-[10px] mt-2 block leading-none font-black">PROVÁVEIS</span>
       </button>
     </div>
   </nav>
 
-  <!-- SCRIPTS -->
+  <!-- SCRIPTS: ordem correta -->
   <script src="./API/rotas_proxy.js"></script>
   <script src="./MENU/jogos_rodada.js"></script>
+  <script src="./jogadores.js"></script>        <!-- JOGADORES global (na raiz) -->
   <script src="./MENU/provaveis.js"></script>
 
   <script>
