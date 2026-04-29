@@ -94,6 +94,12 @@
         <span class="text-[10px] mt-2 block leading-none font-black">JOGOS</span>
       </button>
 
+      <!-- NOVO BOTÃO BMP -->
+      <button id="btn-bmp" type="button" class="flex flex-col items-center active:scale-95 transition-transform">
+        <img src="./IMAGES/cartola.png" class="w-6 h-6 mx-auto" alt="BMP" />
+        <span class="text-[10px] mt-2 block leading-none font-black">BMP</span>
+      </button>
+
       <button id="btn-provaveis" type="button" class="flex flex-col items-center active:scale-95 transition-transform">
         <img src="./IMAGES/ico_provaveis.png" class="w-6 h-6 mx-auto" alt="Prováveis Escalações" />
         <span class="text-[10px] mt-2 block leading-none font-black">PROVÁVEIS</span>
@@ -114,6 +120,7 @@
   <script src="./MENU/jogos_rodada.js"></script>
   <script src="./jogadores.js"></script>
   <script src="./MENU/provaveis.js"></script>
+  <!-- O arquivo cartola.js será adicionado posteriormente conforme sua necessidade -->
 
   <!-- PWA Installation Logic -->
   <script>
@@ -147,6 +154,13 @@
           .catch(err => console.error('Erro no SW:', err));
       });
     }
+
+    // Ações dos botões (JOGOS e PROVÁVEIS já possuem listeners nos seus respectivos arquivos)
+    // O botão BMP ainda não tem ação atribuída.
+    document.getElementById('btn-bmp')?.addEventListener('click', () => {
+      console.log('Botão BMP clicado - ação ainda não implementada');
+      // Futuramente você pode chamar uma função como carregarBMP() quando o arquivo cartola.js estiver pronto
+    });
   </script>
 </body>
 </html>
