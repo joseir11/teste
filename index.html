@@ -9,19 +9,27 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#FF6321">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
             primary: '#FF6321',
+            cartola: {
+              orange: '#FF6321',
+              black: '#1A1A1A',
+            }
           },
+          fontFamily: {
+            teko: ['Teko', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
         },
       },
     };
   </script>
   <style>
-    /* ===== FONTE CUSTOMIZADA ===== */
     @font-face {
       font-family: 'FontJogos';
       src: url('./FONTS/font_jogos.ttf') format('truetype');
@@ -35,7 +43,6 @@
       margin: 0;
       padding-bottom: 100px;
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
     }
     .loader {
       width: 40px;
@@ -47,38 +54,20 @@
       margin: 40px auto;
     }
     @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
+      to { transform: rotate(360deg); }
     }
-    ::-webkit-scrollbar {
-      width: 5px;
-      height: 5px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #ddd;
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
 
-    /* Aplica a fonte personalizada nos elementos de destaque */
     #main-content .text-primary,
     #main-content [class*="text-[#FF6321]"],
-    #main-content [class*="text-orange"],
-    #main-content [class*="text-green"],
-    #main-content [class*="text-emerald"],
     #main-content .font-black,
     #main-content .font-bold {
       font-family: 'FontJogos', sans-serif !important;
     }
-
-    #main-content .text-primary {
-      color: #000 !important;
-      font-size: 1.5rem !important;
-      letter-spacing: 0.05em;
-    }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
   </style>
 </head>
 <body class="font-sans">
@@ -86,7 +75,6 @@
     <p class="text-gray-500 text-center mt-10">Aguardando seleção...</p>
   </main>
 
-  <!-- NAV BAR FLUTUANTE FIXA NO RODAPÉ -->
   <nav class="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white/80 backdrop-blur-md border-t border-gray-100">
     <div class="flex justify-around items-center">
       <button id="btn-jogos" type="button" class="flex flex-col items-center active:scale-95 transition-transform">
@@ -94,7 +82,6 @@
         <span class="text-[10px] mt-2 block leading-none font-black">JOGOS</span>
       </button>
 
-      <!-- NOVO BOTÃO BMP -->
       <button id="btn-bmp" type="button" class="flex flex-col items-center active:scale-95 transition-transform">
         <img src="./IMAGES/cartola.png" class="w-6 h-6 mx-auto" alt="BMP" />
         <span class="text-[10px] mt-2 block leading-none font-black">BMP</span>
@@ -105,7 +92,6 @@
         <span class="text-[10px] mt-2 block leading-none font-black">PROVÁVEIS</span>
       </button>
 
-      <!-- Botão de instalação do PWA (inicialmente oculto) -->
       <button id="btn-install-pwa" type="button" class="flex flex-col items-center active:scale-95 transition-transform hidden">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 4v12m0 0l-3-3m3 3l3-3" />
@@ -115,51 +101,54 @@
     </div>
   </nav>
 
-  <!-- SCRIPTS -->
+  <!-- SCRIPTS EXISTENTES -->
   <script src="./API/rotas_proxy.js"></script>
   <script src="./MENU/jogos_rodada.js"></script>
   <script src="./jogadores.js"></script>
   <script src="./MENU/provaveis.js"></script>
-  <!-- O arquivo cartola.js será adicionado posteriormente conforme sua necessidade -->
+  <!-- DADOS LOCAIS DO BMP -->
+  <script src="tabela.js"></script>
+  <script src="escalacoes.js"></script>
+  <!-- MÓDULO BMP -->
+  <script src="./MENU/cartola.js"></script>
 
-  <!-- PWA Installation Logic -->
   <script>
     let deferredPrompt = null;
-
-    // Captura o evento beforeinstallprompt
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
       const installBtn = document.getElementById('btn-install-pwa');
       if (installBtn) installBtn.classList.remove('hidden');
     });
-
-    // Lida com o clique do botão de instalação
     document.getElementById('btn-install-pwa')?.addEventListener('click', async () => {
       if (!deferredPrompt) return;
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      console.log(`Instalação PWA: ${outcome}`);
       deferredPrompt = null;
-      const installBtn = document.getElementById('btn-install-pwa');
-      if (installBtn) installBtn.classList.add('hidden');
+      document.getElementById('btn-install-pwa')?.classList.add('hidden');
     });
-
-    // Registra o Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker
-          .register('./sw.js')
+        navigator.serviceWorker.register('./sw.js')
           .then(reg => console.log('SW registrado:', reg.scope))
           .catch(err => console.error('Erro no SW:', err));
       });
     }
 
-    // Ações dos botões (JOGOS e PROVÁVEIS já possuem listeners nos seus respectivos arquivos)
-    // O botão BMP ainda não tem ação atribuída.
+    // Eventos dos botões
+    document.getElementById('btn-jogos')?.addEventListener('click', () => {
+      if (typeof carregarJogos === 'function') carregarJogos();
+    });
+    document.getElementById('btn-provaveis')?.addEventListener('click', () => {
+      if (typeof renderProvaveis === 'function') renderProvaveis();
+    });
     document.getElementById('btn-bmp')?.addEventListener('click', () => {
-      console.log('Botão BMP clicado - ação ainda não implementada');
-      // Futuramente você pode chamar uma função como carregarBMP() quando o arquivo cartola.js estiver pronto
+      if (typeof window.carregarBMP === 'function') window.carregarBMP();
+    });
+
+    // Carrega jogos por padrão ao iniciar
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof carregarJogos === 'function') carregarJogos();
     });
   </script>
 </body>
