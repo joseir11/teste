@@ -324,7 +324,7 @@ function renderSidebar(ranking) {
           <div class="flex items-center text-[10px] font-mono text-gray-400 uppercase font-bold border-b border-black/5 pb-1">
             <span class="w-6">Pos</span>
             <span class="flex-1">Time</span>
-            <span class="w-16 text-center">Ult. Rdd</span>
+            <span class="w-16 text-center">Ult. Rodada</span>
             <span class="w-16 text-right">Total</span>
           </div>
           ${ranking
