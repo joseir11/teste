@@ -1,40 +1,30 @@
 /* ============================================================
    cartola.js — BMP (Tabela, Campo, Escalações)
    Baseado no script.js do projeto Taça Nattos 2026
-   Utiliza apenas os dados globais: TABELA e ESCALACOES
+   Utiliza as variáveis globais:
+     historicoSerieA, historicoSerieB, bancoEscalacoes
    ============================================================ */
 
 let bmpState = {
   activeSerie: "A",
   selectedRound: 0,
   selectedTeam: null,
-  data: null, // { serieA, serieB, escalacoes }
+  viewMode: "campo", // 'campo' ou 'tabela'
 };
 
-// ========== CARREGA DADOS LOCAIS ==========
-function carregarDadosLocais() {
-  if (typeof TABELA === "undefined") {
-    throw new Error("Arquivo tabela.js não carregado (TABELA indefinido)");
-  }
-  if (typeof ESCALACOES === "undefined") {
-    throw new Error("Arquivo escalacoes.js não carregado (ESCALACOES indefinido)");
-  }
-  bmpState.data = {
-    serieA: TABELA.serieA || [],
-    serieB: TABELA.serieB || [],
-    escalacoes: ESCALACOES,
-  };
+// ========== FUNÇÕES DE ACESSO AOS DADOS ==========
+function getSerieData() {
+  return bmpState.activeSerie === "A" ? historicoSerieA : historicoSerieB;
 }
 
 function getMaxRound() {
-  if (!bmpState.data) return 0;
-  const serieData = bmpState.activeSerie === "A" ? bmpState.data.serieA : bmpState.data.serieB;
+  const serieData = getSerieData();
   if (!serieData || serieData.length === 0) return 0;
   return Math.max(...serieData.map((d) => d.rdd));
 }
 
-function getRanking(serie, round) {
-  const serieData = serie === "A" ? bmpState.data.serieA : bmpState.data.serieB;
+function getRanking(round) {
+  const serieData = getSerieData();
   if (!serieData) return [];
   const roundData = serieData.filter((d) => d.rdd <= round);
   const totals = {};
@@ -51,9 +41,9 @@ function getRanking(serie, round) {
 }
 
 function getMitoOfRound(serie, round) {
-  const serieData = serie === "A" ? bmpState.data.serieA : bmpState.data.serieB;
-  if (!serieData) return null;
-  const roundData = serieData.filter((d) => d.rdd === round);
+  const data = serie === "A" ? historicoSerieA : historicoSerieB;
+  if (!data) return null;
+  const roundData = data.filter((d) => d.rdd === round);
   if (roundData.length === 0) return null;
   return roundData
     .map((d) => ({
@@ -94,7 +84,7 @@ function renderErrorBMP(msg) {
   }
 }
 
-// Posições fixas para os 10 times no campo (mesmo do script.js)
+// Posições fixas para os 10 times no campo (mesmo do script.js original)
 const POS_CAMPO = [
   { t: 20, l: 50 },
   { t: 25, l: 15 },
@@ -160,7 +150,8 @@ function renderField(ranking) {
       ${top10
         .map((team, i) => {
           let posColorClass = "text-white";
-          if (bmpState.activeSerie === "A" && i >= ranking.length - 2) {
+          const rankingLength = ranking.length;
+          if (bmpState.activeSerie === "A" && i >= rankingLength - 2) {
             posColorClass = "text-red-500";
           } else if (bmpState.activeSerie === "B" && i < 2) {
             posColorClass = "text-green-500";
@@ -204,14 +195,14 @@ function renderTable(ranking) {
         <tbody class="divide-y divide-black/5">
           ${ranking
             .map((team, i) => {
-              const roundData = (bmpState.activeSerie === "A"
-                ? bmpState.data.serieA
-                : bmpState.data.serieB
-              ).find((d) => d.nome === team.nome && d.rdd === bmpState.selectedRound);
+              const roundData = getSerieData().find(
+                (d) => d.nome === team.nome && d.rdd === bmpState.selectedRound
+              );
               const roundPoints = (roundData?.val || 0) + (roundData?.re || 0) - (roundData?.pen || 0);
               let rowClass = "group hover:bg-black/[0.02] transition-colors cursor-pointer";
               let borderClass = "";
-              if (bmpState.activeSerie === "A" && i >= ranking.length - 2) {
+              const rankingLength = ranking.length;
+              if (bmpState.activeSerie === "A" && i >= rankingLength - 2) {
                 borderClass = "border-l-4 border-red-500";
               } else if (bmpState.activeSerie === "B" && i < 2) {
                 borderClass = "border-l-4 border-green-500";
@@ -399,7 +390,7 @@ function renderSidebar(ranking) {
 function renderTeamDetail(container) {
   const team = bmpState.selectedTeam;
   const round = bmpState.selectedRound;
-  const rawEscalacao = bmpState.data.escalacoes[team] || [];
+  const rawEscalacao = bancoEscalacoes[team] || [];
 
   let escalacao = [];
   let foundRound = false;
@@ -415,7 +406,7 @@ function renderTeamDetail(container) {
     }
   }
 
-  const historico = (bmpState.activeSerie === "A" ? bmpState.data.serieA : bmpState.data.serieB)
+  const historico = getSerieData()
     .filter((d) => d.nome === team)
     .sort((a, b) => a.rdd - b.rdd);
 
@@ -534,7 +525,7 @@ function renderBMP() {
     return;
   }
 
-  const ranking = getRanking(bmpState.activeSerie, bmpState.selectedRound);
+  const ranking = getRanking(bmpState.selectedRound);
   if (!ranking || ranking.length === 0) {
     main.innerHTML = `
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center space-y-4">
@@ -545,7 +536,6 @@ function renderBMP() {
     return;
   }
 
-  // Cria cabeçalho com seletor de série/rodada (igual ao segundo projeto)
   const headerHtml = `
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6">
       <div class="flex items-center justify-between gap-2">
@@ -606,7 +596,7 @@ function renderBMP() {
   if (typeof lucide !== "undefined") lucide.createIcons();
 }
 
-// ========== FUNÇÕES GLOBAIS PARA OS BOTÕES ==========
+// ========== FUNÇÕES GLOBAIS ==========
 window.bmpSelectTeam = function (team) {
   bmpState.selectedTeam = team;
   renderBMP();
@@ -635,7 +625,13 @@ window.carregarBMP = function () {
   console.log("🟢 BMP: Inicializando...");
   renderLoaderBMP();
   try {
-    carregarDadosLocais();
+    // Verifica se as variáveis globais existem
+    if (typeof historicoSerieA === "undefined" || typeof historicoSerieB === "undefined") {
+      throw new Error("Arquivo tabela.js não carregado corretamente (faltam historicoSerieA/B)");
+    }
+    if (typeof bancoEscalacoes === "undefined") {
+      throw new Error("Arquivo escalacoes.js não carregado corretamente (falta bancoEscalacoes)");
+    }
     bmpState.selectedRound = getMaxRound();
     bmpState.selectedTeam = null;
     bmpState.viewMode = "campo";
