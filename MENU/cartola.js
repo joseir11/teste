@@ -86,7 +86,7 @@ function renderErrorBMP(msg) {
   }
 }
 
-// Posições fixas para os 10 times no campo (mesmo do script.js original)
+// Posições fixas para os 10 times no campo
 const POS_CAMPO = [
   { t: 20, l: 50 },
   { t: 25, l: 15 },
@@ -101,7 +101,6 @@ const POS_CAMPO = [
 ];
 const POS_TROFEU = { t: 5, l: 50 };
 
-// ========== RENDERIZA DO HEADER COM SELETORES (visível sempre) ==========
 function renderHeader() {
   const maxRound = getMaxRound();
   return `
@@ -173,7 +172,6 @@ function renderPodium(ranking) {
 
 function renderField(ranking) {
   const top10 = ranking.slice(0, 10);
-  // Último time (para a imagem do Garçom)
   const lastTeam = ranking[ranking.length - 1];
 
   return `
@@ -202,7 +200,6 @@ function renderField(ranking) {
             posColorClass = "text-green-500";
           }
 
-          // Imagem do Garçom para o último time da lista (i === 9)
           let garcomImg = '';
           if (i === 9 && lastTeam) {
             garcomImg = `
@@ -248,7 +245,7 @@ function renderTable(ranking) {
             <th class="px-6 py-4 text-lg uppercase tracking-wider text-gray-400" style="font-family: 'FontJogos', sans-serif;">Time</th>
             <th class="px-6 py-4 text-lg uppercase tracking-wider text-gray-400 text-right" style="font-family: 'FontJogos', sans-serif;">Rodada</th>
             <th class="px-6 py-4 text-lg uppercase tracking-wider text-gray-400 text-right" style="font-family: 'FontJogos', sans-serif;">Total</th>
-          <td>
+          </tr>
         </thead>
         <tbody class="divide-y divide-black/5">
           ${ranking
@@ -324,7 +321,7 @@ function renderSidebar(ranking) {
           <div class="flex items-center text-[10px] font-mono text-gray-400 uppercase font-bold border-b border-black/5 pb-1">
             <span class="w-6">Pos</span>
             <span class="flex-1">Time</span>
-            <span class="w-16 text-center">Ult. Rodada</span>
+            <span class="w-16 text-center">Ult. Rdd</span>
             <span class="w-16 text-right">Total</span>
           </div>
           ${ranking
@@ -468,6 +465,10 @@ function renderTeamDetail(container) {
     .filter((d) => d.nome === team)
     .sort((a, b) => a.rdd - b.rdd);
 
+  const totalPontos = historico
+    .reduce((acc, h) => acc + (h.val || 0) + (h.re || 0) - (h.pen || 0), 0)
+    .toFixed(2);
+
   const headerHtml = renderHeader();
 
   container.innerHTML = `
@@ -486,14 +487,12 @@ function renderTeamDetail(container) {
           <h2 class="text-5xl uppercase leading-none" style="font-family: 'FontJogos', sans-serif;">${team}</h2>
           <div class="flex flex-wrap justify-center md:justify-start gap-4">
             <div class="bg-black/5 px-4 py-1 rounded-full">
-              <span class="text-xs font-mono text-gray-400 uppercase mr-2">Série</span>
+              <span class="text-xs uppercase mr-2" style="font-family: 'FontJogos', sans-serif; color: #9ca3af;">Série</span>
               <span class="text-xl text-cartola-orange" style="font-family: 'FontJogos', sans-serif;">${bmpState.activeSerie}</span>
             </div>
             <div class="bg-black/5 px-4 py-1 rounded-full">
-              <span class="text-xs font-mono text-gray-400 uppercase mr-2">Total</span>
-              <span class="text-xl" style="font-family: 'FontJogos', sans-serif;">${historico
-                .reduce((acc, h) => acc + (h.val || 0) + (h.re || 0) - (h.pen || 0), 0)
-                .toFixed(2)}</span>
+              <span class="text-xs uppercase mr-2" style="font-family: 'FontJogos', sans-serif; color: #9ca3af;">Total</span>
+              <span class="text-xl" style="font-family: 'FontJogos', sans-serif;">${totalPontos}</span>
             </div>
           </div>
         </div>
@@ -614,7 +613,7 @@ function renderBMP() {
   if (typeof lucide !== "undefined") lucide.createIcons();
 }
 
-// ========== FUNÇÕES GLOBAIS (com a lógica de permanência no time) ==========
+// ========== FUNÇÕES GLOBAIS ==========
 window.bmpSelectTeam = function (team) {
   bmpState.selectedTeam = team;
   renderBMP();
@@ -623,16 +622,12 @@ window.bmpSelectTeam = function (team) {
 window.bmpSetSerie = function (serie) {
   bmpState.activeSerie = serie;
   bmpState.selectedRound = getMaxRound();
-  // Ao trocar de série, o time selecionado deixa de existir, então resetamos
   bmpState.selectedTeam = null;
   renderBMP();
 };
 
 window.bmpSetRound = function (round) {
-  const novaRodada = parseInt(round);
-  bmpState.selectedRound = novaRodada;
-  // Se houver um time selecionado, NÃO reseta o time, apenas atualiza a rodada
-  // e chama renderBMP() que exibirá o detalhe com a nova rodada.
+  bmpState.selectedRound = parseInt(round);
   renderBMP();
 };
 
