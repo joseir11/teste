@@ -173,14 +173,8 @@ function renderPodium(ranking) {
 
 function renderField(ranking) {
   const top10 = ranking.slice(0, 10);
+  // Último time (para a imagem do Garçom)
   const lastTeam = ranking[ranking.length - 1];
-  // Garçom: imagem do último colocado (arquivo na pasta GARCONS/)
-  const garcomImg = lastTeam ? `
-    <img class="absolute h-[150px] md:h-[250px] w-auto object-contain pointer-events-none opacity-90 z-20" 
-         src="GARCONS/${lastTeam.nome}.png" 
-         style="top: 50%; left: -120%; transform: translateY(-50%); filter: drop-shadow(0 8px 16px rgba(0,0,0,0.8));" 
-         onerror="this.style.display='none'">
-  ` : '';
 
   return `
     <div class="relative aspect-[4/5] w-full max-w-2xl mx-auto bg-gradient-to-b from-green-600 to-green-800 rounded-[32px] border-8 border-white/20 overflow-hidden shadow-2xl">
@@ -198,8 +192,6 @@ function renderField(ranking) {
         </div>
       </div>
 
-      ${garcomImg}
-
       ${top10
         .map((team, i) => {
           let posColorClass = "text-white";
@@ -209,10 +201,23 @@ function renderField(ranking) {
           } else if (bmpState.activeSerie === "B" && i < 2) {
             posColorClass = "text-green-500";
           }
+
+          // Imagem do Garçom para o último time da lista (i === 9)
+          let garcomImg = '';
+          if (i === 9 && lastTeam) {
+            garcomImg = `
+              <img class="absolute h-[150px] md:h-[250px] w-auto object-contain pointer-events-none opacity-90 z-20" 
+                   src="GARCONS/${lastTeam.nome}.png" 
+                   style="top: 50%; left: -120%; transform: translateY(-50%); filter: drop-shadow(0 8px 16px rgba(0,0,0,0.8));" 
+                   onerror="this.style.display='none'">
+            `;
+          }
+
           return `
             <div class="absolute group cursor-pointer" style="top: ${POS_CAMPO[i].t}%; left: ${POS_CAMPO[i].l}%; transform: translate(-50%, -50%)" onclick="bmpSelectTeam('${team.nome}')">
               <div class="flex flex-col items-center gap-1">
                 <div class="relative">
+                  ${garcomImg}
                   <div class="h-[40px] md:h-[70px] w-auto flex items-center justify-center group-hover:scale-110 transition-all duration-300 relative z-10 filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.4)]">
                     <img src="ESCUDOS/${team.nome}.png" class="h-full w-auto object-contain" onerror="this.src='ESCUDOS/default.png'">
                   </div>
@@ -243,7 +248,7 @@ function renderTable(ranking) {
             <th class="px-6 py-4 text-lg uppercase tracking-wider text-gray-400" style="font-family: 'FontJogos', sans-serif;">Time</th>
             <th class="px-6 py-4 text-lg uppercase tracking-wider text-gray-400 text-right" style="font-family: 'FontJogos', sans-serif;">Rodada</th>
             <th class="px-6 py-4 text-lg uppercase tracking-wider text-gray-400 text-right" style="font-family: 'FontJogos', sans-serif;">Total</th>
-          </tr>
+          <td>
         </thead>
         <tbody class="divide-y divide-black/5">
           ${ranking
@@ -277,13 +282,13 @@ function renderTable(ranking) {
                   </td>
                   <td class="px-6 py-4 text-right font-mono text-sm text-gray-500">
                     ${roundPoints.toFixed(2)}
-                   </td>
+                  </td>
                   <td class="px-6 py-4 text-right">
                     <span class="font-mono text-lg font-bold text-cartola-orange">
                       ${team.pontos.toFixed(2)}
                     </span>
-                   </td>
-                 </tr>
+                  </td>
+                </tr>
               `;
             })
             .join("")}
@@ -609,7 +614,7 @@ function renderBMP() {
   if (typeof lucide !== "undefined") lucide.createIcons();
 }
 
-// ========== FUNÇÕES GLOBAIS ==========
+// ========== FUNÇÕES GLOBAIS (com a lógica de permanência no time) ==========
 window.bmpSelectTeam = function (team) {
   bmpState.selectedTeam = team;
   renderBMP();
@@ -618,13 +623,16 @@ window.bmpSelectTeam = function (team) {
 window.bmpSetSerie = function (serie) {
   bmpState.activeSerie = serie;
   bmpState.selectedRound = getMaxRound();
+  // Ao trocar de série, o time selecionado deixa de existir, então resetamos
   bmpState.selectedTeam = null;
   renderBMP();
 };
 
 window.bmpSetRound = function (round) {
-  bmpState.selectedRound = parseInt(round);
-  bmpState.selectedTeam = null;
+  const novaRodada = parseInt(round);
+  bmpState.selectedRound = novaRodada;
+  // Se houver um time selecionado, NÃO reseta o time, apenas atualiza a rodada
+  // e chama renderBMP() que exibirá o detalhe com a nova rodada.
   renderBMP();
 };
 
