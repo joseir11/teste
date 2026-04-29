@@ -60,7 +60,7 @@ function renderLoaderBMP() {
     main.innerHTML = `
       <div class="flex flex-col justify-center items-center h-screen gap-3 px-6 text-center">
         <div class="loader"></div>
-        <p class="uppercase text-[10px] font-bold tracking-[0.3em] text-gray-400">
+        <p class="uppercase text-[10px] font-bold tracking-[0.3em] text-gray-400" style="font-family: 'FontJogos', sans-serif;">
           Carregando dados do BMP...
         </p>
       </div>
@@ -73,10 +73,12 @@ function renderErrorBMP(msg) {
   if (main) {
     main.innerHTML = `
       <div class="flex flex-col justify-center items-center h-screen gap-2 px-6 text-center">
-        <p class="uppercase text-xs font-bold tracking-widest text-red-500">Erro ao carregar BMP</p>
+        <p class="uppercase text-xs font-bold tracking-widest text-red-500" style="font-family: 'FontJogos', sans-serif;">
+          Erro ao carregar BMP
+        </p>
         <p class="text-sm text-gray-500">${msg}</p>
         <button onclick="window.carregarBMP()" 
-          class="mt-4 px-4 py-2 bg-black text-white text-xs uppercase tracking-widest rounded-full">
+          class="mt-4 px-4 py-2 bg-black text-white text-xs uppercase tracking-widest rounded-full" style="font-family: 'FontJogos', sans-serif;">
           Tentar novamente
         </button>
       </div>
@@ -121,7 +123,7 @@ function renderPodium(ranking) {
           <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-white font-teko text-xl text-black font-black z-20 shadow-lg">1</div>
         </div>
         <div class="text-center">
-          <p class="font-teko text-xl md:text-2xl uppercase leading-none font-bold text-gray-800">${leader.nome}</p>
+          <p class="text-xl md:text-2xl uppercase leading-none font-bold text-gray-800" style="font-family: 'FontJogos', sans-serif;">${leader.nome}</p>
           <p class="font-mono text-base md:text-lg font-bold text-cartola-orange">${leader.pontos.toFixed(2)}</p>
         </div>
       </div>
@@ -131,6 +133,15 @@ function renderPodium(ranking) {
 
 function renderField(ranking) {
   const top10 = ranking.slice(0, 10);
+  const lastTeam = ranking[ranking.length - 1];
+  // Só mostra a imagem do Garçom se houver um último colocado
+  const garcomImg = lastTeam ? `
+    <img class="absolute h-[150px] md:h-[250px] w-auto object-contain pointer-events-none opacity-90 z-20" 
+         src="GARCONS/${lastTeam.nome}.png" 
+         style="top: 50%; left: -120%; transform: translateY(-50%); filter: drop-shadow(0 8px 16px rgba(0,0,0,0.8));" 
+         onerror="this.style.display='none'">
+  ` : '';
+
   return `
     <div class="relative aspect-[4/5] w-full max-w-2xl mx-auto bg-gradient-to-b from-green-600 to-green-800 rounded-[32px] border-8 border-white/20 overflow-hidden shadow-2xl">
       <div class="absolute inset-0 opacity-30 pointer-events-none">
@@ -146,6 +157,8 @@ function renderField(ranking) {
           <i data-lucide="trophy" class="w-8 h-8 text-yellow-400"></i>
         </div>
       </div>
+
+      ${garcomImg}
 
       ${top10
         .map((team, i) => {
@@ -163,13 +176,13 @@ function renderField(ranking) {
                   <div class="h-[40px] md:h-[70px] w-auto flex items-center justify-center group-hover:scale-110 transition-all duration-300 relative z-10 filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.4)]">
                     <img src="ESCUDOS/${team.nome}.png" class="h-full w-auto object-contain" onerror="this.src='ESCUDOS/default.png'">
                   </div>
-                  <div class="absolute -top-2 -right-4 font-teko font-black text-3xl md:text-5xl ${posColorClass} drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] z-20">
+                  <div class="absolute -top-2 -right-4 font-black text-3xl md:text-5xl ${posColorClass} drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] z-20" style="font-family: 'FontJogos', sans-serif;">
                     ${i + 1}
                   </div>
                 </div>
                 <div class="text-center relative z-10 flex flex-col items-center">
-                  <p class="text-sm md:text-base font-teko text-white uppercase tracking-wider font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-none">${team.nome}</p>
-                  <p class="text-base md:text-lg font-teko text-cartola-orange font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-none">${team.pontos.toFixed(2)}</p>
+                  <p class="text-sm md:text-base uppercase tracking-wider font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-none text-white" style="font-family: 'FontJogos', sans-serif;">${team.nome}</p>
+                  <p class="text-base md:text-lg text-cartola-orange font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-none">${team.pontos.toFixed(2)}</p>
                 </div>
               </div>
             </div>
@@ -186,11 +199,11 @@ function renderTable(ranking) {
       <table class="w-full">
         <thead>
           <tr class="text-left border-b border-black/5">
-            <th class="px-6 py-4 font-teko text-lg uppercase tracking-wider text-gray-400">Pos</th>
-            <th class="px-6 py-4 font-teko text-lg uppercase tracking-wider text-gray-400">Time</th>
-            <th class="px-6 py-4 font-teko text-lg uppercase tracking-wider text-gray-400 text-right">Rodada</th>
-            <th class="px-6 py-4 font-teko text-lg uppercase tracking-wider text-gray-400 text-right">Total</th>
-          </tr>
+            <th class="px-6 py-4 text-lg uppercase tracking-wider text-gray-400" style="font-family: 'FontJogos', sans-serif;">Pos</th>
+            <th class="px-6 py-4 text-lg uppercase tracking-wider text-gray-400" style="font-family: 'FontJogos', sans-serif;">Time</th>
+            <th class="px-6 py-4 text-lg uppercase tracking-wider text-gray-400 text-right" style="font-family: 'FontJogos', sans-serif;">Rodada</th>
+            <th class="px-6 py-4 text-lg uppercase tracking-wider text-gray-400 text-right" style="font-family: 'FontJogos', sans-serif;">Total</th>
+          <table>
         </thead>
         <tbody class="divide-y divide-black/5">
           ${ranking
@@ -210,7 +223,7 @@ function renderTable(ranking) {
               return `
                 <tr class="${rowClass} ${borderClass}" onclick="bmpSelectTeam('${team.nome}')">
                   <td class="px-6 py-4">
-                    <span class="font-teko text-2xl ${i < 3 ? "text-cartola-orange" : "text-gray-400"}">
+                    <span class="text-2xl ${i < 3 ? "text-cartola-orange" : "text-gray-400"}" style="font-family: 'FontJogos', sans-serif;">
                       ${(i + 1).toString().padStart(2, "0")}
                     </span>
                   </td>
@@ -219,18 +232,18 @@ function renderTable(ranking) {
                       <div class="w-10 h-10 rounded-full bg-white p-1 shadow-sm border border-black/5 group-hover:scale-110 transition-transform">
                         <img src="ESCUDOS/${team.nome}.png" class="w-full h-full object-contain" onerror="this.src='ESCUDOS/default.png'">
                       </div>
-                      <span class="font-teko text-xl uppercase tracking-wide">${team.nome}</span>
+                      <span class="text-xl uppercase tracking-wide" style="font-family: 'FontJogos', sans-serif;">${team.nome}</span>
                     </div>
                   </td>
                   <td class="px-6 py-4 text-right font-mono text-sm text-gray-500">
                     ${roundPoints.toFixed(2)}
-                  </td>
+                   </td>
                   <td class="px-6 py-4 text-right">
                     <span class="font-mono text-lg font-bold text-cartola-orange">
                       ${team.pontos.toFixed(2)}
                     </span>
-                  </td>
-                </tr>
+                   </td>
+                 </tr>
               `;
             })
             .join("")}
@@ -259,7 +272,7 @@ function renderSidebar(ranking) {
     <div class="space-y-6">
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
         <div class="flex items-center justify-between border-b border-black/5 pb-2">
-          <h3 class="font-teko text-xl uppercase tracking-wider">Classificação</h3>
+          <h3 class="text-xl uppercase tracking-wider" style="font-family: 'FontJogos', sans-serif;">Classificação</h3>
           <span class="text-[10px] font-mono text-gray-400 uppercase">Série ${bmpState.activeSerie}</span>
         </div>
         <div class="space-y-1">
@@ -280,7 +293,7 @@ function renderSidebar(ranking) {
                     <div class="w-6 h-6 shrink-0">
                       <img src="ESCUDOS/${team.nome}.png" class="w-full h-full object-contain" onerror="this.src='ESCUDOS/default.png'">
                     </div>
-                    <span class="font-teko text-lg uppercase leading-none group-hover:text-cartola-orange transition-colors truncate">${team.nome}</span>
+                    <span class="text-lg uppercase leading-none group-hover:text-cartola-orange transition-colors truncate" style="font-family: 'FontJogos', sans-serif;">${team.nome}</span>
                   </div>
                   <div class="w-16 text-center">
                     <p class="font-mono text-xs font-bold text-gray-600 leading-none">${team.roundScore ? team.roundScore.toFixed(2) : "0.00"}</p>
@@ -298,7 +311,7 @@ function renderSidebar(ranking) {
 
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 bg-gradient-to-br from-green-50 to-transparent border-green-100">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="font-teko text-xl uppercase tracking-wider">Mito da Rodada</h3>
+          <h3 class="text-xl uppercase tracking-wider" style="font-family: 'FontJogos', sans-serif;">Mito da Rodada</h3>
           <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center shadow-lg shadow-green-500/20">
             <i data-lucide="smile" class="text-white w-4 h-4"></i>
           </div>
@@ -308,7 +321,7 @@ function renderSidebar(ranking) {
             <img src="ESCUDOS/${mito.nome}.png" class="w-full h-full object-contain" onerror="this.src='ESCUDOS/default.png'">
           </div>
           <div>
-            <p class="font-teko text-2xl uppercase leading-none">${mito.nome}</p>
+            <p class="text-2xl uppercase leading-none" style="font-family: 'FontJogos', sans-serif;">${mito.nome}</p>
             <p class="font-mono text-sm text-green-600 font-bold">+${mito.roundScore.toFixed(2)} pts</p>
           </div>
         </div>
@@ -316,7 +329,7 @@ function renderSidebar(ranking) {
 
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 bg-gradient-to-br from-red-50 to-transparent border-red-100">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="font-teko text-xl uppercase tracking-wider">Bola Murcha</h3>
+          <h3 class="text-xl uppercase tracking-wider" style="font-family: 'FontJogos', sans-serif;">Bola Murcha</h3>
           <div class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center shadow-lg shadow-red-500/20">
             <i data-lucide="frown" class="text-white w-4 h-4"></i>
           </div>
@@ -326,14 +339,14 @@ function renderSidebar(ranking) {
             <img src="ESCUDOS/${bolaMurcha.nome}.png" class="w-full h-full object-contain" onerror="this.src='ESCUDOS/default.png'">
           </div>
           <div>
-            <p class="font-teko text-2xl uppercase leading-none">${bolaMurcha.nome}</p>
+            <p class="text-2xl uppercase leading-none" style="font-family: 'FontJogos', sans-serif;">${bolaMurcha.nome}</p>
             <p class="font-mono text-sm text-red-500 font-bold">${bolaMurcha.roundScore.toFixed(2)} pts</p>
           </div>
         </div>
       </div>
 
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h3 class="font-teko text-xl uppercase tracking-wider mb-4 text-cartola-orange">Mitos - Histórico</h3>
+        <h3 class="text-xl uppercase tracking-wider mb-4 text-cartola-orange" style="font-family: 'FontJogos', sans-serif;">Mitos - Histórico</h3>
         <div class="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
           ${mitosAnteriores
             .map(
@@ -353,7 +366,7 @@ function renderSidebar(ranking) {
                       <div class="w-10 h-10 rounded-full bg-white p-1 shadow-sm border border-black/5 mb-1">
                         <img src="ESCUDOS/${m.mitoA.nome}.png" class="w-full h-full object-contain" onerror="this.src='ESCUDOS/default.png'">
                       </div>
-                      <span class="font-teko text-xs uppercase leading-none truncate w-full text-center">${m.mitoA.nome}</span>
+                      <span class="text-xs uppercase leading-none truncate w-full text-center" style="font-family: 'FontJogos', sans-serif;">${m.mitoA.nome}</span>
                       <span class="font-mono text-[10px] text-green-600 font-bold">+${m.mitoA.score.toFixed(2)}</span>
                     </div>
                   `
@@ -369,7 +382,7 @@ function renderSidebar(ranking) {
                       <div class="w-10 h-10 rounded-full bg-white p-1 shadow-sm border border-black/5 mb-1">
                         <img src="ESCUDOS/${m.mitoB.nome}.png" class="w-full h-full object-contain" onerror="this.src='ESCUDOS/default.png'">
                       </div>
-                      <span class="font-teko text-xs uppercase leading-none truncate w-full text-center">${m.mitoB.nome}</span>
+                      <span class="text-xs uppercase leading-none truncate w-full text-center" style="font-family: 'FontJogos', sans-serif;">${m.mitoB.nome}</span>
                       <span class="font-mono text-[10px] text-green-600 font-bold">+${m.mitoB.score.toFixed(2)}</span>
                     </div>
                   `
@@ -414,7 +427,7 @@ function renderTeamDetail(container) {
     <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <button onclick="bmpSelectTeam(null)" class="flex items-center gap-2 text-gray-500 hover:text-cartola-orange transition-colors group">
         <i data-lucide="arrow-left" class="w-5 h-5 group-hover:-translate-x-1 transition-transform"></i>
-        <span class="font-teko text-lg uppercase tracking-wider">Voltar</span>
+        <span class="text-lg uppercase tracking-wider" style="font-family: 'FontJogos', sans-serif;">Voltar</span>
       </button>
 
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 flex flex-col md:flex-row items-center gap-8">
@@ -422,15 +435,15 @@ function renderTeamDetail(container) {
           <img src="ESCUDOS/${team}.png" class="w-full h-full object-contain" onerror="this.src='ESCUDOS/default.png'">
         </div>
         <div class="text-center md:text-left space-y-2">
-          <h2 class="text-5xl font-teko uppercase leading-none">${team}</h2>
+          <h2 class="text-5xl uppercase leading-none" style="font-family: 'FontJogos', sans-serif;">${team}</h2>
           <div class="flex flex-wrap justify-center md:justify-start gap-4">
             <div class="bg-black/5 px-4 py-1 rounded-full">
               <span class="text-xs font-mono text-gray-400 uppercase mr-2">Série</span>
-              <span class="font-teko text-xl text-cartola-orange">${bmpState.activeSerie}</span>
+              <span class="text-xl text-cartola-orange" style="font-family: 'FontJogos', sans-serif;">${bmpState.activeSerie}</span>
             </div>
             <div class="bg-black/5 px-4 py-1 rounded-full">
               <span class="text-xs font-mono text-gray-400 uppercase mr-2">Total</span>
-              <span class="font-teko text-xl">${historico
+              <span class="text-xl" style="font-family: 'FontJogos', sans-serif;">${historico
                 .reduce((acc, h) => acc + (h.val || 0) + (h.re || 0) - (h.pen || 0), 0)
                 .toFixed(2)}</span>
             </div>
@@ -440,7 +453,7 @@ function renderTeamDetail(container) {
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h3 class="font-teko text-2xl uppercase tracking-wider mb-6 border-b border-black/5 pb-2">Escalação Rodada ${round}</h3>
+          <h3 class="text-2xl uppercase tracking-wider mb-6 border-b border-black/5 pb-2" style="font-family: 'FontJogos', sans-serif;">Escalação Rodada ${round}</h3>
           ${
             escalacao.length > 0
               ? `
@@ -453,7 +466,7 @@ function renderTeamDetail(container) {
                   <div class="flex items-center gap-3">
                     <img src="TIMES/${p.clube}.png" class="w-8 h-8 object-contain" onerror="this.src='TIMES/default.png'">
                     <div>
-                      <p class="font-teko text-lg uppercase leading-none">${p.nome}</p>
+                      <p class="text-lg uppercase leading-none" style="font-family: 'FontJogos', sans-serif;">${p.nome}</p>
                       <p class="text-[10px] font-mono text-gray-400 uppercase">${p.clube} | ${p.pos}</p>
                     </div>
                   </div>
@@ -472,14 +485,14 @@ function renderTeamDetail(container) {
               : `
             <div class="flex flex-col items-center justify-center py-20 text-gray-400 space-y-4">
               <i data-lucide="shield-alert" class="w-16 h-16 opacity-20"></i>
-              <p class="font-teko text-xl uppercase tracking-widest">Escalação Indisponível</p>
+              <p class="text-xl uppercase tracking-widest" style="font-family: 'FontJogos', sans-serif;">Escalação Indisponível</p>
             </div>
           `
           }
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h3 class="font-teko text-2xl uppercase tracking-wider mb-6 border-b border-black/5 pb-2">Desempenho Histórico</h3>
+          <h3 class="text-2xl uppercase tracking-wider mb-6 border-b border-black/5 pb-2" style="font-family: 'FontJogos', sans-serif;">Desempenho Histórico</h3>
           <div class="space-y-4">
             ${historico
               .map((h) => {
@@ -530,7 +543,7 @@ function renderBMP() {
     main.innerHTML = `
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center space-y-4">
         <i data-lucide="search-x" class="w-12 h-12 text-gray-300 mx-auto"></i>
-        <p class="text-gray-500 font-teko text-xl uppercase tracking-widest">Nenhum dado encontrado para esta rodada</p>
+        <p class="text-gray-500 text-xl uppercase tracking-widest" style="font-family: 'FontJogos', sans-serif;">Nenhum dado encontrado para esta rodada</p>
       </div>
     `;
     return;
@@ -542,21 +555,21 @@ function renderBMP() {
         <div class="flex items-center gap-3">
           <button onclick="bmpSetSerie(bmpState.activeSerie === 'A' ? 'B' : 'A')"
             class="inline-flex items-center rounded-full bg-white border border-black/10 shadow-sm pl-3 pr-1 gap-1 shrink-0" style="height:34px">
-            <span class="font-teko text-lg uppercase leading-none pointer-events-none" style="font-weight:500;color:#1A1A1A">SÉRIE</span>
+            <span class="text-lg uppercase leading-none pointer-events-none" style="font-family: 'FontJogos', sans-serif; font-weight:500;color:#1A1A1A">SÉRIE</span>
             <span class="relative flex items-center justify-center shrink-0" style="width:28px;height:28px">
               <span class="absolute inset-0 rounded-full ${bmpState.activeSerie === "A" ? "bg-cartola-orange" : ""}"></span>
-              <span class="relative font-teko text-lg uppercase leading-none ${bmpState.activeSerie === "A" ? "text-white" : "text-gray-800"}">A</span>
+              <span class="relative text-lg uppercase leading-none ${bmpState.activeSerie === "A" ? "text-white" : "text-gray-800"}" style="font-family: 'FontJogos', sans-serif;">A</span>
             </span>
             <span class="relative flex items-center justify-center shrink-0" style="width:28px;height:28px">
               <span class="absolute inset-0 rounded-full ${bmpState.activeSerie === "B" ? "bg-cartola-orange" : ""}"></span>
-              <span class="relative font-teko text-lg uppercase leading-none ${bmpState.activeSerie === "B" ? "text-white" : "text-gray-800"}">B</span>
+              <span class="relative text-lg uppercase leading-none ${bmpState.activeSerie === "B" ? "text-white" : "text-gray-800"}" style="font-family: 'FontJogos', sans-serif;">B</span>
             </span>
           </button>
 
           <div class="relative shrink-0">
             <select onchange="bmpSetRound(this.value)"
-              class="appearance-none bg-white border border-black/10 shadow-sm rounded-full font-teko text-lg uppercase focus:outline-none cursor-pointer"
-              style="height:34px;padding:0 28px 0 14px;font-weight:500;color:#1A1A1A">
+              class="appearance-none bg-white border border-black/10 shadow-sm rounded-full text-lg uppercase focus:outline-none cursor-pointer"
+              style="height:34px;padding:0 28px 0 14px;font-family: 'FontJogos', sans-serif; font-weight:500;color:#1A1A1A">
               ${Array.from({ length: getMaxRound() }, (_, i) => i + 1)
                 .map(
                   (r) => `
@@ -577,14 +590,6 @@ function renderBMP() {
       <div class="lg:col-span-2 space-y-8">
         ${ranking.length >= 1 ? renderPodium(ranking) : ""}
         ${bmpState.viewMode === "campo" ? renderField(ranking) : renderTable(ranking)}
-        ${bmpState.viewMode === "campo"
-          ? `<div class="flex justify-center mt-4">
-               <button onclick="bmpToggleView()" class="text-xs font-mono text-gray-400 hover:text-cartola-orange transition-colors">Ver Tabela →</button>
-             </div>`
-          : `<div class="flex justify-center mt-4">
-               <button onclick="bmpToggleView()" class="text-xs font-mono text-gray-400 hover:text-cartola-orange transition-colors">← Ver Campo</button>
-             </div>`
-        }
       </div>
       <aside>
         ${renderSidebar(ranking)}
