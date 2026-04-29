@@ -101,6 +101,46 @@ const POS_CAMPO = [
 ];
 const POS_TROFEU = { t: 5, l: 50 };
 
+// ========== RENDERIZA DO HEADER COM SELETORES (visível sempre) ==========
+function renderHeader() {
+  const maxRound = getMaxRound();
+  return `
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-3">
+          <button onclick="bmpSetSerie(bmpState.activeSerie === 'A' ? 'B' : 'A')"
+            class="inline-flex items-center rounded-full bg-white border border-black/10 shadow-sm pl-3 pr-1 gap-1 shrink-0" style="height:34px">
+            <span class="text-lg uppercase leading-none pointer-events-none" style="font-family: 'FontJogos', sans-serif; font-weight:500;color:#1A1A1A">SÉRIE</span>
+            <span class="relative flex items-center justify-center shrink-0" style="width:28px;height:28px">
+              <span class="absolute inset-0 rounded-full ${bmpState.activeSerie === "A" ? "bg-cartola-orange" : ""}"></span>
+              <span class="relative text-lg uppercase leading-none ${bmpState.activeSerie === "A" ? "text-white" : "text-gray-800"}" style="font-family: 'FontJogos', sans-serif;">A</span>
+            </span>
+            <span class="relative flex items-center justify-center shrink-0" style="width:28px;height:28px">
+              <span class="absolute inset-0 rounded-full ${bmpState.activeSerie === "B" ? "bg-cartola-orange" : ""}"></span>
+              <span class="relative text-lg uppercase leading-none ${bmpState.activeSerie === "B" ? "text-white" : "text-gray-800"}" style="font-family: 'FontJogos', sans-serif;">B</span>
+            </span>
+          </button>
+
+          <div class="relative shrink-0">
+            <select onchange="bmpSetRound(this.value)"
+              class="appearance-none bg-white border border-black/10 shadow-sm rounded-full text-lg uppercase focus:outline-none cursor-pointer"
+              style="height:34px;padding:0 28px 0 14px;font-family: 'FontJogos', sans-serif; font-weight:500;color:#1A1A1A">
+              ${Array.from({ length: maxRound }, (_, i) => i + 1)
+                .map(
+                  (r) => `
+                <option value="${r}" ${bmpState.selectedRound === r ? "selected" : ""}>RODADA ${r}</option>
+              `
+                )
+                .join("")}
+            </select>
+            <i data-lucide="chevron-down" class="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function renderPodium(ranking) {
   if (ranking.length === 0) return "";
   const leader = ranking[0];
@@ -120,7 +160,7 @@ function renderPodium(ranking) {
           <div class="w-20 h-20 md:w-28 md:h-28 rounded-full bg-white p-1 shadow-2xl relative z-10 group-hover:scale-110 transition-transform duration-500 border-4 border-yellow-400/20">
             <img src="ESCUDOS/${leader.nome}.png" class="w-full h-full object-contain" onerror="this.src='ESCUDOS/default.png'">
           </div>
-          <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-white font-teko text-xl text-black font-black z-20 shadow-lg">1</div>
+          <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-white text-xl text-black font-black z-20 shadow-lg" style="font-family: 'FontJogos', sans-serif;">1</div>
         </div>
         <div class="text-center">
           <p class="text-xl md:text-2xl uppercase leading-none font-bold text-gray-800" style="font-family: 'FontJogos', sans-serif;">${leader.nome}</p>
@@ -134,7 +174,7 @@ function renderPodium(ranking) {
 function renderField(ranking) {
   const top10 = ranking.slice(0, 10);
   const lastTeam = ranking[ranking.length - 1];
-  // Só mostra a imagem do Garçom se houver um último colocado
+  // Garçom: imagem do último colocado (arquivo na pasta GARCONS/)
   const garcomImg = lastTeam ? `
     <img class="absolute h-[150px] md:h-[250px] w-auto object-contain pointer-events-none opacity-90 z-20" 
          src="GARCONS/${lastTeam.nome}.png" 
@@ -203,7 +243,7 @@ function renderTable(ranking) {
             <th class="px-6 py-4 text-lg uppercase tracking-wider text-gray-400" style="font-family: 'FontJogos', sans-serif;">Time</th>
             <th class="px-6 py-4 text-lg uppercase tracking-wider text-gray-400 text-right" style="font-family: 'FontJogos', sans-serif;">Rodada</th>
             <th class="px-6 py-4 text-lg uppercase tracking-wider text-gray-400 text-right" style="font-family: 'FontJogos', sans-serif;">Total</th>
-          <table>
+          </tr>
         </thead>
         <tbody class="divide-y divide-black/5">
           ${ranking
@@ -273,7 +313,7 @@ function renderSidebar(ranking) {
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
         <div class="flex items-center justify-between border-b border-black/5 pb-2">
           <h3 class="text-xl uppercase tracking-wider" style="font-family: 'FontJogos', sans-serif;">Classificação</h3>
-          <span class="text-[10px] font-mono text-gray-400 uppercase">Série ${bmpState.activeSerie}</span>
+          <span class="text-[10px] font-mono text-gray-400 uppercase" style="font-family: 'FontJogos', sans-serif;">Série ${bmpState.activeSerie}</span>
         </div>
         <div class="space-y-1">
           <div class="flex items-center text-[10px] font-mono text-gray-400 uppercase font-bold border-b border-black/5 pb-1">
@@ -423,7 +463,10 @@ function renderTeamDetail(container) {
     .filter((d) => d.nome === team)
     .sort((a, b) => a.rdd - b.rdd);
 
+  const headerHtml = renderHeader();
+
   container.innerHTML = `
+    ${headerHtml}
     <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <button onclick="bmpSelectTeam(null)" class="flex items-center gap-2 text-gray-500 hover:text-cartola-orange transition-colors group">
         <i data-lucide="arrow-left" class="w-5 h-5 group-hover:-translate-x-1 transition-transform"></i>
@@ -541,6 +584,7 @@ function renderBMP() {
   const ranking = getRanking(bmpState.selectedRound);
   if (!ranking || ranking.length === 0) {
     main.innerHTML = `
+      ${renderHeader()}
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center space-y-4">
         <i data-lucide="search-x" class="w-12 h-12 text-gray-300 mx-auto"></i>
         <p class="text-gray-500 text-xl uppercase tracking-widest" style="font-family: 'FontJogos', sans-serif;">Nenhum dado encontrado para esta rodada</p>
@@ -548,42 +592,6 @@ function renderBMP() {
     `;
     return;
   }
-
-  const headerHtml = `
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6">
-      <div class="flex items-center justify-between gap-2">
-        <div class="flex items-center gap-3">
-          <button onclick="bmpSetSerie(bmpState.activeSerie === 'A' ? 'B' : 'A')"
-            class="inline-flex items-center rounded-full bg-white border border-black/10 shadow-sm pl-3 pr-1 gap-1 shrink-0" style="height:34px">
-            <span class="text-lg uppercase leading-none pointer-events-none" style="font-family: 'FontJogos', sans-serif; font-weight:500;color:#1A1A1A">SÉRIE</span>
-            <span class="relative flex items-center justify-center shrink-0" style="width:28px;height:28px">
-              <span class="absolute inset-0 rounded-full ${bmpState.activeSerie === "A" ? "bg-cartola-orange" : ""}"></span>
-              <span class="relative text-lg uppercase leading-none ${bmpState.activeSerie === "A" ? "text-white" : "text-gray-800"}" style="font-family: 'FontJogos', sans-serif;">A</span>
-            </span>
-            <span class="relative flex items-center justify-center shrink-0" style="width:28px;height:28px">
-              <span class="absolute inset-0 rounded-full ${bmpState.activeSerie === "B" ? "bg-cartola-orange" : ""}"></span>
-              <span class="relative text-lg uppercase leading-none ${bmpState.activeSerie === "B" ? "text-white" : "text-gray-800"}" style="font-family: 'FontJogos', sans-serif;">B</span>
-            </span>
-          </button>
-
-          <div class="relative shrink-0">
-            <select onchange="bmpSetRound(this.value)"
-              class="appearance-none bg-white border border-black/10 shadow-sm rounded-full text-lg uppercase focus:outline-none cursor-pointer"
-              style="height:34px;padding:0 28px 0 14px;font-family: 'FontJogos', sans-serif; font-weight:500;color:#1A1A1A">
-              ${Array.from({ length: getMaxRound() }, (_, i) => i + 1)
-                .map(
-                  (r) => `
-                <option value="${r}" ${bmpState.selectedRound === r ? "selected" : ""}>RODADA ${r}</option>
-              `
-                )
-                .join("")}
-            </select>
-            <i data-lucide="chevron-down" class="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
 
   const mainContentHtml = `
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -597,7 +605,7 @@ function renderBMP() {
     </div>
   `;
 
-  main.innerHTML = headerHtml + mainContentHtml;
+  main.innerHTML = renderHeader() + mainContentHtml;
   if (typeof lucide !== "undefined") lucide.createIcons();
 }
 
@@ -630,7 +638,6 @@ window.carregarBMP = function () {
   console.log("🟢 BMP: Inicializando...");
   renderLoaderBMP();
   try {
-    // Verifica se as variáveis globais existem
     if (typeof historicoSerieA === "undefined" || typeof historicoSerieB === "undefined") {
       throw new Error("Arquivo tabela.js não carregado corretamente (faltam historicoSerieA/B)");
     }
