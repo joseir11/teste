@@ -1,6 +1,5 @@
 /* ============================================================
-   PROVÁVEIS ESCALAÇÕES — CARTOLA FC + JOSA.BET
-   VERSÃO: 6.1 (correção de caminhos de escudos e imagens)
+   PROVÁVEIS ESCALAÇÕES — VERSÃO: 6.2 
    ============================================================ */
 
 const PROXY_URL = 'https://josabet-proxy.onrender.com';
@@ -38,7 +37,6 @@ let provavelState = {
 
 window.provavelState = provavelState;
 
-// ========== LOADER E ERRO ==========
 function renderLoaderProvaveis() {
   const main = document.getElementById('main-content');
   if (main) {
@@ -140,19 +138,16 @@ function getNomeArquivoJogador(id, mercadoImagesMap) {
   return '';
 }
 
-// ========== FUNÇÃO PARA OBTER FOTO DO JOGADOR (prioriza ID) ==========
+// ========== FUNÇÃO CORRIGIDA DE FOTO (com fallback em cadeia) ==========
 function getFotoJogador(id, mercadoImagesMap) {
-  // Tenta primeiro o arquivo local apenas com o ID (ex: 12345.webp)
   const fotoPorId = `./JOGADORES/${id}.webp`;
-  // Depois tenta o padrão com nome extraído
   const nomeArquivo = getNomeArquivoJogador(id, mercadoImagesMap);
   const fotoComNome = nomeArquivo ? `./JOGADORES/${id}_${nomeArquivo}.webp` : null;
   const fotoProxy = mercadoImagesMap?.get(id)?.foto || '';
-  // Retorna uma string que será usada no src, e o onerror tentará os fallbacks
-  return fotoPorId; // será testado primeiro, falhando vai para o onerror
+  return { fotoPorId, fotoComNome, fotoProxy };
 }
 
-// ========== MODAL DO JOGADOR (COM FOTO DO JOGADOR E ESCUDOS NO CONFRONTO) ==========
+// ========== MODAL DO JOGADOR ==========
 function fecharModal() {
   const modal = document.getElementById('modal-jogador-scout');
   if (modal) modal.remove();
@@ -173,10 +168,10 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     return;
   }
 
-  // Foto do jogador
-  const fotoJogador = getFotoJogador(parseInt(idStr), provavelState.mercadoImages);
-  const fotoProxy = provavelState.mercadoImages?.get(parseInt(idStr))?.foto || '';
+  const { fotoPorId, fotoComNome, fotoProxy } = getFotoJogador(parseInt(idStr), provavelState.mercadoImages);
   const fallbackFoto = `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
+  const imgSrc = fotoPorId;
+  const onErrorHandler = `this.onerror=null; this.src='${fotoComNome || fotoProxy}'; this.onerror=function(){this.onerror=null; this.src='${fallbackFoto}';}`;
 
   const partidas = provavelState.partidasData?.partidas || [];
   const partida = partidas.find(p => p.clube_casa_id === timeId || p.clube_visitante_id === timeId);
@@ -184,7 +179,6 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   let confrontoHtml = '';
   let dataHora = '—', local = '—';
   if (partida) {
-    const isMandante = partida.clube_casa_id === timeId;
     const timeCasaId = partida.clube_casa_id;
     const timeVisitanteId = partida.clube_visitante_id;
     const escudoCasa = `./ESCUDOS_BRASILEIRAO/${timeCasaId}.png`;
@@ -231,8 +225,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
         <div class="bg-gradient-to-r from-orange-50 to-white p-5 border-b border-orange-100">
           <div class="flex items-center gap-4">
             <div class="w-16 h-16 bg-white rounded-full p-1 shadow-md border border-orange-200">
-              <img src="${fotoJogador}" class="w-full h-full object-contain rounded-full" 
-                   onerror="this.onerror=null; this.src='${fotoProxy}'; this.onerror=null; this.src='${fallbackFoto}';">
+              <img src="${imgSrc}" class="w-full h-full object-contain rounded-full" onerror="${onErrorHandler}">
             </div>
             <div>
               <h3 class="text-2xl font-black uppercase tracking-wide text-gray-800">${dadosJogador.nome}</h3>
@@ -295,9 +288,10 @@ function renderJogadoresCampo(lineup, timeId, mercadoImagesMap) {
     .map(p => {
       const id = p.id;
       const nome = getNomeJogador(id, mercadoImagesMap);
-      const fotoBase = getFotoJogador(id, mercadoImagesMap);
-      const fotoProxy = mercadoImagesMap.get(id)?.foto || '';
+      const { fotoPorId, fotoComNome, fotoProxy } = getFotoJogador(id, mercadoImagesMap);
       const fallbackEscudo = `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
+      const imgSrc = fotoPorId;
+      const onErrorHandler = `this.onerror=null; this.src='${fotoComNome || fotoProxy}'; this.onerror=function(){this.onerror=null; this.src='${fallbackEscudo}';}`;
       const pos = resolvePos(p.slot, { x: p.x, y: p.y });
       const isDuvida = p.sit === 'duvida';
       let duvidaComNome = '';
@@ -317,8 +311,7 @@ function renderJogadoresCampo(lineup, timeId, mercadoImagesMap) {
              style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;" 
              ${onClickAttr}>
           <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/80 p-1 shadow-md ${isDuvida ? 'border-2 border-orange-500' : ''}">
-            <img src="${fotoBase}" alt="${nome}" class="w-full h-full object-contain rounded-full" 
-                 onerror="this.onerror=null; this.src='${fotoProxy}'; this.onerror=null; this.src='${fallbackEscudo}';">
+            <img src="${imgSrc}" alt="${nome}" class="w-full h-full object-contain rounded-full" onerror="${onErrorHandler}">
           </div>
           <div class="mt-1 px-1.5 py-0.5 bg-white/40 backdrop-blur-sm rounded-md text-center" style="min-width:48px; max-width:70px;">
             <p class="text-[10px] md:text-[11px] font-semibold text-gray-900 leading-tight text-center">${nomeAbrev}</p>
@@ -415,7 +408,6 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index, mercadoImagesMap) 
   `;
 }
 
-// ========== BUSCAS VIA PROXY ==========
 async function fetchLineups() {
   try {
     const res = await fetch(`${PROXY_URL}/provaveis/lineups`, { cache: 'no-store' });
@@ -460,7 +452,6 @@ async function ensurePartidasData() {
   return provavelState.partidasData;
 }
 
-// ========== FUNÇÃO PRINCIPAL ==========
 window.renderProvaveis = async function() {
   const main = document.getElementById('main-content');
   if (!main) return;
@@ -488,7 +479,7 @@ window.renderProvaveis = async function() {
     }).join('');
     main.innerHTML = `<div class="space-y-6 animate-in fade-in duration-300 pt-6">${gridEscudos}<div class="space-y-4 px-4">${cardsHtml}</div></div>`;
     initScrollToTop();
-    console.log('✅ Prováveis escalações v6.1 carregado');
+    console.log('✅ Prováveis escalações v6.2 carregado');
   } catch (err) {
     console.error('❌ Erro:', err);
     renderError(err.message || 'Falha ao carregar os dados.');
@@ -506,4 +497,4 @@ window.highlightCard = function(cardId) {
   }, 2000);
 };
 
-console.log('✅ provaveis.js v6.1 carregado');
+console.log('✅ provaveis.js v6.2 carregado');
