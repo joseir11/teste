@@ -155,40 +155,67 @@ function fecharModal() {
 window.fecharModal = fecharModal;
 
 window.abrirModalJogador = function(jogadorId, timeId) {
-  // Verifica se scouts.js foi carregado
+  const idStr = String(jogadorId);
+  
   if (typeof SCOUTS === 'undefined') {
-    console.warn("SCOUTS não definido. Verifique se scouts.js foi carregado.");
+    console.error("❌ SCOUTS não definido");
+    alert("Base de jogadores não carregada.");
     return;
   }
 
-  const dadosJogador = SCOUTS[jogadorId];
+  const dadosJogador = SCOUTS[idStr];
   if (!dadosJogador) {
-    alert(`Dados do jogador ID ${jogadorId} não encontrados no scouts.js`);
+    console.error(`❌ Jogador ID ${idStr} não encontrado`);
+    alert(`Dados do jogador ID ${idStr} não encontrados.`);
     return;
   }
 
-  // Busca a partida do time
+  // Busca partida
   const partidas = provavelState.partidasData?.partidas || [];
   const partida = partidas.find(p => p.clube_casa_id === timeId || p.clube_visitante_id === timeId);
-  if (!partida) {
-    console.warn("Partida não encontrada para o time", timeId);
-    return;
+  
+  let confrontoHtml = '';
+  let dataHora = '—', local = '—';
+  
+  if (partida) {
+    const isMandante = partida.clube_casa_id === timeId;
+    const timeAdversarioId = isMandante ? partida.clube_visitante_id : partida.clube_casa_id;
+    const posTime = isMandante ? partida.clube_casa_posicao : partida.clube_visitante_posicao;
+    const posAdv = isMandante ? partida.clube_visitante_posicao : partida.clube_casa_posicao;
+    
+    const clubeTime = provavelState.partidasData?.clubes?.[timeId] || {};
+    const clubeAdv = provavelState.partidasData?.clubes?.[timeAdversarioId] || {};
+    const siglaTime = clubeTime.sigla || clubeTime.nome?.substring(0,3) || "?";
+    const siglaAdv = clubeAdv.sigla || clubeAdv.nome?.substring(0,3) || "?";
+    
+    // Escudos
+    const escudoTime = `/ESCUDOS_BRASILEIRAO/${timeId}.png`;
+    const escudoAdv = `/ESCUDOS_BRASILEIRAO/${timeAdversarioId}.png`;
+    
+    confrontoHtml = `
+      <div class="flex items-center justify-between gap-2 bg-black/[0.02] rounded-xl p-3 border border-black/5">
+        <div class="flex items-center gap-1">
+          <img src="${escudoTime}" class="w-6 h-6 object-contain" onerror="this.style.display='none'">
+          <span class="text-xs font-black uppercase">${siglaTime}</span>
+          <span class="text-[10px] font-mono text-gray-400">${posTime ? posTime + "º" : ""}</span>
+        </div>
+        <span class="text-[10px] font-mono text-gray-500">vs</span>
+        <div class="flex items-center gap-1">
+          <span class="text-[10px] font-mono text-gray-400">${posAdv ? posAdv + "º" : ""}</span>
+          <span class="text-xs font-black uppercase">${siglaAdv}</span>
+          <img src="${escudoAdv}" class="w-6 h-6 object-contain" onerror="this.style.display='none'">
+        </div>
+      </div>
+    `;
+    dataHora = formatarDataPartida(partida.partida_data);
+    local = partida.local || "—";
+  } else {
+    confrontoHtml = `
+      <div class="bg-black/[0.02] rounded-xl p-3 text-center border border-black/5">
+        <span class="text-xs text-gray-500">Dados do confronto indisponíveis</span>
+      </div>
+    `;
   }
-
-  // Define se é mandante e obtém posição na tabela
-  const isMandante = partida.clube_casa_id === timeId;
-  const posicaoTime = isMandante ? partida.clube_casa_posicao : partida.clube_visitante_posicao;
-  const adversarioId = isMandante ? partida.clube_visitante_id : partida.clube_casa_id;
-  const posicaoAdv = isMandante ? partida.clube_visitante_posicao : partida.clube_casa_posicao;
-  const adversarioInfo = provavelState.partidasData?.clubes?.[adversarioId] || {};
-  const siglaAdv = adversarioInfo.sigla || adversarioInfo.nome?.substring(0,3) || "?";
-  const siglaTime = provavelState.partidasData?.clubes?.[timeId]?.sigla || 
-                     provavelState.partidasData?.clubes?.[timeId]?.nome?.substring(0,3) || "?";
-
-  // Dados do confronto formatados
-  const confronto = `${posicaoTime ? posicaoTime + "º" : "?"} ${siglaTime} x ${siglaAdv} ${posicaoAdv ? posicaoAdv + "º" : "?"}`;
-  const dataHora = formatarDataPartida(partida.partida_data);
-  const local = partida.local || "—";
 
   // Dados do scouts
   const preco = dadosJogador.preco?.toFixed(2) || "0.00";
@@ -201,18 +228,16 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   const pt_ced = dadosJogador.pt_ced?.toFixed(1) || "0.0";
   const ult = dadosJogador.ult !== undefined ? dadosJogador.ult.toFixed(1) : "-";
 
-  // Logo do time
+  // Logo do time (cabeçalho) – usando TIMES com sigla do clube (maiúsculo)
   const logoTime = `/TIMES/${dadosJogador.clube}.png`;
 
-  // Remove modal anterior se existir
+  // Fecha modal anterior
   fecharModal();
 
-  // Cria o modal
   const modalHtml = `
     <div id="modal-jogador-scout" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm transition-all" onclick="if(event.target === this) fecharModal()">
       <div class="relative w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
         
-        <!-- Botão fechar -->
         <button onclick="fecharModal()" class="absolute top-3 right-3 z-10 w-7 h-7 rounded-full bg-black/20 hover:bg-black/40 flex items-center justify-center transition">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
@@ -221,7 +246,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
         <div class="bg-gradient-to-r from-orange-50 to-white p-5 border-b border-orange-100">
           <div class="flex items-center gap-4">
             <div class="w-16 h-16 bg-white rounded-full p-2 shadow-md border border-orange-200">
-              <img src="${logoTime}" class="w-full h-full object-contain" onerror="this.src='./ESCUDOS/default.png'">
+              <img src="${logoTime}" class="w-full h-full object-contain" onerror="this.src='/ESCUDOS_BRASILEIRAO/${timeId}.png'">
             </div>
             <div>
               <h3 class="text-2xl font-black uppercase tracking-wide text-gray-800">${dadosJogador.nome}</h3>
@@ -232,10 +257,10 @@ window.abrirModalJogador = function(jogadorId, timeId) {
 
         <!-- Corpo -->
         <div class="p-5 space-y-4">
-          <!-- Preço e variação -->
+          <!-- Preço e variação com bolinha laranja -->
           <div class="flex items-center justify-between bg-black/[0.02] rounded-xl p-3 border border-black/5">
             <div class="flex items-center gap-2">
-              <div class="w-10 h-10 rounded-full bg-gray-800 text-white flex items-center justify-center font-black text-lg shadow-sm">C$</div>
+              <div class="w-10 h-10 rounded-full bg-[#FF6321] text-white flex items-center justify-center font-black text-lg shadow-sm">C$</div>
               <div>
                 <p class="text-xs text-gray-400 uppercase">Preço</p>
                 <p class="text-xl font-black text-gray-900">${preco}</p>
@@ -247,16 +272,11 @@ window.abrirModalJogador = function(jogadorId, timeId) {
             </div>
           </div>
 
-          <!-- Confronto -->
-          <div class="bg-black/[0.02] rounded-xl p-3 border border-black/5">
-            <div class="flex items-center justify-between gap-2 text-sm font-mono text-gray-600">
-              <span class="px-2 py-1 bg-white rounded-md shadow-sm text-xs font-black uppercase">${confronto}</span>
-              <span class="text-[10px] text-gray-400">${local}</span>
-            </div>
-            <p class="text-center text-[11px] font-mono text-gray-500 mt-2">${dataHora}</p>
-          </div>
+          <!-- Confronto com escudos -->
+          ${confrontoHtml}
+          <p class="text-center text-[11px] font-mono text-gray-500">${dataHora} • ${local}</p>
 
-          <!-- Scouts (JOGOS, MÉDIA, ULT, MPV, P.C.) -->
+          <!-- Scouts -->
           <div class="grid grid-cols-2 gap-3 mt-2">
             <div class="bg-black/[0.02] rounded-xl p-3 text-center border border-black/5">
               <p class="text-[9px] uppercase tracking-wider text-gray-400">JOGOS</p>
@@ -283,6 +303,9 @@ window.abrirModalJogador = function(jogadorId, timeId) {
       </div>
     </div>
   `;
+
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+};
 
   document.body.insertAdjacentHTML('beforeend', modalHtml);
 };
