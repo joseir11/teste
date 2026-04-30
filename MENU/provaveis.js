@@ -1,6 +1,5 @@
 /* ============================================================
-   PROVÁVEIS ESCALAÇÕES — CARTOLA FC + JOSA.BET
-   VERSÃO: 3.1 (modal adicionado sem alterar lógica de imagens)
+   PROVÁVEIS ESCALAÇÕES — V.7
    ============================================================ */
 
 const PROXY_URL = 'https://josabet-proxy.onrender.com';
@@ -268,9 +267,9 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   };
 
   // Gera linha de scouts de ataque (flex wrap)
-  const ataquesHtml = `<div class="flex flex-wrap gap-1 justify-between">${ataques.map(a => renderCell(a.label, a.value, a.red)).join('')}</div>`;
-  const defesasHtml = `<div class="flex flex-wrap gap-1 justify-between">${defesas.map(d => renderCell(d.label, d.value, d.red)).join('')}</div>`;
-
+const ataquesHtml = `<div class="flex flex-wrap gap-1 justify-start">${ataques.map(a => renderCell(a.label, a.value, a.red)).join('')}</div>`;
+const defesasHtml = `<div class="flex flex-wrap gap-1 justify-start">${defesas.map(d => renderCell(d.label, d.value, d.red)).join('')}</div>`;
+   
   fecharModal();
   const modalHtml = `
     <div id="modal-jogador-scout" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm transition-all" onclick="if(event.target === this) fecharModal()">
