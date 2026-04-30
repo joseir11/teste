@@ -1,6 +1,6 @@
 /* ============================================================
    PROVÁVEIS ESCALAÇÕES — CARTOLA FC + JOSA.BET
-   VERSÃO: 6.0 (modal com foto do jogador, escudos no confronto, C$ laranja)
+   VERSÃO: 6.1 (correção de caminhos de escudos e imagens)
    ============================================================ */
 
 const PROXY_URL = 'https://josabet-proxy.onrender.com';
@@ -140,6 +140,18 @@ function getNomeArquivoJogador(id, mercadoImagesMap) {
   return '';
 }
 
+// ========== FUNÇÃO PARA OBTER FOTO DO JOGADOR (prioriza ID) ==========
+function getFotoJogador(id, mercadoImagesMap) {
+  // Tenta primeiro o arquivo local apenas com o ID (ex: 12345.webp)
+  const fotoPorId = `./JOGADORES/${id}.webp`;
+  // Depois tenta o padrão com nome extraído
+  const nomeArquivo = getNomeArquivoJogador(id, mercadoImagesMap);
+  const fotoComNome = nomeArquivo ? `./JOGADORES/${id}_${nomeArquivo}.webp` : null;
+  const fotoProxy = mercadoImagesMap?.get(id)?.foto || '';
+  // Retorna uma string que será usada no src, e o onerror tentará os fallbacks
+  return fotoPorId; // será testado primeiro, falhando vai para o onerror
+}
+
 // ========== MODAL DO JOGADOR (COM FOTO DO JOGADOR E ESCUDOS NO CONFRONTO) ==========
 function fecharModal() {
   const modal = document.getElementById('modal-jogador-scout');
@@ -161,13 +173,10 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     return;
   }
 
-  // Busca foto do jogador (mesma lógica usada no campo)
-  const fotoJogador = (() => {
-    const nomeArquivo = getNomeArquivoJogador(parseInt(idStr), provavelState.mercadoImages);
-    const fotoLocal = nomeArquivo ? `./JOGADORES/${idStr}_${nomeArquivo}.webp` : null;
-    const fotoProxy = provavelState.mercadoImages?.get(parseInt(idStr))?.foto || '';
-    return fotoLocal || fotoProxy || `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
-  })();
+  // Foto do jogador
+  const fotoJogador = getFotoJogador(parseInt(idStr), provavelState.mercadoImages);
+  const fotoProxy = provavelState.mercadoImages?.get(parseInt(idStr))?.foto || '';
+  const fallbackFoto = `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
 
   const partidas = provavelState.partidasData?.partidas || [];
   const partida = partidas.find(p => p.clube_casa_id === timeId || p.clube_visitante_id === timeId);
@@ -178,8 +187,8 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     const isMandante = partida.clube_casa_id === timeId;
     const timeCasaId = partida.clube_casa_id;
     const timeVisitanteId = partida.clube_visitante_id;
-    const escudoCasa = `/ESCUDOS_BRASILEIRAO/${timeCasaId}.png`;
-    const escudoVisitante = `/ESCUDOS_BRASILEIRAO/${timeVisitanteId}.png`;
+    const escudoCasa = `./ESCUDOS_BRASILEIRAO/${timeCasaId}.png`;
+    const escudoVisitante = `./ESCUDOS_BRASILEIRAO/${timeVisitanteId}.png`;
     const posCasa = partida.clube_casa_posicao ? partida.clube_casa_posicao + "º" : "?";
     const posVisitante = partida.clube_visitante_posicao ? partida.clube_visitante_posicao + "º" : "?";
     
@@ -222,7 +231,8 @@ window.abrirModalJogador = function(jogadorId, timeId) {
         <div class="bg-gradient-to-r from-orange-50 to-white p-5 border-b border-orange-100">
           <div class="flex items-center gap-4">
             <div class="w-16 h-16 bg-white rounded-full p-1 shadow-md border border-orange-200">
-              <img src="${fotoJogador}" class="w-full h-full object-contain rounded-full" onerror="this.src='./ESCUDOS/default.png'">
+              <img src="${fotoJogador}" class="w-full h-full object-contain rounded-full" 
+                   onerror="this.onerror=null; this.src='${fotoProxy}'; this.onerror=null; this.src='${fallbackFoto}';">
             </div>
             <div>
               <h3 class="text-2xl font-black uppercase tracking-wide text-gray-800">${dadosJogador.nome}</h3>
@@ -285,10 +295,9 @@ function renderJogadoresCampo(lineup, timeId, mercadoImagesMap) {
     .map(p => {
       const id = p.id;
       const nome = getNomeJogador(id, mercadoImagesMap);
-      const nomeArquivo = getNomeArquivoJogador(id, mercadoImagesMap);
-      const fotoLocal = nomeArquivo ? `./JOGADORES/${id}_${nomeArquivo}.webp` : null;
+      const fotoBase = getFotoJogador(id, mercadoImagesMap);
       const fotoProxy = mercadoImagesMap.get(id)?.foto || '';
-      const foto = fotoLocal || fotoProxy || `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
+      const fallbackEscudo = `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
       const pos = resolvePos(p.slot, { x: p.x, y: p.y });
       const isDuvida = p.sit === 'duvida';
       let duvidaComNome = '';
@@ -308,8 +317,8 @@ function renderJogadoresCampo(lineup, timeId, mercadoImagesMap) {
              style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;" 
              ${onClickAttr}>
           <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/80 p-1 shadow-md ${isDuvida ? 'border-2 border-orange-500' : ''}">
-            <img src="${foto}" alt="${nome}" class="w-full h-full object-contain rounded-full" 
-                 onerror="this.onerror=null; this.src='${fotoProxy || `./ESCUDOS_BRASILEIRAO/${timeId}.png`}'">
+            <img src="${fotoBase}" alt="${nome}" class="w-full h-full object-contain rounded-full" 
+                 onerror="this.onerror=null; this.src='${fotoProxy}'; this.onerror=null; this.src='${fallbackEscudo}';">
           </div>
           <div class="mt-1 px-1.5 py-0.5 bg-white/40 backdrop-blur-sm rounded-md text-center" style="min-width:48px; max-width:70px;">
             <p class="text-[10px] md:text-[11px] font-semibold text-gray-900 leading-tight text-center">${nomeAbrev}</p>
@@ -354,7 +363,7 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index, mercadoImagesMap) 
     const dataFmt = formatarDataPartida(partida.partida_data);
     partidaInfo = {
       adversarioNome: adversarioClube.nome_fantasia || adversarioClube.nome || '???',
-      adversarioEscudo: `/ESCUDOS_BRASILEIRAO/${adversarioId}.png`,
+      adversarioEscudo: `./ESCUDOS_BRASILEIRAO/${adversarioId}.png`,
       local: partida.local || '—',
       data: dataFmt,
       mando: isMandante ? 'Casa' : 'Fora',
@@ -366,7 +375,7 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index, mercadoImagesMap) 
     <div id="time-card-${index}" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 space-y-3 scroll-mt-20 transition-all duration-300">
       <div class="flex items-center gap-3">
         <div class="w-12 h-12 shrink-0 bg-white rounded-xl p-1.5 shadow-md border border-white/50">
-          <img src="/ESCUDOS_BRASILEIRAO/${timeId}.png" 
+          <img src="./ESCUDOS_BRASILEIRAO/${timeId}.png" 
                alt="${nomeTime}" 
                class="w-full h-full object-contain"
                onerror="this.src='./ESCUDOS/default.png'">
@@ -468,7 +477,7 @@ window.renderProvaveis = async function() {
       timesNaOrdem.push({ id: p.clube_casa_id, aproveitamento: p.aproveitamento_mandante, isMandante: true });
       timesNaOrdem.push({ id: p.clube_visitante_id, aproveitamento: p.aproveitamento_visitante, isMandante: false });
     });
-    const gridEscudos = `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4"><div class="grid grid-cols-5 gap-2 md:gap-4 justify-items-center">${timesNaOrdem.map((time, idx) => `<div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-black/5 rounded-full p-2 flex items-center justify-center border border-black/5 hover:bg-black/10 transition-all shadow-sm cursor-pointer hover:scale-110" onclick="window.highlightCard('time-card-${idx}')"><img src="/ESCUDOS_BRASILEIRAO/${time.id}.png" class="w-full h-full object-contain drop-shadow-sm" onerror="this.style.display='none'"></div>`).join('')}</div></div>`;
+    const gridEscudos = `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4"><div class="grid grid-cols-5 gap-2 md:gap-4 justify-items-center">${timesNaOrdem.map((time, idx) => `<div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-black/5 rounded-full p-2 flex items-center justify-center border border-black/5 hover:bg-black/10 transition-all shadow-sm cursor-pointer hover:scale-110" onclick="window.highlightCard('time-card-${idx}')"><img src="./ESCUDOS_BRASILEIRAO/${time.id}.png" class="w-full h-full object-contain drop-shadow-sm" onerror="this.style.display='none'"></div>`).join('')}</div></div>`;
     const cardsHtml = partidas.flatMap((partida, idx) => {
       const casaIdx = timesNaOrdem.findIndex(t => t.id === partida.clube_casa_id);
       const visIdx = timesNaOrdem.findIndex(t => t.id === partida.clube_visitante_id);
@@ -479,7 +488,7 @@ window.renderProvaveis = async function() {
     }).join('');
     main.innerHTML = `<div class="space-y-6 animate-in fade-in duration-300 pt-6">${gridEscudos}<div class="space-y-4 px-4">${cardsHtml}</div></div>`;
     initScrollToTop();
-    console.log('✅ Prováveis escalações v6.0 carregado');
+    console.log('✅ Prováveis escalações v6.1 carregado');
   } catch (err) {
     console.error('❌ Erro:', err);
     renderError(err.message || 'Falha ao carregar os dados.');
@@ -487,7 +496,6 @@ window.renderProvaveis = async function() {
   provavelState.loading = false;
 };
 
-// Função highlightCard global para ser chamada pelo onclick da grade
 window.highlightCard = function(cardId) {
   const card = document.getElementById(cardId);
   if (!card) return;
@@ -498,4 +506,4 @@ window.highlightCard = function(cardId) {
   }, 2000);
 };
 
-console.log('✅ provaveis.js v6.0 carregado');
+console.log('✅ provaveis.js v6.1 carregado');
