@@ -284,10 +284,10 @@ const defesasHtml = `<div class="flex flex-wrap gap-1 justify-start">${defesas.m
             <div class="w-14 h-14 bg-white rounded-full p-1 shadow-md border border-orange-200">
               <img src="${foto}" class="w-full h-full object-contain rounded-full" onerror="this.onerror=null; this.src='${fotoProxy || `./ESCUDOS_BRASILEIRAO/${timeId}.png`}'">
             </div>
-            <div>
-              <h3 class="text-xl font-black uppercase tracking-wide text-gray-800">${dadosJogador.nome}</h3>
-              <p class="text-xs font-mono text-gray-500">${dadosJogador.pos}</p>
-            </div>
+               <div>
+                    <h3 class="text-2xl uppercase tracking-wide text-gray-800" style="font-family: 'Segoe UI', 'FontJogos', sans-serif; font-weight: 900;">${dadosJogador.nome}</h3>
+                    <p class="text-xs font-mono text-gray-500">${dadosJogador.pos}</p>
+               </div>
           </div>
         </div>
 
