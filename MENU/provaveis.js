@@ -1,6 +1,6 @@
 /* ============================================================
    PROVÁVEIS ESCALAÇÕES — CARTOLA FC + JOSA.BET
-   VERSÃO: 5.0 (com modal completo + escudos no confronto)
+   VERSÃO: 4.0 (com modal scouts ao clicar no jogador)
    ============================================================ */
 
 const PROXY_URL = 'https://josabet-proxy.onrender.com';
@@ -36,6 +36,7 @@ let provavelState = {
   loading: false,
 };
 
+// EXPOR PARA ACESSO GLOBAL (usado no modal)
 window.provavelState = provavelState;
 
 // ========== LOADER E ERRO ==========
@@ -74,14 +75,17 @@ function renderError(msg) {
   }
 }
 
+// ========== BOTÃO VOLTAR AO TOPO ==========
 function initScrollToTop() {
   if (document.getElementById('scrollToTopProvaveis')) return;
+  
   const btn = document.createElement('button');
   btn.id = 'scrollToTopProvaveis';
   btn.className = 'fixed bottom-24 right-4 w-12 h-12 bg-[#FF6321] text-white rounded-full shadow-lg flex items-center justify-center opacity-0 invisible transition-all duration-300 z-50 hover:scale-110';
   btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>';
   btn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
   document.body.appendChild(btn);
+
   window.addEventListener('scroll', () => {
     if (window.scrollY > 300) {
       btn.classList.remove('opacity-0', 'invisible');
@@ -93,6 +97,7 @@ function initScrollToTop() {
   });
 }
 
+// ========== FUNÇÕES AUXILIARES ==========
 function renderAproveitamentoBolinhas(aprov) {
   if (!aprov || !Array.isArray(aprov)) return '';
   return aprov.map(resultado => {
@@ -120,6 +125,7 @@ function resolvePos(slot, xy) {
   return { x: 50, y: 50 };
 }
 
+// ========== OBTÉM NOME DO JOGADOR ==========
 function getNomeJogador(id, mercadoImagesMap) {
   const jogador = mercadoImagesMap?.get(id);
   let nome = jogador?.apelido || jogador?.nome;
@@ -140,60 +146,51 @@ function getNomeArquivoJogador(id, mercadoImagesMap) {
   return '';
 }
 
-// ========== MODAL DO JOGADOR (com escudos e confronto) ==========
+// ========== MODAL DO JOGADOR (com scouts.js) ==========
 function fecharModal() {
   const modal = document.getElementById('modal-jogador-scout');
   if (modal) modal.remove();
 }
+
 window.fecharModal = fecharModal;
 
 window.abrirModalJogador = function(jogadorId, timeId) {
-  const idStr = String(jogadorId);
+  // Verifica se scouts.js foi carregado
   if (typeof SCOUTS === 'undefined') {
-    console.error("SCOUTS não definido");
-    alert("Erro: base de jogadores não carregada.");
-    return;
-  }
-  const dadosJogador = SCOUTS[idStr];
-  if (!dadosJogador) {
-    console.error(`Jogador ID ${idStr} não encontrado`);
-    alert(`Dados do jogador ID ${idStr} não encontrados.`);
+    console.warn("SCOUTS não definido. Verifique se scouts.js foi carregado.");
     return;
   }
 
+  const dadosJogador = SCOUTS[jogadorId];
+  if (!dadosJogador) {
+    alert(`Dados do jogador ID ${jogadorId} não encontrados no scouts.js`);
+    return;
+  }
+
+  // Busca a partida do time
   const partidas = provavelState.partidasData?.partidas || [];
   const partida = partidas.find(p => p.clube_casa_id === timeId || p.clube_visitante_id === timeId);
-  
-  let confrontoHtml = '';
-  let dataHora = '—', local = '—';
-  if (partida) {
-    const isMandante = partida.clube_casa_id === timeId;
-    const timeCasaId = partida.clube_casa_id;
-    const timeVisitanteId = partida.clube_visitante_id;
-    const escudoCasa = `/ESCUDOS_BRASILEIRAO/${timeCasaId}.png`;
-    const escudoVisitante = `/ESCUDOS_BRASILEIRAO/${timeVisitanteId}.png`;
-    const posCasa = partida.clube_casa_posicao ? partida.clube_casa_posicao + "º" : "?";
-    const posVisitante = partida.clube_visitante_posicao ? partida.clube_visitante_posicao + "º" : "?";
-    
-    confrontoHtml = `
-      <div class="flex items-center justify-between gap-2">
-        <div class="flex flex-col items-center">
-          <img src="${escudoCasa}" class="w-8 h-8 object-contain" onerror="this.style.display='none'">
-          <span class="text-[10px] font-mono">${posCasa}</span>
-        </div>
-        <span class="text-sm font-black text-gray-700">VS</span>
-        <div class="flex flex-col items-center">
-          <img src="${escudoVisitante}" class="w-8 h-8 object-contain" onerror="this.style.display='none'">
-          <span class="text-[10px] font-mono">${posVisitante}</span>
-        </div>
-      </div>
-    `;
-    dataHora = formatarDataPartida(partida.partida_data);
-    local = partida.local || '—';
-  } else {
-    confrontoHtml = `<p class="text-xs text-gray-400 text-center">Dados não disponíveis</p>`;
+  if (!partida) {
+    console.warn("Partida não encontrada para o time", timeId);
+    return;
   }
 
+  // Define se é mandante e obtém posição na tabela
+  const isMandante = partida.clube_casa_id === timeId;
+  const posicaoTime = isMandante ? partida.clube_casa_posicao : partida.clube_visitante_posicao;
+  const adversarioId = isMandante ? partida.clube_visitante_id : partida.clube_casa_id;
+  const posicaoAdv = isMandante ? partida.clube_visitante_posicao : partida.clube_casa_posicao;
+  const adversarioInfo = provavelState.partidasData?.clubes?.[adversarioId] || {};
+  const siglaAdv = adversarioInfo.sigla || adversarioInfo.nome?.substring(0,3) || "?";
+  const siglaTime = provavelState.partidasData?.clubes?.[timeId]?.sigla || 
+                     provavelState.partidasData?.clubes?.[timeId]?.nome?.substring(0,3) || "?";
+
+  // Dados do confronto formatados
+  const confronto = `${posicaoTime ? posicaoTime + "º" : "?"} ${siglaTime} x ${siglaAdv} ${posicaoAdv ? posicaoAdv + "º" : "?"}`;
+  const dataHora = formatarDataPartida(partida.partida_data);
+  const local = partida.local || "—";
+
+  // Dados do scouts
   const preco = dadosJogador.preco?.toFixed(2) || "0.00";
   const varValor = dadosJogador.var || 0;
   const varFormatado = varValor > 0 ? `+${varValor.toFixed(2)}` : varValor.toFixed(2);
@@ -203,15 +200,24 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   const mpv = dadosJogador.mpv?.toFixed(2) || "0.00";
   const pt_ced = dadosJogador.pt_ced?.toFixed(1) || "0.0";
   const ult = dadosJogador.ult !== undefined ? dadosJogador.ult.toFixed(1) : "-";
+
+  // Logo do time
   const logoTime = `/TIMES/${dadosJogador.clube}.png`;
 
+  // Remove modal anterior se existir
   fecharModal();
+
+  // Cria o modal
   const modalHtml = `
     <div id="modal-jogador-scout" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm transition-all" onclick="if(event.target === this) fecharModal()">
       <div class="relative w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+        
+        <!-- Botão fechar -->
         <button onclick="fecharModal()" class="absolute top-3 right-3 z-10 w-7 h-7 rounded-full bg-black/20 hover:bg-black/40 flex items-center justify-center transition">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
+
+        <!-- Cabeçalho com escudo, nome e posição -->
         <div class="bg-gradient-to-r from-orange-50 to-white p-5 border-b border-orange-100">
           <div class="flex items-center gap-4">
             <div class="w-16 h-16 bg-white rounded-full p-2 shadow-md border border-orange-200">
@@ -223,10 +229,13 @@ window.abrirModalJogador = function(jogadorId, timeId) {
             </div>
           </div>
         </div>
+
+        <!-- Corpo -->
         <div class="p-5 space-y-4">
+          <!-- Preço e variação -->
           <div class="flex items-center justify-between bg-black/[0.02] rounded-xl p-3 border border-black/5">
             <div class="flex items-center gap-2">
-              <div class="w-10 h-10 rounded-full bg-[#FF6321] text-white flex items-center justify-center font-black text-lg shadow-sm">C$</div>
+              <div class="w-10 h-10 rounded-full bg-gray-800 text-white flex items-center justify-center font-black text-lg shadow-sm">C$</div>
               <div>
                 <p class="text-xs text-gray-400 uppercase">Preço</p>
                 <p class="text-xl font-black text-gray-900">${preco}</p>
@@ -237,10 +246,17 @@ window.abrirModalJogador = function(jogadorId, timeId) {
               <p class="text-lg font-black ${corVar}">${varFormatado}</p>
             </div>
           </div>
-          <div class="bg-black/[0.02] rounded-xl p-3 border border-black/5 space-y-2">
-            ${confrontoHtml}
-            <p class="text-center text-[10px] font-mono text-gray-500">${local} • ${dataHora}</p>
+
+          <!-- Confronto -->
+          <div class="bg-black/[0.02] rounded-xl p-3 border border-black/5">
+            <div class="flex items-center justify-between gap-2 text-sm font-mono text-gray-600">
+              <span class="px-2 py-1 bg-white rounded-md shadow-sm text-xs font-black uppercase">${confronto}</span>
+              <span class="text-[10px] text-gray-400">${local}</span>
+            </div>
+            <p class="text-center text-[11px] font-mono text-gray-500 mt-2">${dataHora}</p>
           </div>
+
+          <!-- Scouts (JOGOS, MÉDIA, ULT, MPV, P.C.) -->
           <div class="grid grid-cols-2 gap-3 mt-2">
             <div class="bg-black/[0.02] rounded-xl p-3 text-center border border-black/5">
               <p class="text-[9px] uppercase tracking-wider text-gray-400">JOGOS</p>
@@ -267,12 +283,14 @@ window.abrirModalJogador = function(jogadorId, timeId) {
       </div>
     </div>
   `;
+
   document.body.insertAdjacentHTML('beforeend', modalHtml);
 };
 
-// ========== RENDERIZA JOGADORES NO CAMPO ==========
-function renderJogadoresCampo(lineup, timeId, mercadoImagesMap) {
+// ========== RENDERIZA OS JOGADORES NO CAMPO COM ONCLICK ==========
+function renderJogadoresCampo(lineup, timeId, mercadoImagesMap, partida) {
   if (!lineup || !mercadoImagesMap) return '';
+
   return lineup.titulares
     .filter(p => p.slot !== 'TEC')
     .map(p => {
@@ -282,12 +300,14 @@ function renderJogadoresCampo(lineup, timeId, mercadoImagesMap) {
       const fotoLocal = nomeArquivo ? `./JOGADORES/${id}_${nomeArquivo}.webp` : null;
       const fotoProxy = mercadoImagesMap.get(id)?.foto || '';
       const foto = fotoLocal || fotoProxy || `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
+
       const pos = resolvePos(p.slot, { x: p.x, y: p.y });
       const isDuvida = p.sit === 'duvida';
       let duvidaComNome = '';
       if (isDuvida && p.duvida_com) {
         duvidaComNome = getNomeJogador(p.duvida_com, mercadoImagesMap);
       }
+
       const abreviar = (n) => {
         const partes = n.trim().split(' ');
         if (partes.length <= 1) return n;
@@ -295,7 +315,10 @@ function renderJogadoresCampo(lineup, timeId, mercadoImagesMap) {
       };
       const nomeAbrev = abreviar(nome);
       const duvidaAbrev = duvidaComNome ? abreviar(duvidaComNome) : '';
+
+      // ONCLICK para abrir modal
       const onClickAttr = `onclick="event.stopPropagation(); window.abrirModalJogador(${id}, ${timeId})"`;
+
       return `
         <div class="absolute flex flex-col items-center cursor-pointer hover:scale-110 transition-transform" 
              style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;" 
@@ -317,13 +340,15 @@ function renderJogadoresCampo(lineup, timeId, mercadoImagesMap) {
     }).join('');
 }
 
-// ========== RENDERIZA CARD DO TIME ==========
+// ========== RENDERIZA O CARD DE UM TIME ==========
 function renderTimeCard(timeId, partida, timesNaOrdem, index, mercadoImagesMap) {
   const clubeInfo = provavelState.partidasData?.clubes?.[timeId] || {};
   const nomeTime = clubeInfo.nome_fantasia || clubeInfo.nome || `Time ${timeId}`;
+
   const slug = Object.keys(SLUG_TO_CARTOLA_ID).find(key => SLUG_TO_CARTOLA_ID[key] === timeId);
   const lineup = slug ? provavelState.lineupsData?.teams?.[slug] : null;
   const lastUpdate = slug ? provavelState.teamUpdatesData?.teams?.[slug]?.last_update : null;
+
   let fmtUpdate = null;
   if (lastUpdate) {
     try {
@@ -339,27 +364,32 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index, mercadoImagesMap) 
       else fmtUpdate = pad(dt.getDate()) + '/' + pad(dt.getMonth() + 1) + ' ' + hhmm;
     } catch (e) {}
   }
+
   let partidaInfo = null;
   if (partida) {
     const adversarioId = partida.clube_casa_id === timeId ? partida.clube_visitante_id : partida.clube_casa_id;
     const adversarioClube = provavelState.partidasData.clubes?.[adversarioId] || {};
     const isMandante = partida.clube_casa_id === timeId;
     const dataFmt = formatarDataPartida(partida.partida_data);
+
     partidaInfo = {
       adversarioNome: adversarioClube.nome_fantasia || adversarioClube.nome || '???',
-      adversarioEscudo: `/ESCUDOS_BRASILEIRAO/${adversarioId}.png`,
+      adversarioEscudo: `./ESCUDOS_BRASILEIRAO/${adversarioId}.png`,
       local: partida.local || '—',
       data: dataFmt,
       mando: isMandante ? 'Casa' : 'Fora',
     };
   }
-  const jogadoresHtml = lineup ? renderJogadoresCampo(lineup, timeId, mercadoImagesMap) : '';
+
+  // Passa a partida para renderizar os jogadores com onclick
+  const jogadoresHtml = lineup ? renderJogadoresCampo(lineup, timeId, mercadoImagesMap, partida) : '';
   const timeData = timesNaOrdem.find(t => t.id === timeId) || {};
+
   return `
     <div id="time-card-${index}" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 space-y-3 scroll-mt-20 transition-all duration-300">
       <div class="flex items-center gap-3">
         <div class="w-12 h-12 shrink-0 bg-white rounded-xl p-1.5 shadow-md border border-white/50">
-          <img src="/ESCUDOS_BRASILEIRAO/${timeId}.png" 
+          <img src="./ESCUDOS_BRASILEIRAO/${timeId}.png" 
                alt="${nomeTime}" 
                class="w-full h-full object-contain"
                onerror="this.src='./ESCUDOS/default.png'">
@@ -371,6 +401,7 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index, mercadoImagesMap) 
         <div class="flex gap-1.5">${renderAproveitamentoBolinhas(timeData.aproveitamento)}</div>
         <div class="shrink-0"><span class="text-[10px] font-mono text-gray-500 uppercase bg-black/5 px-2 py-1 rounded-full">${timeData.isMandante ? 'Casa' : 'Fora'}</span></div>
       </div>
+
       <div class="relative w-full aspect-[4/5] rounded-xl overflow-hidden border border-white/30 shadow-inner bg-gradient-to-b from-green-600 to-green-800">
         <div class="absolute inset-0 opacity-30 pointer-events-none">
           <div class="absolute inset-3 border border-white rounded"></div>
@@ -381,6 +412,7 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index, mercadoImagesMap) 
         </div>
         ${jogadoresHtml}
       </div>
+
       ${partidaInfo ? `
         <div class="flex items-center gap-3 px-3 py-2.5 bg-black/[0.04] rounded-xl border border-black/[0.06]">
           <div class="flex items-center gap-2 flex-1 min-w-0">
@@ -450,18 +482,23 @@ window.renderProvaveis = async function() {
   if (!main) return;
   renderLoaderProvaveis();
   provavelState.loading = true;
+
   try {
     const partidasData = await ensurePartidasData();
     if (!partidasData?.partidas?.length) throw new Error('Nenhuma partida encontrada.');
     provavelState.partidasData = partidasData;
     const partidas = partidasData.partidas;
+
     await Promise.all([fetchLineups(), fetchMercadoImages(), fetchTeamUpdates()]);
+
     let timesNaOrdem = [];
     partidas.forEach(p => {
       timesNaOrdem.push({ id: p.clube_casa_id, aproveitamento: p.aproveitamento_mandante, isMandante: true });
       timesNaOrdem.push({ id: p.clube_visitante_id, aproveitamento: p.aproveitamento_visitante, isMandante: false });
     });
-    const gridEscudos = `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4"><div class="grid grid-cols-5 gap-2 md:gap-4 justify-items-center">${timesNaOrdem.map((time, idx) => `<div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-black/5 rounded-full p-2 flex items-center justify-center border border-black/5 hover:bg-black/10 transition-all shadow-sm cursor-pointer hover:scale-110" onclick="highlightCard('time-card-${idx}')"><img src="/ESCUDOS_BRASILEIRAO/${time.id}.png" class="w-full h-full object-contain drop-shadow-sm" onerror="this.style.display='none'"></div>`).join('')}</div></div>`;
+
+    const gridEscudos = `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4"><div class="grid grid-cols-5 gap-2 md:gap-4 justify-items-center">${timesNaOrdem.map((time, idx) => `<div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-black/5 rounded-full p-2 flex items-center justify-center border border-black/5 hover:bg-black/10 transition-all shadow-sm cursor-pointer hover:scale-110" onclick="highlightCard('time-card-${idx}')"><img src="./ESCUDOS_BRASILEIRAO/${time.id}.png" class="w-full h-full object-contain drop-shadow-sm" onerror="this.style.display='none'"></div>`).join('')}</div></div>`;
+
     const cardsHtml = partidas.flatMap((partida, idx) => {
       const casaIdx = timesNaOrdem.findIndex(t => t.id === partida.clube_casa_id);
       const visIdx = timesNaOrdem.findIndex(t => t.id === partida.clube_visitante_id);
@@ -470,9 +507,10 @@ window.renderProvaveis = async function() {
         renderTimeCard(partida.clube_visitante_id, partida, timesNaOrdem, visIdx, provavelState.mercadoImages),
       ];
     }).join('');
+
     main.innerHTML = `<div class="space-y-6 animate-in fade-in duration-300 pt-6">${gridEscudos}<div class="space-y-4 px-4">${cardsHtml}</div></div>`;
     initScrollToTop();
-    console.log('✅ Prováveis escalações v5.0 carregado');
+    console.log('✅ Prováveis escalações renderizadas com sucesso (v4.0 com modal)');
   } catch (err) {
     console.error('❌ Erro:', err);
     renderError(err.message || 'Falha ao carregar os dados.');
@@ -480,14 +518,5 @@ window.renderProvaveis = async function() {
   provavelState.loading = false;
 };
 
-window.highlightCard = function(cardId) {
-  const card = document.getElementById(cardId);
-  if (!card) return;
-  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  card.classList.add('ring-4', 'ring-[#FF6321]', 'ring-offset-2', 'transition-all', 'duration-300');
-  setTimeout(() => {
-    card.classList.remove('ring-4', 'ring-[#FF6321]', 'ring-offset-2');
-  }, 2000);
-};
-
-console.log('✅ provaveis.js v5.0 carregado');
+window.highlightCard = highlightCard;
+console.log('✅ provaveis.js v4.0 carregado');
