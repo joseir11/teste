@@ -363,18 +363,15 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   const ataquesHtml = `<div class="flex flex-wrap gap-1 justify-start">${ataques.map(a => renderCell(a.label, a.value, a.red)).join('')}</div>`;
   const defesasHtml = `<div class="flex flex-wrap gap-1 justify-start">${defesas.map(d => renderCell(d.label, d.value, d.red)).join('')}</div>`;
   
-  // ========== GRÁFICO DAS ÚLTIMAS 10 RODADAS ==========
-  const rodadaAtual = typeof RODADA !== 'undefined' ? RODADA : 13;
+  // ========== GRÁFICO DE BARRAS (PONTUAÇÃO ÚLTIMAS 10 RODADAS) ==========
+  const rodadaAtual = (typeof RODADA !== 'undefined') ? RODADA : 13;
   const inicio = Math.max(1, rodadaAtual - 9);
   const listaRodadas = [];
   for (let r = inicio; r <= rodadaAtual; r++) listaRodadas.push(r);
   
-  // Obtém as pontuações do jogador (caminho correto)
   const scoutsRdd = dadosJogador.scouts?.rdd || {};
-  console.log(`📊 Pontuações do jogador ${dadosJogador.nome} (${idStr}):`, scoutsRdd);
-  
-  const alturaMaxima = 60;
-  const pontoMaximo = 10;
+  const alturaMaxima = 60; // pixels
+  const pontoMaximo = 10;  // pontuação máxima para escala
   
   const barrasHtml = listaRodadas.map(rd => {
     const dado = scoutsRdd[rd];
@@ -384,7 +381,6 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     let altura = 0;
     let textoTopo = '';
     
-    // Se pt for undefined ou string "-"
     if (pt === undefined || pt === '-') {
       classeCor = 'bg-gray-300';
       altura = 20;
@@ -396,11 +392,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
         altura = 20;
         textoTopo = '-';
       } else {
-        if (valorNum >= 0) {
-          classeCor = 'bg-green-400';
-        } else {
-          classeCor = 'bg-red-400';
-        }
+        classeCor = valorNum >= 0 ? 'bg-green-400' : 'bg-red-400';
         let valorAbs = Math.min(Math.abs(valorNum), pontoMaximo);
         altura = (valorAbs / pontoMaximo) * alturaMaxima;
         if (altura < 4 && valorAbs > 0) altura = 4;
@@ -409,21 +401,21 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     }
     
     return `
-      <div class="flex flex-col items-center gap-1" style="width: 24px;">
-        <div class="relative flex justify-center" style="height: ${alturaMaxima + 20}px;">
+      <div class="flex flex-col items-center gap-1" style="width: 28px;">
+        <div class="relative flex justify-center" style="height: ${alturaMaxima + 24}px;">
           <div class="absolute bottom-0 w-full flex justify-center">
-            <div class="${classeCor} rounded-t-md transition-all duration-300" style="height: ${altura}px; width: 20px;"></div>
+            <div class="${classeCor} rounded-t-md" style="height: ${altura}px; width: 22px;"></div>
           </div>
-          <span class="absolute -top-5 text-[9px] font-mono font-bold text-gray-600">${textoTopo}</span>
+          <span class="absolute -top-6 text-[10px] font-mono font-bold text-gray-700">${textoTopo}</span>
         </div>
-        <span class="text-[9px] font-mono text-gray-400">${rd}</span>
+        <span class="text-[10px] font-mono text-gray-500">${rd}</span>
       </div>
     `;
   }).join('');
   
-  const graficoHtml = `<div class="flex justify-around items-end gap-1 overflow-x-auto pb-2">${barrasHtml}</div>`;
-  // ==========================================================
-   
+  const graficoHtml = `<div class="flex justify-around items-end gap-1 overflow-x-auto py-2">${barrasHtml}</div>`;
+  // ==============================================================
+  
   fecharModal();
   const modalHtml = `
     <div id="modal-jogador-scout" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm transition-all" onclick="if(event.target === this) fecharModal()">
@@ -432,7 +424,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
         
-        <!-- 1 - CABEÇALHO -->
+        <!-- CABEÇALHO -->
         <div class="bg-gradient-to-r from-orange-50 to-white p-4 border-b border-orange-100">
           <div class="flex items-center gap-3">
             <div class="w-14 h-14 bg-white rounded-full p-1 shadow-md border border-orange-200">
@@ -446,13 +438,13 @@ window.abrirModalJogador = function(jogadorId, timeId) {
         </div>
 
         <div class="p-4 space-y-1.5">
-          <!-- 2 - CONFRONTO -->
+          <!-- CONFRONTO -->
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5 space-y-1">
             ${confrontoHtml}
             <p class="text-center text-[9px] font-mono text-gray-500">${local} • ${dataHora}</p>
           </div>
 
-          <!-- 3 - PREÇO / VARIAÇÃO -->
+          <!-- PREÇO / VARIAÇÃO -->
           <div class="flex items-center justify-between bg-black/[0.02] rounded-xl p-2 border border-black/5">
             <div class="flex items-center gap-2">
               <div class="w-8 h-8 rounded-full bg-[#FF6321] text-white flex items-center justify-center font-black text-sm shadow-sm">C$</div>
@@ -467,7 +459,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
             </div>
           </div>
 
-          <!-- 4 - MÉTRICAS JUNTAS -->
+          <!-- MÉTRICAS JOGOS, ULT., MÉDIA, MPV, CEDIDO -->
           <div class="grid grid-cols-5 gap-1 bg-black/[0.02] rounded-xl p-2 border border-black/5 text-center">
             <div><p class="text-[9px] uppercase tracking-wider text-gray-400">JOGOS</p><p class="text-base font-black text-gray-800">${jogos}</p></div>
             <div><p class="text-[9px] uppercase tracking-wider text-gray-400">ULT.</p><p class="text-base font-black text-gray-800">${ult}</p></div>
@@ -476,19 +468,19 @@ window.abrirModalJogador = function(jogadorId, timeId) {
             <div><p class="text-[9px] uppercase tracking-wider text-gray-400">CEDIDO</p><p class="text-base font-black text-gray-800">${pt_ced}</p></div>
           </div>
 
-          <!-- 5 - SCOUTS ATAQUE -->
+          <!-- SCOUTS ATAQUE -->
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
             <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">SCOUTS - ATAQUE</p>
             ${ataquesHtml}
           </div>
 
-          <!-- 6 - SCOUTS DEFESA -->
+          <!-- SCOUTS DEFESA -->
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
             <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">SCOUTS - DEFESA</p>
             ${defesasHtml}
           </div>
 
-          <!-- 7 - GRÁFICO PONTUAÇÃO -->
+          <!-- PONTUAÇÃO (GRÁFICO) -->
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
             <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">PONTUAÇÃO</p>
             ${graficoHtml}
