@@ -344,7 +344,7 @@ async function carregarProvaveis() {
   }
 }
 
-/* ── LIGA OS BOTÕES E CARREGA AUTOMATICAMENTE ─────────── */
+/* ── LIGA OS BOTÕES (SEM CARREGAMENTO AUTOMÁTICO) ─────────── */
 btnJogos.addEventListener("click", carregarJogos);
 btnProvaveis.addEventListener("click", carregarProvaveis);
-document.addEventListener("DOMContentLoaded", carregarJogos);
+// NÃO executa carregarJogos automaticamente no DOMContentLoaded
