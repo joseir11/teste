@@ -101,6 +101,13 @@
     </div>
   </nav>
 
+  <!-- BOTÃO FLUTUANTE DE VOLTAR AO TOPO (GLOBAL) -->
+  <button id="globalScrollToTop" class="fixed bottom-24 right-4 w-12 h-12 bg-[#FF6321]/90 text-black rounded-full shadow-lg flex items-center justify-center opacity-0 invisible transition-all duration-300 z-50 hover:scale-110 hover:bg-[#FF6321]">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+    </svg>
+  </button>
+
   <!-- SCRIPTS EXISTENTES -->
   <script src="./API/rotas_proxy.js"></script>
   <script src="./MENU/jogos_rodada.js"></script>
@@ -114,6 +121,7 @@
   <script src="./MENU/cartola.js"></script>
 
   <script>
+    // ==================== PWA INSTALL ====================
     let deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -136,7 +144,25 @@
       });
     }
 
-    // Eventos dos botões
+    // ==================== BOTÃO GLOBAL SCROLL TO TOP ====================
+    function initGlobalScrollToTop() {
+      const btn = document.getElementById('globalScrollToTop');
+      if (!btn) return;
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+          btn.classList.remove('opacity-0', 'invisible');
+          btn.classList.add('opacity-100', 'visible');
+        } else {
+          btn.classList.add('opacity-0', 'invisible');
+          btn.classList.remove('opacity-100', 'visible');
+        }
+      });
+      btn.onclick = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+    }
+
+    // ==================== NAVEGAÇÃO ENTRE ABAS ====================
     document.getElementById('btn-jogos')?.addEventListener('click', () => {
       if (typeof carregarJogos === 'function') carregarJogos();
     });
@@ -147,9 +173,12 @@
       if (typeof window.carregarBMP === 'function') window.carregarBMP();
     });
 
-    // Carrega jogos por padrão ao iniciar
+    // ==================== INICIALIZAÇÃO ====================
     document.addEventListener('DOMContentLoaded', () => {
-      if (typeof carregarJogos === 'function') carregarJogos();
+      initGlobalScrollToTop();      // ativa o botão de scroll em todas as telas
+      if (typeof window.carregarBMP === 'function') {
+        window.carregarBMP();       // página inicial = BMP (cartola.js)
+      }
     });
   </script>
 </body>
