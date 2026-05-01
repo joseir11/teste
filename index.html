@@ -101,7 +101,7 @@
     </div>
   </nav>
 
-  <!-- BOTÃO FLUTUANTE DE VOLTAR AO TOPO (GLOBAL) -->
+  <!-- BOTÃO FLUTUANTE GLOBAL (VOLTAR AO TOPO) -->
   <button id="globalScrollToTop" class="fixed bottom-24 right-4 w-12 h-12 bg-[#FF6321]/90 text-black rounded-full shadow-lg flex items-center justify-center opacity-0 invisible transition-all duration-300 z-50 hover:scale-110 hover:bg-[#FF6321]">
     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
@@ -121,7 +121,7 @@
   <script src="./MENU/cartola.js"></script>
 
   <script>
-    // ==================== PWA INSTALL ====================
+    // ==================== PWA ====================
     let deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -144,7 +144,7 @@
       });
     }
 
-    // ==================== BOTÃO GLOBAL SCROLL TO TOP ====================
+    // ==================== BOTÃO GLOBAL SCROLL ====================
     function initGlobalScrollToTop() {
       const btn = document.getElementById('globalScrollToTop');
       if (!btn) return;
@@ -157,17 +157,71 @@
           btn.classList.remove('opacity-100', 'visible');
         }
       });
-      btn.onclick = () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      };
+      btn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ==================== PRÉ-CARREGAMENTO EM SEGUNDO PLANO ====================
+    async function precarregarJogos() {
+      if (window.preloadedJogosData) return;
+      console.log("🟡 Pré-carregando JOGOS em segundo plano...");
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+        const [resMercado, resPartidas] = await Promise.all([
+          fetch(API_CARTOLA.MERCADO_STATUS, { signal: controller.signal }),
+          fetch(API_CARTOLA.PARTIDAS, { signal: controller.signal })
+        ]);
+        clearTimeout(timeoutId);
+        if (resMercado.ok && resPartidas.ok) {
+          window.preloadedJogosData = {
+            mercado: await resMercado.json(),
+            partidas: await resPartidas.json()
+          };
+          console.log("✅ JOGOS pré-carregados com sucesso");
+        } else {
+          throw new Error(`HTTP ${resMercado.status} / ${resPartidas.status}`);
+        }
+      } catch (err) {
+        console.warn("⚠️ Pré-carga de JOGOS falhou:", err.message);
+      }
+    }
+
+    async function precarregarProvaveis() {
+      if (window.preloadedProvaveisData) return;
+      console.log("🟡 Pré-carregando PROVÁVEIS em segundo plano...");
+      try {
+        const PROXY_URL = 'https://josabet-proxy.onrender.com';
+        const [lineupsRes, mercadoImagesRes, teamUpdatesRes, partidasRes] = await Promise.all([
+          fetch(`${PROXY_URL}/provaveis/lineups`),
+          fetch(`${PROXY_URL}/provaveis/mercado-images`),
+          fetch(`${PROXY_URL}/provaveis/team-updates`),
+          fetch(API_CARTOLA.PARTIDAS || `${PROXY_URL}/partidas`)
+        ]);
+        if (lineupsRes.ok && mercadoImagesRes.ok && teamUpdatesRes.ok && partidasRes.ok) {
+          const mercadoImagesArray = await mercadoImagesRes.json();
+          const map = new Map();
+          mercadoImagesArray.forEach(item => map.set(item.atleta_id, item));
+          window.preloadedProvaveisData = {
+            lineups: await lineupsRes.json(),
+            mercadoImages: map,
+            teamUpdates: await teamUpdatesRes.json(),
+            partidas: await partidasRes.json()
+          };
+          console.log("✅ PROVÁVEIS pré-carregados com sucesso");
+        } else {
+          throw new Error("Falha em uma das requisições");
+        }
+      } catch (err) {
+        console.warn("⚠️ Pré-carga de PROVÁVEIS falhou:", err.message);
+      }
     }
 
     // ==================== NAVEGAÇÃO ENTRE ABAS ====================
     document.getElementById('btn-jogos')?.addEventListener('click', () => {
-      if (typeof carregarJogos === 'function') carregarJogos();
+      if (typeof window.carregarJogos === 'function') window.carregarJogos();
     });
     document.getElementById('btn-provaveis')?.addEventListener('click', () => {
-      if (typeof renderProvaveis === 'function') renderProvaveis();
+      if (typeof window.renderProvaveis === 'function') window.renderProvaveis();
     });
     document.getElementById('btn-bmp')?.addEventListener('click', () => {
       if (typeof window.carregarBMP === 'function') window.carregarBMP();
@@ -175,10 +229,15 @@
 
     // ==================== INICIALIZAÇÃO ====================
     document.addEventListener('DOMContentLoaded', () => {
-      initGlobalScrollToTop();      // ativa o botão de scroll em todas as telas
+      initGlobalScrollToTop();            // botão scroll em todas as telas
       if (typeof window.carregarBMP === 'function') {
-        window.carregarBMP();       // página inicial = BMP (cartola.js)
+        window.carregarBMP();            // página inicial = BMP (cartola.js)
       }
+      // Pré-carrega as outras abas após 1 segundo (sem travar a UI)
+      setTimeout(() => {
+        precarregarJogos();
+        precarregarProvaveis();
+      }, 1000);
     });
   </script>
 </body>
