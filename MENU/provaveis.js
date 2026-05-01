@@ -239,13 +239,12 @@ window.fecharModal = fecharModal;
 
 window.abrirModalJogador = function(jogadorId, timeId) {
   const idStr = String(jogadorId);
-  // Usa o SCOUTS global (que inclui os dados de rodadas, pois rodadas.js foi carregado)
-  if (typeof window.SCOUTS === 'undefined') {
+  if (typeof SCOUTS === 'undefined') {
     console.error("SCOUTS não definido");
-    alert("Erro: dados dos jogadores não carregados.");
+    alert("Erro: base de jogadores não carregada.");
     return;
   }
-  const dadosJogador = window.SCOUTS[idStr];
+  const dadosJogador = SCOUTS[idStr];
   if (!dadosJogador) {
     console.error(`Jogador ID ${idStr} não encontrado`);
     alert(`Dados do jogador ID ${idStr} não encontrados.`);
@@ -272,9 +271,15 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     const posVisitante = partida.clube_visitante_posicao ? partida.clube_visitante_posicao + "º" : "?";
     confrontoHtml = `
       <div class="flex items-center justify-between gap-2">
-        <div class="flex flex-col items-center"><img src="${escudoCasa}" class="w-8 h-8 object-contain" onerror="this.style.display='none'"><span class="text-[10px] font-mono">${posCasa}</span></div>
+        <div class="flex flex-col items-center">
+          <img src="${escudoCasa}" class="w-8 h-8 object-contain" onerror="this.style.display='none'">
+          <span class="text-[10px] font-mono">${posCasa}</span>
+        </div>
         <span class="text-sm font-black text-gray-700">VS</span>
-        <div class="flex flex-col items-center"><img src="${escudoVisitante}" class="w-8 h-8 object-contain" onerror="this.style.display='none'"><span class="text-[10px] font-mono">${posVisitante}</span></div>
+        <div class="flex flex-col items-center">
+          <img src="${escudoVisitante}" class="w-8 h-8 object-contain" onerror="this.style.display='none'">
+          <span class="text-[10px] font-mono">${posVisitante}</span>
+        </div>
       </div>
     `;
     dataHora = formatarDataPartida(partida.partida_data);
@@ -283,7 +288,6 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     confrontoHtml = `<p class="text-xs text-gray-400 text-center">Dados não disponíveis</p>`;
   }
 
-  // Dados principais
   const preco = dadosJogador.preco?.toFixed(2) || "0.00";
   const varValor = dadosJogador.var || 0;
   const varFormatado = varValor > 0 ? `+${varValor.toFixed(2)}` : varValor.toFixed(2);
@@ -321,38 +325,26 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   const ataquesHtml = `<div class="flex flex-wrap gap-1 justify-start">${ataques.map(a => renderCell(a.label, a.value, a.red)).join('')}</div>`;
   const defesasHtml = `<div class="flex flex-wrap gap-1 justify-start">${defesas.map(d => renderCell(d.label, d.value, d.red)).join('')}</div>`;
 
-  // ===== GRÁFICO DE PONTUAÇÃO =====
+  // ⭐ GRÁFICO DE PONTUAÇÃO
   const rodadaAtual = (typeof RODADA !== 'undefined') ? RODADA : 13;
   const inicio = Math.max(1, rodadaAtual - 9);
   const listaRodadas = [];
   for (let r = inicio; r <= rodadaAtual; r++) listaRodadas.push(r);
-
-  const scoutsRdd = dadosJogador.scouts?.rdd || {}; // ← aqui estão as pontuações por rodada
-  console.log(`📊 ${dadosJogador.nome} (${idStr}) - scouts.rdd:`, scoutsRdd); // debug
-
+  
+  const scoutsRdd = dadosJogador.scouts?.rdd || {};
+  console.log(`GRÁFICO - ${dadosJogador.nome}:`, scoutsRdd); // verifique no console se aparecem os dados
+  
   const alturaMaxima = 60;
   const pontoMaximo = 10;
   const barrasHtml = listaRodadas.map(rd => {
     const dado = scoutsRdd[rd];
     let pt = dado?.pt;
-    let valorNum = null;
-    let classeCor = '';
-    let altura = 0;
-    let textoTopo = '';
-
-    if (pt === undefined || pt === '-') {
-      classeCor = 'bg-gray-300';
-      altura = 20;
-      textoTopo = '-';
-    } else {
-      valorNum = parseFloat(pt);
-      if (isNaN(valorNum)) {
-        classeCor = 'bg-gray-300';
-        altura = 20;
-        textoTopo = '-';
-      } else {
+    let classeCor = 'bg-gray-300', altura = 20, textoTopo = '-';
+    if (pt !== undefined && pt !== '-') {
+      const valorNum = parseFloat(pt);
+      if (!isNaN(valorNum)) {
         classeCor = valorNum >= 0 ? 'bg-green-400' : 'bg-red-400';
-        let valorAbs = Math.min(Math.abs(valorNum), pontoMaximo);
+        const valorAbs = Math.min(Math.abs(valorNum), pontoMaximo);
         altura = (valorAbs / pontoMaximo) * alturaMaxima;
         if (altura < 4 && valorAbs > 0) altura = 4;
         textoTopo = valorNum.toFixed(1);
@@ -380,7 +372,6 @@ window.abrirModalJogador = function(jogadorId, timeId) {
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
         
-        <!-- CABEÇALHO -->
         <div class="bg-gradient-to-r from-orange-50 to-white p-4 border-b border-orange-100">
           <div class="flex items-center gap-3">
             <div class="w-14 h-14 bg-white rounded-full p-1 shadow-md border border-orange-200">
@@ -394,13 +385,11 @@ window.abrirModalJogador = function(jogadorId, timeId) {
         </div>
 
         <div class="p-4 space-y-1.5">
-          <!-- CONFRONTO -->
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5 space-y-1">
             ${confrontoHtml}
             <p class="text-center text-[9px] font-mono text-gray-500">${local} • ${dataHora}</p>
           </div>
 
-          <!-- PREÇO / VARIAÇÃO -->
           <div class="flex items-center justify-between bg-black/[0.02] rounded-xl p-2 border border-black/5">
             <div class="flex items-center gap-2">
               <div class="w-8 h-8 rounded-full bg-[#FF6321] text-white flex items-center justify-center font-black text-sm shadow-sm">C$</div>
@@ -409,7 +398,6 @@ window.abrirModalJogador = function(jogadorId, timeId) {
             <div class="text-right"><p class="text-[10px] text-gray-400 uppercase">Variação</p><p class="text-base font-black ${corVar}">${varFormatado}</p></div>
           </div>
 
-          <!-- MÉTRICAS JUNTAS (JOGOS, ULT., MÉDIA, MPV, CEDIDO) -->
           <div class="grid grid-cols-5 gap-1 bg-black/[0.02] rounded-xl p-2 border border-black/5 text-center">
             <div><p class="text-[9px] uppercase tracking-wider text-gray-400">JOGOS</p><p class="text-base font-black text-gray-800">${jogos}</p></div>
             <div><p class="text-[9px] uppercase tracking-wider text-gray-400">ULT.</p><p class="text-base font-black text-gray-800">${ult}</p></div>
@@ -418,19 +406,16 @@ window.abrirModalJogador = function(jogadorId, timeId) {
             <div><p class="text-[9px] uppercase tracking-wider text-gray-400">CEDIDO</p><p class="text-base font-black text-gray-800">${pt_ced}</p></div>
           </div>
 
-          <!-- SCOUTS ATAQUE -->
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
             <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">SCOUTS - ATAQUE</p>
             ${ataquesHtml}
           </div>
 
-          <!-- SCOUTS DEFESA -->
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
             <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">SCOUTS - DEFESA</p>
             ${defesasHtml}
           </div>
 
-          <!-- PONTUAÇÃO (GRÁFICO) -->
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
             <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">PONTUAÇÃO</p>
             ${graficoHtml}
