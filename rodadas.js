@@ -1,12 +1,7 @@
 const RODADA = 13;
 
-const SCOUTS = {
+const dadosRodadas = {
   "100084": {
-    id: 100084,
-    id_time: 282,
-    time: "CAM",
-    pos: "MEI",
-    nome: "IGOR GOMES",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -26,11 +21,6 @@ const SCOUTS = {
     }
   },
   "100342": {
-    id: 100342,
-    id_time: 364,
-    time: "REM",
-    pos: "ZAG",
-    nome: "LÉO ANDRADE",
     scouts: {
       rdd: {
         1: {pt:3.2, DS:3, CA:1, FC:1},
@@ -50,11 +40,6 @@ const SCOUTS = {
     }
   },
   "100652": {
-    id: 100652,
-    id_time: 264,
-    time: "COR",
-    pos: "ATA",
-    nome: "YURI ALBERTO",
     scouts: {
       rdd: {
         1: {pt:0.7, FF:1, I:1},
@@ -74,11 +59,6 @@ const SCOUTS = {
     }
   },
   "100742": {
-    id: 100742,
-    id_time: 283,
-    time: "CRU",
-    pos: "MEI",
-    nome: "MATHEUS HENRIQUE",
     scouts: {
       rdd: {
         1: {pt:1.5, DS:1},
@@ -98,11 +78,6 @@ const SCOUTS = {
     }
   },
   "100842": {
-    id: 100842,
-    id_time: 282,
-    time: "CAM",
-    pos: "ZAG",
-    nome: "RUAN",
     scouts: {
       rdd: {
         1: {pt:-1.3, CA:1, FC:1},
@@ -122,11 +97,6 @@ const SCOUTS = {
     }
   },
   "100898": {
-    id: 100898,
-    id_time: 263,
-    time: "BOT",
-    pos: "LAT",
-    nome: "VITINHO",
     scouts: {
       rdd: {
         1: {pt:7.7, FS:3, DS:1, SG:1, FC:1},
@@ -146,11 +116,6 @@ const SCOUTS = {
     }
   },
   "100987": {
-    id: 100987,
-    id_time: 266,
-    time: "FLU",
-    pos: "MEI",
-    nome: "NONATO",
     scouts: {
       rdd: {
         1: {pt:6.4, G:1, CA:1, FC:2},
@@ -170,11 +135,6 @@ const SCOUTS = {
     }
   },
   "101254": {
-    id: 101254,
-    id_time: 364,
-    time: "REM",
-    pos: "ATA",
-    nome: "ALEF MANGA",
     scouts: {
       rdd: {
         1: {pt:0.9, FF:1, FS:1, I:1, FC:1},
@@ -194,11 +154,6 @@ const SCOUTS = {
     }
   },
   "101314": {
-    id: 101314,
-    id_time: 265,
-    time: "BAH",
-    pos: "ATA",
-    nome: "ADEMIR",
     scouts: {
       rdd: {
         1: {pt:5.2, FD:1, FS:3, PS:1, DS:1},
@@ -218,11 +173,6 @@ const SCOUTS = {
     }
   },
   "101393": {
-    id: 101393,
-    id_time: 315,
-    time: "CHA",
-    pos: "ZAG",
-    nome: "EDUARDO DOMA",
     scouts: {
       rdd: {
         1: {pt:3, DS:2},
@@ -242,11 +192,6 @@ const SCOUTS = {
     }
   },
   "101405": {
-    id: 101405,
-    id_time: 294,
-    time: "CFC",
-    pos: "MEI",
-    nome: "WALLISSON",
     scouts: {
       rdd: {
         1: {pt:4.2, DS:3, FC:1},
@@ -266,11 +211,6 @@ const SCOUTS = {
     }
   },
   "101574": {
-    id: 101574,
-    id_time: 264,
-    time: "COR",
-    pos: "GOL",
-    nome: "HUGO SOUZA",
     scouts: {
       rdd: {
         1: {pt:2.2, DE:4, GS:2, PC:1},
@@ -290,11 +230,6 @@ const SCOUTS = {
     }
   },
   "101597": {
-    id: 101597,
-    id_time: 287,
-    time: "VIT",
-    pos: "LAT",
-    nome: "RAMON",
     scouts: {
       rdd: {
         1: {pt:4.7, FS:2, SG:1, CA:1, FC:1},
@@ -314,11 +249,6 @@ const SCOUTS = {
     }
   },
   "101727": {
-    id: 101727,
-    id_time: 264,
-    time: "COR",
-    pos: "LAT",
-    nome: "MATHEUZINHO",
     scouts: {
       rdd: {
         1: {pt:4.8, FF:1, I:1, DS:4, CA:1, FC:3},
@@ -338,11 +268,6 @@ const SCOUTS = {
     }
   },
   "101908": {
-    id: 101908,
-    id_time: 2305,
-    time: "MIR",
-    pos: "ZAG",
-    nome: "WILLIAN MACHADO",
     scouts: {
       rdd: {
         1: {pt:0, FF:1, FS:1, CA:1, FC:1},
@@ -362,11 +287,6 @@ const SCOUTS = {
     }
   },
   "101960": {
-    id: 101960,
-    id_time: 285,
-    time: "INT",
-    pos: "ATA",
-    nome: "VITINHO",
     scouts: {
       rdd: {
         1: {pt:1.9, FF:1, FS:3, I:1, FC:1},
@@ -386,11 +306,6 @@ const SCOUTS = {
     }
   },
   "102130": {
-    id: 102130,
-    id_time: 275,
-    time: "PAL",
-    pos: "LAT",
-    nome: "PIQUEREZ",
     scouts: {
       rdd: {
         1: {pt:5.3, FF:1, FS:3, DS:2},
@@ -410,11 +325,6 @@ const SCOUTS = {
     }
   },
   "102256": {
-    id: 102256,
-    id_time: 277,
-    time: "SAN",
-    pos: "MEI",
-    nome: "ROLLHEISER",
     scouts: {
       rdd: {
         1: {pt:2.5, FD:1, FF:1, FS:1},
@@ -434,11 +344,6 @@ const SCOUTS = {
     }
   },
   "102667": {
-    id: 102667,
-    id_time: 2305,
-    time: "MIR",
-    pos: "ATA",
-    nome: "NATHAN FOGAÇA",
     scouts: {
       rdd: {
         1: {pt:-0.9, FF:1, I:1, CA:1, FC:2},
@@ -458,11 +363,6 @@ const SCOUTS = {
     }
   },
   "102796": {
-    id: 102796,
-    id_time: 293,
-    time: "CAP",
-    pos: "ATA",
-    nome: "JULIMAR",
     scouts: {
       rdd: {
         1: {pt:0.8, FF:1},
@@ -482,11 +382,6 @@ const SCOUTS = {
     }
   },
   "102911": {
-    id: 102911,
-    id_time: 364,
-    time: "REM",
-    pos: "MEI",
-    nome: "ZÉ RICARDO",
     scouts: {
       rdd: {
         1: {pt:0.1, FS:1, DS:1, CA:1, FC:3},
@@ -506,11 +401,6 @@ const SCOUTS = {
     }
   },
   "102928": {
-    id: 102928,
-    id_time: 266,
-    time: "FLU",
-    pos: "ATA",
-    nome: "CANOBBIO",
     scouts: {
       rdd: {
         1: {pt:5.7, FD:1, FF:1, FS:2, DS:2, FC:1},
@@ -530,11 +420,6 @@ const SCOUTS = {
     }
   },
   "103056": {
-    id: 103056,
-    id_time: 277,
-    time: "SAN",
-    pos: "GOL",
-    nome: "GABRIEL BRAZÃO",
     scouts: {
       rdd: {
         1: {pt:-6, CA:1, GS:4, PC:1},
@@ -554,11 +439,6 @@ const SCOUTS = {
     }
   },
   "103445": {
-    id: 103445,
-    id_time: 283,
-    time: "CRU",
-    pos: "ATA",
-    nome: "KAIO JORGE",
     scouts: {
       rdd: {
         1: {pt:2.2, FF:3, I:2},
@@ -578,11 +458,6 @@ const SCOUTS = {
     }
   },
   "103767": {
-    id: 103767,
-    id_time: 277,
-    time: "SAN",
-    pos: "MEI",
-    nome: "GABRIEL MENINO",
     scouts: {
       rdd: {
         1: {pt:16.7, G:1, FD:2, FF:3, FS:4, I:1, DS:2, CA:1},
@@ -602,11 +477,6 @@ const SCOUTS = {
     }
   },
   "103912": {
-    id: 103912,
-    id_time: 276,
-    time: "SAO",
-    pos: "TEC",
-    nome: "HERNÁN CRESPO",
     scouts: {
       rdd: {
         1: {pt:7.59, V:1},
@@ -626,11 +496,6 @@ const SCOUTS = {
     }
   },
   "103987": {
-    id: 103987,
-    id_time: 315,
-    time: "CHA",
-    pos: "MEI",
-    nome: "HIGOR MERITÃO",
     scouts: {
       rdd: {
         1: {pt:13.4, G:1, DS:4, FC:2},
@@ -650,11 +515,6 @@ const SCOUTS = {
     }
   },
   "104027": {
-    id: 104027,
-    id_time: 2305,
-    time: "MIR",
-    pos: "TEC",
-    nome: "RAFAEL GUANAES",
     scouts: {
       rdd: {
         1: {pt:4.8, V:1},
@@ -674,11 +534,6 @@ const SCOUTS = {
     }
   },
   "104075": {
-    id: 104075,
-    id_time: 276,
-    time: "SAO",
-    pos: "ZAG",
-    nome: "SABINO",
     scouts: {
       rdd: {
         1: {pt:5.2, FS:2, DS:3, FC:1},
@@ -698,11 +553,6 @@ const SCOUTS = {
     }
   },
   "104084": {
-    id: 104084,
-    id_time: 275,
-    time: "PAL",
-    pos: "GOL",
-    nome: "CARLOS MIGUEL",
     scouts: {
       rdd: {
         1: {pt:-0.7, DE:1, GS:2},
@@ -722,11 +572,6 @@ const SCOUTS = {
     }
   },
   "104134": {
-    id: 104134,
-    id_time: 287,
-    time: "VIT",
-    pos: "ATA",
-    nome: "FABRI",
     scouts: {
       rdd: {
         1: {pt:5.4, FT:1, FD:1, DS:1, FC:1},
@@ -746,11 +591,6 @@ const SCOUTS = {
     }
   },
   "104257": {
-    id: 104257,
-    id_time: 364,
-    time: "REM",
-    pos: "LAT",
-    nome: "JOÃO LUCAS",
     scouts: {
       rdd: {
         1: {pt:2.2, FD:1, FF:1, FS:1, FC:1},
@@ -770,11 +610,6 @@ const SCOUTS = {
     }
   },
   "104330": {
-    id: 104330,
-    id_time: 287,
-    time: "VIT",
-    pos: "MEI",
-    nome: "DUDU",
     scouts: {
       rdd: {
         1: {pt:-0.3, FC:1},
@@ -794,11 +629,6 @@ const SCOUTS = {
     }
   },
   "104470": {
-    id: 104470,
-    id_time: 315,
-    time: "CHA",
-    pos: "LAT",
-    nome: "EVERTON",
     scouts: {
       rdd: {
         1: {pt:2.7, DS:2, FC:1},
@@ -818,11 +648,6 @@ const SCOUTS = {
     }
   },
   "104502": {
-    id: 104502,
-    id_time: 283,
-    time: "CRU",
-    pos: "MEI",
-    nome: "CHRISTIAN",
     scouts: {
       rdd: {
         1: {pt:1.2, DS:1, FC:1},
@@ -842,11 +667,6 @@ const SCOUTS = {
     }
   },
   "104519": {
-    id: 104519,
-    id_time: 315,
-    time: "CHA",
-    pos: "MEI",
-    nome: "CAMILO",
     scouts: {
       rdd: {
         1: {pt:4.4, DS:4, CA:1, FC:2},
@@ -866,11 +686,6 @@ const SCOUTS = {
     }
   },
   "104693": {
-    id: 104693,
-    id_time: 263,
-    time: "BOT",
-    pos: "MEI",
-    nome: "NEWTON",
     scouts: {
       rdd: {
         1: {pt:2, FS:1, DS:1},
@@ -890,11 +705,6 @@ const SCOUTS = {
     }
   },
   "104754": {
-    id: 104754,
-    id_time: 277,
-    time: "SAN",
-    pos: "TEC",
-    nome: "JUAN VOJVODA",
     scouts: {
       rdd: {
         1: {pt:5.21},
@@ -914,11 +724,6 @@ const SCOUTS = {
     }
   },
   "104758": {
-    id: 104758,
-    id_time: 276,
-    time: "SAO",
-    pos: "LAT",
-    nome: "ENZO DÍAZ",
     scouts: {
       rdd: {
         1: {pt:9.2, A:1, DS:3, FC:1},
@@ -938,11 +743,6 @@ const SCOUTS = {
     }
   },
   "104783": {
-    id: 104783,
-    id_time: 265,
-    time: "BAH",
-    pos: "MEI",
-    nome: "ACEVEDO",
     scouts: {
       rdd: {
         1: {pt:1.9, FS:1, DS:2, CA:1, FC:2},
@@ -962,11 +762,6 @@ const SCOUTS = {
     }
   },
   "104811": {
-    id: 104811,
-    id_time: 294,
-    time: "CFC",
-    pos: "MEI",
-    nome: "SEBASTIÁN GÓMEZ",
     scouts: {
       rdd: {
         1: {pt:2, FS:4},
@@ -986,11 +781,6 @@ const SCOUTS = {
     }
   },
   "104994": {
-    id: 104994,
-    id_time: 284,
-    time: "GRE",
-    pos: "ZAG",
-    nome: "WAGNER LEONARDO",
     scouts: {
       rdd: {
         1: {pt:3.9, DS:3, FC:2},
@@ -1010,11 +800,6 @@ const SCOUTS = {
     }
   },
   "105047": {
-    id: 105047,
-    id_time: 283,
-    time: "CRU",
-    pos: "ZAG",
-    nome: "JOÃO MARCELO",
     scouts: {
       rdd: {
         1: {pt:-0.3, FC:1},
@@ -1034,11 +819,6 @@ const SCOUTS = {
     }
   },
   "105068": {
-    id: 105068,
-    id_time: 282,
-    time: "CAM",
-    pos: "MEI",
-    nome: "REINIER",
     scouts: {
       rdd: {
         1: {pt:1.7, FD:1, FS:1},
@@ -1058,11 +838,6 @@ const SCOUTS = {
     }
   },
   "105089": {
-    id: 105089,
-    id_time: 284,
-    time: "GRE",
-    pos: "ATA",
-    nome: "TETÊ",
     scouts: {
       rdd: {
         1: {pt:3.3, FF:1, FS:2, DS:1},
@@ -1082,11 +857,6 @@ const SCOUTS = {
     }
   },
   "105114": {
-    id: 105114,
-    id_time: 277,
-    time: "SAN",
-    pos: "ZAG",
-    nome: "ALEXIS DUARTE",
     scouts: {
       rdd: {
         1: {pt:-1.3, CA:1, FC:1},
@@ -1106,11 +876,6 @@ const SCOUTS = {
     }
   },
   "105157": {
-    id: 105157,
-    id_time: 285,
-    time: "INT",
-    pos: "MEI",
-    nome: "VILLAGRA",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -1130,11 +895,6 @@ const SCOUTS = {
     }
   },
   "105175": {
-    id: 105175,
-    id_time: 275,
-    time: "PAL",
-    pos: "LAT",
-    nome: "KHELLVEN",
     scouts: {
       rdd: {
         1: {pt:0.2, FS:1, DS:2, FC:1, GC:1},
@@ -1154,11 +914,6 @@ const SCOUTS = {
     }
   },
   "105213": {
-    id: 105213,
-    id_time: 280,
-    time: "RBB",
-    pos: "LAT",
-    nome: "SANT ANNA",
     scouts: {
       rdd: {
         1: {pt:6.2, FD:1, SG:1},
@@ -1178,11 +933,6 @@ const SCOUTS = {
     }
   },
   "105214": {
-    id: 105214,
-    id_time: 263,
-    time: "BOT",
-    pos: "MEI",
-    nome: "SANTIAGO RODRÍGUEZ",
     scouts: {
       rdd: {
         1: {pt:5.7, FS:3, DS:3, FC:1},
@@ -1202,11 +952,6 @@ const SCOUTS = {
     }
   },
   "105436": {
-    id: 105436,
-    id_time: 262,
-    time: "FLA",
-    pos: "MEI",
-    nome: "CARRASCAL",
     scouts: {
       rdd: {
         1: {pt:3.2, FD:1, FF:1, FS:3, FC:1},
@@ -1226,11 +971,6 @@ const SCOUTS = {
     }
   },
   "105531": {
-    id: 105531,
-    id_time: 264,
-    time: "COR",
-    pos: "LAT",
-    nome: "MATHEUS BIDU",
     scouts: {
       rdd: {
         1: {pt:5.1, FD:1, FS:2, I:1, DS:2},
@@ -1250,11 +990,6 @@ const SCOUTS = {
     }
   },
   "105563": {
-    id: 105563,
-    id_time: 284,
-    time: "GRE",
-    pos: "ATA",
-    nome: "CARLOS VINÍCIUS",
     scouts: {
       rdd: {
         1: {pt:12, G:1, FF:1, FS:1, DS:2, FC:1},
@@ -1274,11 +1009,6 @@ const SCOUTS = {
     }
   },
   "105584": {
-    id: 105584,
-    id_time: 267,
-    time: "VAS",
-    pos: "LAT",
-    nome: "LUCAS PITON",
     scouts: {
       rdd: {
         1: {pt:-0.3, FC:1},
@@ -1298,11 +1028,6 @@ const SCOUTS = {
     }
   },
   "105647": {
-    id: 105647,
-    id_time: 275,
-    time: "PAL",
-    pos: "MEI",
-    nome: "MAURÍCIO",
     scouts: {
       rdd: {
         1: {pt:-0.8, FD:1, I:1, CA:1, FC:3},
@@ -1322,11 +1047,6 @@ const SCOUTS = {
     }
   },
   "105664": {
-    id: 105664,
-    id_time: 315,
-    time: "CHA",
-    pos: "LAT",
-    nome: "WALTER CLAR",
     scouts: {
       rdd: {
         1: {pt:9.5, G:1, DS:1},
@@ -1346,11 +1066,6 @@ const SCOUTS = {
     }
   },
   "105903": {
-    id: 105903,
-    id_time: 2305,
-    time: "MIR",
-    pos: "MEI",
-    nome: "ALDO FILHO",
     scouts: {
       rdd: {
         1: {pt:-0.6, FC:2},
@@ -1370,11 +1085,6 @@ const SCOUTS = {
     }
   },
   "105949": {
-    id: 105949,
-    id_time: 285,
-    time: "INT",
-    pos: "GOL",
-    nome: "ROCHET",
     scouts: {
       rdd: {
         1: {pt:1.8, DS:1, DE:1, GS:1},
@@ -1394,11 +1104,6 @@ const SCOUTS = {
     }
   },
   "105990": {
-    id: 105990,
-    id_time: 265,
-    time: "BAH",
-    pos: "ZAG",
-    nome: "SANTIAGO MINGO",
     scouts: {
       rdd: {
         1: {pt:0.5, FS:1},
@@ -1418,11 +1123,6 @@ const SCOUTS = {
     }
   },
   "106104": {
-    id: 106104,
-    id_time: 284,
-    time: "GRE",
-    pos: "ATA",
-    nome: "ENAMORADO",
     scouts: {
       rdd: {
         1: {pt:1.2, FD:1},
@@ -1442,11 +1142,6 @@ const SCOUTS = {
     }
   },
   "106202": {
-    id: 106202,
-    id_time: 285,
-    time: "INT",
-    pos: "MEI",
-    nome: "BRUNO GOMES",
     scouts: {
       rdd: {
         1: {pt:5.1, FF:2, FS:1, DS:2},
@@ -1466,11 +1161,6 @@ const SCOUTS = {
     }
   },
   "106294": {
-    id: 106294,
-    id_time: 276,
-    time: "SAO",
-    pos: "MEI",
-    nome: "MARCOS ANTÔNIO",
     scouts: {
       rdd: {
         1: {pt:7.5, DS:5},
@@ -1490,11 +1180,6 @@ const SCOUTS = {
     }
   },
   "106708": {
-    id: 106708,
-    id_time: 2305,
-    time: "MIR",
-    pos: "LAT",
-    nome: "IGOR FORMIGA",
     scouts: {
       rdd: {
         1: {pt:4, FF:1, FS:1, DS:2, FC:1},
@@ -1514,11 +1199,6 @@ const SCOUTS = {
     }
   },
   "106822": {
-    id: 106822,
-    id_time: 265,
-    time: "BAH",
-    pos: "MEI",
-    nome: "RODRIGO NESTOR",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -1538,11 +1218,6 @@ const SCOUTS = {
     }
   },
   "107093": {
-    id: 107093,
-    id_time: 265,
-    time: "BAH",
-    pos: "LAT",
-    nome: "LUCIANO JUBA",
     scouts: {
       rdd: {
         1: {pt:6.2, FD:1, FS:1, DS:3},
@@ -1562,11 +1237,6 @@ const SCOUTS = {
     }
   },
   "107172": {
-    id: 107172,
-    id_time: 364,
-    time: "REM",
-    pos: "MEI",
-    nome: "PATRICK DE PAULA",
     scouts: {
       rdd: {
         1: {pt:1.8, FF:2, DS:1, CA:1, FC:1},
@@ -1586,11 +1256,6 @@ const SCOUTS = {
     }
   },
   "107173": {
-    id: 107173,
-    id_time: 265,
-    time: "BAH",
-    pos: "MEI",
-    nome: "MICHEL ARAÚJO",
     scouts: {
       rdd: {
         1: {pt:-3.1, FS:1, CV:1, FC:2},
@@ -1610,11 +1275,6 @@ const SCOUTS = {
     }
   },
   "107174": {
-    id: 107174,
-    id_time: 285,
-    time: "INT",
-    pos: "MEI",
-    nome: "BRUNO TABATA",
     scouts: {
       rdd: {
         1: {pt:0.5, FF:1, FC:1},
@@ -1634,11 +1294,6 @@ const SCOUTS = {
     }
   },
   "107231": {
-    id: 107231,
-    id_time: 263,
-    time: "BOT",
-    pos: "MEI",
-    nome: "DANILO",
     scouts: {
       rdd: {
         1: {pt:17.2, G:2, DS:1, FC:1},
@@ -1658,11 +1313,6 @@ const SCOUTS = {
     }
   },
   "107453": {
-    id: 107453,
-    id_time: 315,
-    time: "CHA",
-    pos: "ZAG",
-    nome: "JOÃO PAULO",
     scouts: {
       rdd: {
         1: {pt:7, A:1, FS:1, DS:1},
@@ -1682,11 +1332,6 @@ const SCOUTS = {
     }
   },
   "107700": {
-    id: 107700,
-    id_time: 364,
-    time: "REM",
-    pos: "ATA",
-    nome: "EDUARDO MELO",
     scouts: {
       rdd: {
         1: {pt:1.4, I:1, DS:1},
@@ -1706,11 +1351,6 @@ const SCOUTS = {
     }
   },
   "107873": {
-    id: 107873,
-    id_time: 276,
-    time: "SAO",
-    pos: "MEI",
-    nome: "BOBADILLA",
     scouts: {
       rdd: {
         1: {pt:6.2, FD:1, I:1, DS:4, FC:3},
@@ -1730,11 +1370,6 @@ const SCOUTS = {
     }
   },
   "107985": {
-    id: 107985,
-    id_time: 293,
-    time: "CAP",
-    pos: "ZAG",
-    nome: "TERÁN",
     scouts: {
       rdd: {
         1: {pt:7.7, DS:2, SG:1, FC:1},
@@ -1754,11 +1389,6 @@ const SCOUTS = {
     }
   },
   "107989": {
-    id: 107989,
-    id_time: 285,
-    time: "INT",
-    pos: "ATA",
-    nome: "CARBONERO",
     scouts: {
       rdd: {
         1: {pt:0.5, FS:1},
@@ -1778,11 +1408,6 @@ const SCOUTS = {
     }
   },
   "108474": {
-    id: 108474,
-    id_time: 266,
-    time: "FLU",
-    pos: "ATA",
-    nome: "SANTI MORENO",
     scouts: {
       rdd: {
         1: {pt:-0.3, FC:1},
@@ -1802,11 +1427,6 @@ const SCOUTS = {
     }
   },
   "108588": {
-    id: 108588,
-    id_time: 276,
-    time: "SAO",
-    pos: "ATA",
-    nome: "TAPIA",
     scouts: {
       rdd: {
         1: {pt:1.5, DS:1},
@@ -1826,11 +1446,6 @@ const SCOUTS = {
     }
   },
   "108713": {
-    id: 108713,
-    id_time: 2305,
-    time: "MIR",
-    pos: "ATA",
-    nome: "GALEANO",
     scouts: {
       rdd: {
         1: {pt:1.2, FD:1},
@@ -1850,11 +1465,6 @@ const SCOUTS = {
     }
   },
   "109096": {
-    id: 109096,
-    id_time: 262,
-    time: "FLA",
-    pos: "ATA",
-    nome: "PLATA",
     scouts: {
       rdd: {
         1: {pt:10.6, G:1, FD:2, FS:1, FC:1},
@@ -1874,11 +1484,6 @@ const SCOUTS = {
     }
   },
   "109127": {
-    id: 109127,
-    id_time: 294,
-    time: "CFC",
-    pos: "ZAG",
-    nome: "TIAGO CÓSER",
     scouts: {
       rdd: {
         1: {pt:1.5, DS:1},
@@ -1898,11 +1503,6 @@ const SCOUTS = {
     }
   },
   "109336": {
-    id: 109336,
-    id_time: 315,
-    time: "CHA",
-    pos: "MEI",
-    nome: "RAFAEL CARVALHEIRA",
     scouts: {
       rdd: {
         1: {pt:9.2, G:1, DS:1, FC:1},
@@ -1922,11 +1522,6 @@ const SCOUTS = {
     }
   },
   "109401": {
-    id: 109401,
-    id_time: 265,
-    time: "BAH",
-    pos: "ATA",
-    nome: "ERICK PULGA",
     scouts: {
       rdd: {
         1: {pt:3.4, FD:1, FF:1, FS:3, DS:1, CA:1, FC:2},
@@ -1946,11 +1541,6 @@ const SCOUTS = {
     }
   },
   "109573": {
-    id: 109573,
-    id_time: 266,
-    time: "FLU",
-    pos: "MEI",
-    nome: "MARTINELLI",
     scouts: {
       rdd: {
         1: {pt:1.7, FD:1, FF:1, FC:1},
@@ -1970,11 +1560,6 @@ const SCOUTS = {
     }
   },
   "110426": {
-    id: 110426,
-    id_time: 285,
-    time: "INT",
-    pos: "LAT",
-    nome: "BERNABÉI",
     scouts: {
       rdd: {
         1: {pt:1, FD:1, I:1, DS:1, CA:1, FC:2},
@@ -1994,11 +1579,6 @@ const SCOUTS = {
     }
   },
   "110506": {
-    id: 110506,
-    id_time: 275,
-    time: "PAL",
-    pos: "TEC",
-    nome: "ABEL FERREIRA",
     scouts: {
       rdd: {
         1: {pt:3.66},
@@ -2018,11 +1598,6 @@ const SCOUTS = {
     }
   },
   "110510": {
-    id: 110510,
-    id_time: 285,
-    time: "INT",
-    pos: "LAT",
-    nome: "AGUIRRE",
     scouts: {
       rdd: {
         1: {pt:2.7, DS:2, FC:1},
@@ -2042,11 +1617,6 @@ const SCOUTS = {
     }
   },
   "110715": {
-    id: 110715,
-    id_time: 280,
-    time: "RBB",
-    pos: "LAT",
-    nome: "ANDRÉS HURTADO",
     scouts: {
       rdd: {
         1: {pt:4.2, FS:1, SG:1, CA:1, FC:1},
@@ -2066,11 +1636,6 @@ const SCOUTS = {
     }
   },
   "110750": {
-    id: 110750,
-    id_time: 280,
-    time: "RBB",
-    pos: "ZAG",
-    nome: "GUSTAVO MARQUES",
     scouts: {
       rdd: {
         1: {pt:9.7, FS:1, DS:3, SG:1, FC:1},
@@ -2090,11 +1655,6 @@ const SCOUTS = {
     }
   },
   "110759": {
-    id: 110759,
-    id_time: 266,
-    time: "FLU",
-    pos: "ATA",
-    nome: "JOHN KENNEDY",
     scouts: {
       rdd: {
         1: {pt:1.6, FD:1, FS:2, FC:2},
@@ -2114,11 +1674,6 @@ const SCOUTS = {
     }
   },
   "111246": {
-    id: 111246,
-    id_time: 280,
-    time: "RBB",
-    pos: "ZAG",
-    nome: "ALIX VINICIUS",
     scouts: {
       rdd: {
         1: {pt:3.4, SG:1, CA:1, FC:2},
@@ -2138,11 +1693,6 @@ const SCOUTS = {
     }
   },
   "111309": {
-    id: 111309,
-    id_time: 284,
-    time: "GRE",
-    pos: "ZAG",
-    nome: "GUSTAVO MARTINS",
     scouts: {
       rdd: {
         1: {pt:10.2, A:1, FF:1, FS:1, DS:3, FC:2},
@@ -2162,11 +1712,6 @@ const SCOUTS = {
     }
   },
   "111466": {
-    id: 111466,
-    id_time: 285,
-    time: "INT",
-    pos: "ZAG",
-    nome: "VICTOR GABRIEL",
     scouts: {
       rdd: {
         1: {pt:3, DS:2},
@@ -2186,11 +1731,6 @@ const SCOUTS = {
     }
   },
   "111831": {
-    id: 111831,
-    id_time: 263,
-    time: "BOT",
-    pos: "ATA",
-    nome: "MATHEUS MARTINS",
     scouts: {
       rdd: {
         1: {pt:10, G:1, FS:1, DS:1},
@@ -2210,11 +1750,6 @@ const SCOUTS = {
     }
   },
   "111879": {
-    id: 111879,
-    id_time: 287,
-    time: "VIT",
-    pos: "LAT",
-    nome: "MATEUS SILVA",
     scouts: {
       rdd: {
         1: {pt:9.7, FF:1, FS:3, DS:2, SG:1, FC:2},
@@ -2234,11 +1769,6 @@ const SCOUTS = {
     }
   },
   "112576": {
-    id: 112576,
-    id_time: 294,
-    time: "CFC",
-    pos: "MEI",
-    nome: "VINI PAULISTA",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -2258,11 +1788,6 @@ const SCOUTS = {
     }
   },
   "112709": {
-    id: 112709,
-    id_time: 283,
-    time: "CRU",
-    pos: "LAT",
-    nome: "KAIKI BRUNO",
     scouts: {
       rdd: {
         1: {pt:2.2, FD:1, FF:1, FS:1, FC:1},
@@ -2282,11 +1807,6 @@ const SCOUTS = {
     }
   },
   "112863": {
-    id: 112863,
-    id_time: 275,
-    time: "PAL",
-    pos: "ATA",
-    nome: "RAMÓN SOSA",
     scouts: {
       rdd: {
         1: {pt:1.7, FD:1, FS:1},
@@ -2306,11 +1826,6 @@ const SCOUTS = {
     }
   },
   "112886": {
-    id: 112886,
-    id_time: 280,
-    time: "RBB",
-    pos: "ATA",
-    nome: "LUCAS BARBOSA",
     scouts: {
       rdd: {
         1: {pt:4, FD:1, FF:1, FS:3, I:1, DS:1, FC:3},
@@ -2330,11 +1845,6 @@ const SCOUTS = {
     }
   },
   "113034": {
-    id: 113034,
-    id_time: 266,
-    time: "FLU",
-    pos: "ZAG",
-    nome: "FREYTES",
     scouts: {
       rdd: {
         1: {pt:1.2, DS:1, FC:1},
@@ -2354,11 +1864,6 @@ const SCOUTS = {
     }
   },
   "113103": {
-    id: 113103,
-    id_time: 275,
-    time: "PAL",
-    pos: "ATA",
-    nome: "FLACO LÓPEZ",
     scouts: {
       rdd: {
         1: {pt:16.1, G:1, FD:1, FF:1, FS:2, DS:4, FC:3},
@@ -2378,11 +1883,6 @@ const SCOUTS = {
     }
   },
   "113113": {
-    id: 113113,
-    id_time: 293,
-    time: "CAP",
-    pos: "LAT",
-    nome: "BENAVÍDEZ",
     scouts: {
       rdd: {
         1: {pt:9.2, FF:1, FS:1, I:1, DS:2, SG:1},
@@ -2402,11 +1902,6 @@ const SCOUTS = {
     }
   },
   "113359": {
-    id: 113359,
-    id_time: 276,
-    time: "SAO",
-    pos: "MEI",
-    nome: "PABLO MAIA",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -2426,11 +1921,6 @@ const SCOUTS = {
     }
   },
   "113397": {
-    id: 113397,
-    id_time: 265,
-    time: "BAH",
-    pos: "ATA",
-    nome: "CRISTIAN OLIVERA",
     scouts: {
       rdd: {
         1: {pt:2.9, FD:1, FS:1, DS:1, FC:1},
@@ -2450,11 +1940,6 @@ const SCOUTS = {
     }
   },
   "114802": {
-    id: 114802,
-    id_time: 275,
-    time: "PAL",
-    pos: "ATA",
-    nome: "VITOR ROQUE",
     scouts: {
       rdd: {
         1: {pt:7.6, G:1, FD:1, CA:1, FC:2},
@@ -2474,11 +1959,6 @@ const SCOUTS = {
     }
   },
   "115025": {
-    id: 115025,
-    id_time: 277,
-    time: "SAN",
-    pos: "MEI",
-    nome: "MIGUELITO",
     scouts: {
       rdd: {
         1: {pt:3.6, FF:2, FS:1, DS:1},
@@ -2498,11 +1978,6 @@ const SCOUTS = {
     }
   },
   "115100": {
-    id: 115100,
-    id_time: 267,
-    time: "VAS",
-    pos: "MEI",
-    nome: "MATHEUS FRANÇA",
     scouts: {
       rdd: {
         1: {pt:0.8, FF:1},
@@ -2522,11 +1997,6 @@ const SCOUTS = {
     }
   },
   "115479": {
-    id: 115479,
-    id_time: 285,
-    time: "INT",
-    pos: "TEC",
-    nome: "PAULO PEZZOLANO",
     scouts: {
       rdd: {
         1: {pt:2.26},
@@ -2546,11 +2016,6 @@ const SCOUTS = {
     }
   },
   "115914": {
-    id: 115914,
-    id_time: 262,
-    time: "FLA",
-    pos: "MEI",
-    nome: "EVERTTON ARAÚJO",
     scouts: {
       rdd: {
         1: {pt:2.1, FF:2, FS:1},
@@ -2570,11 +2035,6 @@ const SCOUTS = {
     }
   },
   "116034": {
-    id: 116034,
-    id_time: 282,
-    time: "CAM",
-    pos: "MEI",
-    nome: "VICTOR HUGO",
     scouts: {
       rdd: {
         1: {pt:9.5, G:1, DS:1},
@@ -2594,11 +2054,6 @@ const SCOUTS = {
     }
   },
   "116461": {
-    id: 116461,
-    id_time: 287,
-    time: "VIT",
-    pos: "LAT",
-    nome: "JAMERSON",
     scouts: {
       rdd: {
         1: {pt:6.5, DS:1, SG:1},
@@ -2618,11 +2073,6 @@ const SCOUTS = {
     }
   },
   "116706": {
-    id: 116706,
-    id_time: 267,
-    time: "VAS",
-    pos: "ATA",
-    nome: "ANDRÉS GÓMEZ",
     scouts: {
       rdd: {
         1: {pt:6, FD:2, FF:1, FS:1, I:1, DS:2, FC:2},
@@ -2642,11 +2092,6 @@ const SCOUTS = {
     }
   },
   "117330": {
-    id: 117330,
-    id_time: 267,
-    time: "VAS",
-    pos: "ZAG",
-    nome: "ROBERT RENAN",
     scouts: {
       rdd: {
         1: {pt:1.9, FS:2, DS:1, FC:2},
@@ -2666,11 +2111,6 @@ const SCOUTS = {
     }
   },
   "117403": {
-    id: 117403,
-    id_time: 2305,
-    time: "MIR",
-    pos: "ATA",
-    nome: "RENATO MARQUES",
     scouts: {
       rdd: {
         1: {pt:2.1, FD:1, FF:1, FS:2, FC:3},
@@ -2690,11 +2130,6 @@ const SCOUTS = {
     }
   },
   "117632": {
-    id: 117632,
-    id_time: 264,
-    time: "COR",
-    pos: "MEI",
-    nome: "GARRO",
     scouts: {
       rdd: {
         1: {pt:10, A:1, FD:1, FF:1, FS:3, DS:1},
@@ -2714,11 +2149,6 @@ const SCOUTS = {
     }
   },
   "117910": {
-    id: 117910,
-    id_time: 264,
-    time: "COR",
-    pos: "MEI",
-    nome: "BRENO BIDON",
     scouts: {
       rdd: {
         1: {pt:14.7, G:1, FT:1, FS:4, DS:2, CA:1, FC:1},
@@ -2738,11 +2168,6 @@ const SCOUTS = {
     }
   },
   "117930": {
-    id: 117930,
-    id_time: 294,
-    time: "CFC",
-    pos: "ATA",
-    nome: "LAVEGA",
     scouts: {
       rdd: {
         1: {pt:1.5, FF:1, FS:2, FC:1},
@@ -2762,11 +2187,6 @@ const SCOUTS = {
     }
   },
   "117965": {
-    id: 117965,
-    id_time: 263,
-    time: "BOT",
-    pos: "TEC",
-    nome: "MARTÍN ANSELMI",
     scouts: {
       rdd: {
         1: {pt:11.04, V:1},
@@ -2786,11 +2206,6 @@ const SCOUTS = {
     }
   },
   "118774": {
-    id: 118774,
-    id_time: 282,
-    time: "CAM",
-    pos: "MEI",
-    nome: "ALEXSANDER",
     scouts: {
       rdd: {
         1: {pt:1.7, FS:3, DS:1, CA:1, FC:1},
@@ -2810,11 +2225,6 @@ const SCOUTS = {
     }
   },
   "118775": {
-    id: 118775,
-    id_time: 277,
-    time: "SAN",
-    pos: "ATA",
-    nome: "LAUTARO DÍAZ",
     scouts: {
       rdd: {
         1: {pt:5.8, FT:1, FF:2, DS:1, FC:1},
@@ -2834,11 +2244,6 @@ const SCOUTS = {
     }
   },
   "120433": {
-    id: 120433,
-    id_time: 293,
-    time: "CAP",
-    pos: "LAT",
-    nome: "LÉO DERIK",
     scouts: {
       rdd: {
         1: {pt:10, FS:1, DS:3, SG:1},
@@ -2858,11 +2263,6 @@ const SCOUTS = {
     }
   },
   "121792": {
-    id: 121792,
-    id_time: 284,
-    time: "GRE",
-    pos: "ATA",
-    nome: "ANDRÉ",
     scouts: {
       rdd: {
         1: {pt:-1, CA:1},
@@ -2882,11 +2282,6 @@ const SCOUTS = {
     }
   },
   "122394": {
-    id: 122394,
-    id_time: 280,
-    time: "RBB",
-    pos: "MEI",
-    nome: "GUSTAVINHO",
     scouts: {
       rdd: {
         1: {pt:7.5, FD:3, FF:1, FS:2, DS:2, FC:3},
@@ -2906,11 +2301,6 @@ const SCOUTS = {
     }
   },
   "122441": {
-    id: 122441,
-    id_time: 364,
-    time: "REM",
-    pos: "ZAG",
-    nome: "KAYKY ALMEIDA",
     scouts: {
       rdd: {
         1: {pt:0.6, DS:1, FC:3},
@@ -2930,11 +2320,6 @@ const SCOUTS = {
     }
   },
   "122485": {
-    id: 122485,
-    id_time: 267,
-    time: "VAS",
-    pos: "MEI",
-    nome: "BARROS",
     scouts: {
       rdd: {
         1: {pt:9, FS:6, DS:4},
@@ -2954,11 +2339,6 @@ const SCOUTS = {
     }
   },
   "122487": {
-    id: 122487,
-    id_time: 267,
-    time: "VAS",
-    pos: "ATA",
-    nome: "GB",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -2978,11 +2358,6 @@ const SCOUTS = {
     }
   },
   "122781": {
-    id: 122781,
-    id_time: 277,
-    time: "SAN",
-    pos: "ATA",
-    nome: "CABALLERO",
     scouts: {
       rdd: {
         1: {pt:1.6, FF:2},
@@ -3002,11 +2377,6 @@ const SCOUTS = {
     }
   },
   "123625": {
-    id: 123625,
-    id_time: 315,
-    time: "CHA",
-    pos: "ATA",
-    nome: "ÍTALO",
     scouts: {
       rdd: {
         1: {pt:2.9, FS:1, PS:1, I:1, DS:1},
@@ -3026,11 +2396,6 @@ const SCOUTS = {
     }
   },
   "123648": {
-    id: 123648,
-    id_time: 294,
-    time: "CFC",
-    pos: "ATA",
-    nome: "LUCAS RONIER",
     scouts: {
       rdd: {
         1: {pt:5, FS:1, DS:3},
@@ -3050,11 +2415,6 @@ const SCOUTS = {
     }
   },
   "123869": {
-    id: 123869,
-    id_time: 293,
-    time: "CAP",
-    pos: "ZAG",
-    nome: "AGUIRRE",
     scouts: {
       rdd: {
         1: {pt:6.7, FS:1, DS:1, SG:1, FC:1},
@@ -3074,11 +2434,6 @@ const SCOUTS = {
     }
   },
   "124239": {
-    id: 124239,
-    id_time: 280,
-    time: "RBB",
-    pos: "ATA",
-    nome: "HENRY MOSQUERA",
     scouts: {
       rdd: {
         1: {pt:2.9, FD:2, FF:1, FC:1},
@@ -3098,11 +2453,6 @@ const SCOUTS = {
     }
   },
   "124481": {
-    id: 124481,
-    id_time: 263,
-    time: "BOT",
-    pos: "LAT",
-    nome: "MATEO PONTE",
     scouts: {
       rdd: {
         1: {pt:6.2, DS:1, SG:1, FC:1},
@@ -3122,11 +2472,6 @@ const SCOUTS = {
     }
   },
   "124526": {
-    id: 124526,
-    id_time: 275,
-    time: "PAL",
-    pos: "LAT",
-    nome: "GIAY",
     scouts: {
       rdd: {
         1: {pt:0.5, FS:1},
@@ -3146,11 +2491,6 @@ const SCOUTS = {
     }
   },
   "124757": {
-    id: 124757,
-    id_time: 263,
-    time: "BOT",
-    pos: "ATA",
-    nome: "NATHAN FERNANDES",
     scouts: {
       rdd: {
         1: {pt:5.5, A:1, FS:1},
@@ -3170,11 +2510,6 @@ const SCOUTS = {
     }
   },
   "124912": {
-    id: 124912,
-    id_time: 283,
-    time: "CRU",
-    pos: "ZAG",
-    nome: "JONATHAN JESUS",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -3194,11 +2529,6 @@ const SCOUTS = {
     }
   },
   "125746": {
-    id: 125746,
-    id_time: 293,
-    time: "CAP",
-    pos: "MEI",
-    nome: "DUDU",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -3218,11 +2548,6 @@ const SCOUTS = {
     }
   },
   "125803": {
-    id: 125803,
-    id_time: 294,
-    time: "CFC",
-    pos: "GOL",
-    nome: "PEDRO MORISCO",
     scouts: {
       rdd: {
         1: {pt:11.7, FS:2, DE:9, GS:1},
@@ -3242,11 +2567,6 @@ const SCOUTS = {
     }
   },
   "125926": {
-    id: 125926,
-    id_time: 293,
-    time: "CAP",
-    pos: "MEI",
-    nome: "ZAPELLI",
     scouts: {
       rdd: {
         1: {pt:2.5, FS:2, DS:1},
@@ -3266,11 +2586,6 @@ const SCOUTS = {
     }
   },
   "126120": {
-    id: 126120,
-    id_time: 280,
-    time: "RBB",
-    pos: "MEI",
-    nome: "MARCELINHO",
     scouts: {
       rdd: {
         1: {pt:6.3, A:1, FF:2, FC:1},
@@ -3290,11 +2605,6 @@ const SCOUTS = {
     }
   },
   "126182": {
-    id: 126182,
-    id_time: 285,
-    time: "INT",
-    pos: "MEI",
-    nome: "PAULINHO",
     scouts: {
       rdd: {
         1: {pt:0.2, DS:1, CA:1, FC:1},
@@ -3314,11 +2624,6 @@ const SCOUTS = {
     }
   },
   "126471": {
-    id: 126471,
-    id_time: 277,
-    time: "SAN",
-    pos: "MEI",
-    nome: "BARREAL",
     scouts: {
       rdd: {
         1: {pt:12.6, G:1, FF:2, DS:2},
@@ -3338,11 +2643,6 @@ const SCOUTS = {
     }
   },
   "126977": {
-    id: 126977,
-    id_time: 294,
-    time: "CFC",
-    pos: "TEC",
-    nome: "FERNANDO SEABRA",
     scouts: {
       rdd: {
         1: {pt:4.32},
@@ -3362,11 +2662,6 @@ const SCOUTS = {
     }
   },
   "128433": {
-    id: 128433,
-    id_time: 267,
-    time: "VAS",
-    pos: "MEI",
-    nome: "JOHAN ROJAS",
     scouts: {
       rdd: {
         1: {pt:1.7, FD:1, FF:1, FC:1},
@@ -3386,11 +2681,6 @@ const SCOUTS = {
     }
   },
   "130414": {
-    id: 130414,
-    id_time: 315,
-    time: "CHA",
-    pos: "MEI",
-    nome: "ROBERT",
     scouts: {
       rdd: {
         1: {pt:3, DS:2},
@@ -3410,11 +2700,6 @@ const SCOUTS = {
     }
   },
   "130608": {
-    id: 130608,
-    id_time: 275,
-    time: "PAL",
-    pos: "ATA",
-    nome: "RIQUELME FILLIPI",
     scouts: {
       rdd: {
         1: {pt:-0.3, FC:1},
@@ -3434,11 +2719,6 @@ const SCOUTS = {
     }
   },
   "130612": {
-    id: 130612,
-    id_time: 275,
-    time: "PAL",
-    pos: "ATA",
-    nome: "LUIGHI",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -3458,11 +2738,6 @@ const SCOUTS = {
     }
   },
   "130650": {
-    id: 130650,
-    id_time: 266,
-    time: "FLU",
-    pos: "MEI",
-    nome: "BERNAL",
     scouts: {
       rdd: {
         1: {pt:-0.3, FC:1},
@@ -3482,11 +2757,6 @@ const SCOUTS = {
     }
   },
   "130843": {
-    id: 130843,
-    id_time: 293,
-    time: "CAP",
-    pos: "ZAG",
-    nome: "ARTHUR DIAS",
     scouts: {
       rdd: {
         1: {pt:8, DS:2, SG:1},
@@ -3506,11 +2776,6 @@ const SCOUTS = {
     }
   },
   "130906": {
-    id: 130906,
-    id_time: 293,
-    time: "CAP",
-    pos: "MEI",
-    nome: "RIQUELME",
     scouts: {
       rdd: {
         1: {pt:-0.3, FC:1},
@@ -3530,11 +2795,6 @@ const SCOUTS = {
     }
   },
   "131832": {
-    id: 131832,
-    id_time: 293,
-    time: "CAP",
-    pos: "MEI",
-    nome: "PORTILLA",
     scouts: {
       rdd: {
         1: {pt:-1.4, FS:1, CA:1, FC:3},
@@ -3554,11 +2814,6 @@ const SCOUTS = {
     }
   },
   "132071": {
-    id: 132071,
-    id_time: 266,
-    time: "FLU",
-    pos: "ATA",
-    nome: "SERNA",
     scouts: {
       rdd: {
         1: {pt:0.5, FF:1, FC:1},
@@ -3578,11 +2833,6 @@ const SCOUTS = {
     }
   },
   "132264": {
-    id: 132264,
-    id_time: 283,
-    time: "CRU",
-    pos: "ATA",
-    nome: "ARROYO",
     scouts: {
       rdd: {
         1: {pt:1.7, FD:1, FS:1},
@@ -3602,11 +2852,6 @@ const SCOUTS = {
     }
   },
   "132274": {
-    id: 132274,
-    id_time: 280,
-    time: "RBB",
-    pos: "MEI",
-    nome: "IGNACIO SOSA",
     scouts: {
       rdd: {
         1: {pt:0.4, FS:1, DS:1, CA:1, FC:2},
@@ -3626,11 +2871,6 @@ const SCOUTS = {
     }
   },
   "132553": {
-    id: 132553,
-    id_time: 266,
-    time: "FLU",
-    pos: "ZAG",
-    nome: "JEMMES",
     scouts: {
       rdd: {
         1: {pt:5.5, FS:2, DS:3},
@@ -3650,11 +2890,6 @@ const SCOUTS = {
     }
   },
   "132580": {
-    id: 132580,
-    id_time: 280,
-    time: "RBB",
-    pos: "ATA",
-    nome: "VINICINHO",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -3674,11 +2909,6 @@ const SCOUTS = {
     }
   },
   "133543": {
-    id: 133543,
-    id_time: 264,
-    time: "COR",
-    pos: "ATA",
-    nome: "GUI NEGÃO",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -3698,11 +2928,6 @@ const SCOUTS = {
     }
   },
   "137542": {
-    id: 137542,
-    id_time: 283,
-    time: "CRU",
-    pos: "ATA",
-    nome: "KAIQUE KENJI",
     scouts: {
       rdd: {
         1: {pt:-0.5, FF:1, CA:1, FC:1},
@@ -3722,11 +2947,6 @@ const SCOUTS = {
     }
   },
   "139076": {
-    id: 139076,
-    id_time: 262,
-    time: "FLA",
-    pos: "TEC",
-    nome: "FILIPE LUÍS",
     scouts: {
       rdd: {
         1: {pt:3.95},
@@ -3746,11 +2966,6 @@ const SCOUTS = {
     }
   },
   "141406": {
-    id: 141406,
-    id_time: 267,
-    time: "VAS",
-    pos: "ATA",
-    nome: "ANDREY FERNANDES",
     scouts: {
       rdd: {
         1: {pt:1.7, FD:1, FS:1},
@@ -3770,11 +2985,6 @@ const SCOUTS = {
     }
   },
   "141451": {
-    id: 141451,
-    id_time: 275,
-    time: "PAL",
-    pos: "MEI",
-    nome: "ALLAN",
     scouts: {
       rdd: {
         1: {pt:1.9, FS:2, DS:1, FC:2},
@@ -3794,11 +3004,6 @@ const SCOUTS = {
     }
   },
   "141611": {
-    id: 141611,
-    id_time: 276,
-    time: "SAO",
-    pos: "LAT",
-    nome: "MAIK",
     scouts: {
       rdd: {
         1: {pt:2.7, DS:2, FC:1},
@@ -3818,11 +3023,6 @@ const SCOUTS = {
     }
   },
   "141754": {
-    id: 141754,
-    id_time: 277,
-    time: "SAN",
-    pos: "MEI",
-    nome: "GABRIEL BONTEMPO",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -3842,11 +3042,6 @@ const SCOUTS = {
     }
   },
   "141868": {
-    id: 141868,
-    id_time: 277,
-    time: "SAN",
-    pos: "LAT",
-    nome: "VINICIUS LIRA",
     scouts: {
       rdd: {
         1: {pt:3.5, FD:1, FF:1, DS:1},
@@ -3866,11 +3061,6 @@ const SCOUTS = {
     }
   },
   "142004": {
-    id: 142004,
-    id_time: 284,
-    time: "GRE",
-    pos: "ATA",
-    nome: "AMUZU",
     scouts: {
       rdd: {
         1: {pt:1.7, FS:1, DS:1, FC:1},
@@ -3890,11 +3080,6 @@ const SCOUTS = {
     }
   },
   "142265": {
-    id: 142265,
-    id_time: 265,
-    time: "BAH",
-    pos: "ATA",
-    nome: "DELL",
     scouts: {
       rdd: {
         1: {pt:2.5, FS:2, DS:1},
@@ -3914,11 +3099,6 @@ const SCOUTS = {
     }
   },
   "142279": {
-    id: 142279,
-    id_time: 267,
-    time: "VAS",
-    pos: "MEI",
-    nome: "NUNO MOREIRA",
     scouts: {
       rdd: {
         1: {pt:0.7, FS:1, DS:1, CA:1, FC:1},
@@ -3938,11 +3118,6 @@ const SCOUTS = {
     }
   },
   "142484": {
-    id: 142484,
-    id_time: 263,
-    time: "BOT",
-    pos: "MEI",
-    nome: "BARRERA",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -3962,11 +3137,6 @@ const SCOUTS = {
     }
   },
   "142867": {
-    id: 142867,
-    id_time: 277,
-    time: "SAN",
-    pos: "ATA",
-    nome: "ROBINHO JR.",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -3986,11 +3156,6 @@ const SCOUTS = {
     }
   },
   "142890": {
-    id: 142890,
-    id_time: 263,
-    time: "BOT",
-    pos: "MEI",
-    nome: "MONTORO",
     scouts: {
       rdd: {
         1: {pt:5.8, A:1, FD:1, FS:1, FC:3},
@@ -4010,11 +3175,6 @@ const SCOUTS = {
     }
   },
   "143193": {
-    id: 143193,
-    id_time: 293,
-    time: "CAP",
-    pos: "ATA",
-    nome: "VIVEROS",
     scouts: {
       rdd: {
         1: {pt:10.2, A:1, FD:1, FF:2, FS:3, DS:1, FC:2},
@@ -4034,11 +3194,6 @@ const SCOUTS = {
     }
   },
   "143488": {
-    id: 143488,
-    id_time: 285,
-    time: "INT",
-    pos: "ATA",
-    nome: "RAYKKONEN",
     scouts: {
       rdd: {
         1: {pt:0.5, FS:1},
@@ -4058,11 +3213,6 @@ const SCOUTS = {
     }
   },
   "145036": {
-    id: 145036,
-    id_time: 277,
-    time: "SAN",
-    pos: "ATA",
-    nome: "FERNANDO PRADELLA",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -4082,11 +3232,6 @@ const SCOUTS = {
     }
   },
   "145404": {
-    id: 145404,
-    id_time: 275,
-    time: "PAL",
-    pos: "LAT",
-    nome: "ARTHUR",
     scouts: {
       rdd: {
         1: {pt:-0.3, FC:1},
@@ -4106,11 +3251,6 @@ const SCOUTS = {
     }
   },
   "145744": {
-    id: 145744,
-    id_time: 264,
-    time: "COR",
-    pos: "MEI",
-    nome: "ANDRÉ",
     scouts: {
       rdd: {
         1: {pt:6.5, FS:1, DS:4},
@@ -4130,11 +3270,6 @@ const SCOUTS = {
     }
   },
   "146040": {
-    id: 146040,
-    id_time: 364,
-    time: "REM",
-    pos: "ATA",
-    nome: "JOÃO PEDRO",
     scouts: {
       rdd: {
         1: {pt:-1, FS:1, FC:5},
@@ -4154,11 +3289,6 @@ const SCOUTS = {
     }
   },
   "147883": {
-    id: 147883,
-    id_time: 267,
-    time: "VAS",
-    pos: "ATA",
-    nome: "JOÃO VITOR",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -4178,11 +3308,6 @@ const SCOUTS = {
     }
   },
   "37656": {
-    id: 37656,
-    id_time: 266,
-    time: "FLU",
-    pos: "GOL",
-    nome: "FÁBIO",
     scouts: {
       rdd: {
         1: {pt:2.1, FS:1, DE:2, GS:1},
@@ -4202,11 +3327,6 @@ const SCOUTS = {
     }
   },
   "39148": {
-    id: 39148,
-    id_time: 282,
-    time: "CAM",
-    pos: "ATA",
-    nome: "HULK",
     scouts: {
       rdd: {
         1: {pt:5.3, FF:4, FS:5, I:1, FC:1},
@@ -4226,11 +3346,6 @@ const SCOUTS = {
     }
   },
   "39656": {
-    id: 39656,
-    id_time: 282,
-    time: "CAM",
-    pos: "MEI",
-    nome: "ALAN FRANCO",
     scouts: {
       rdd: {
         1: {pt:-0.1, DS:1, CA:1, FC:2},
@@ -4250,11 +3365,6 @@ const SCOUTS = {
     }
   },
   "39850": {
-    id: 39850,
-    id_time: 280,
-    time: "RBB",
-    pos: "TEC",
-    nome: "VAGNER MANCINI",
     scouts: {
       rdd: {
         1: {pt:8.07, V:1},
@@ -4274,11 +3384,6 @@ const SCOUTS = {
     }
   },
   "40990": {
-    id: 40990,
-    id_time: 264,
-    time: "COR",
-    pos: "TEC",
-    nome: "DORIVAL JÚNIOR",
     scouts: {
       rdd: {
         1: {pt:6.6},
@@ -4298,11 +3403,6 @@ const SCOUTS = {
     }
   },
   "42135": {
-    id: 42135,
-    id_time: 284,
-    time: "GRE",
-    pos: "MEI",
-    nome: "WILLIAN",
     scouts: {
       rdd: {
         1: {pt:-0.3, FC:1},
@@ -4322,11 +3422,6 @@ const SCOUTS = {
     }
   },
   "42222": {
-    id: 42222,
-    id_time: 287,
-    time: "VIT",
-    pos: "ATA",
-    nome: "OSVALDO",
     scouts: {
       rdd: {
         1: {pt:0.8, FF:1},
@@ -4346,11 +3441,6 @@ const SCOUTS = {
     }
   },
   "42234": {
-    id: 42234,
-    id_time: 283,
-    time: "CRU",
-    pos: "GOL",
-    nome: "CÁSSIO",
     scouts: {
       rdd: {
         1: {pt:-2.7, DE:1, GS:4},
@@ -4370,11 +3460,6 @@ const SCOUTS = {
     }
   },
   "42500": {
-    id: 42500,
-    id_time: 283,
-    time: "CRU",
-    pos: "LAT",
-    nome: "FAGNER",
     scouts: {
       rdd: {
         1: {pt:0.9, DS:1, FC:2},
@@ -4394,11 +3479,6 @@ const SCOUTS = {
     }
   },
   "45125": {
-    id: 45125,
-    id_time: 283,
-    time: "CRU",
-    pos: "TEC",
-    nome: "TITE",
     scouts: {
       rdd: {
         1: {pt:1.37},
@@ -4418,11 +3498,6 @@ const SCOUTS = {
     }
   },
   "51413": {
-    id: 51413,
-    id_time: 2305,
-    time: "MIR",
-    pos: "GOL",
-    nome: "WALTER",
     scouts: {
       rdd: {
         1: {pt:4.2, DE:4, GS:1},
@@ -4442,11 +3517,6 @@ const SCOUTS = {
     }
   },
   "51772": {
-    id: 51772,
-    id_time: 265,
-    time: "BAH",
-    pos: "MEI",
-    nome: "EVERTON RIBEIRO",
     scouts: {
       rdd: {
         1: {pt:1.5, DS:1},
@@ -4466,11 +3536,6 @@ const SCOUTS = {
     }
   },
   "61987": {
-    id: 61987,
-    id_time: 262,
-    time: "FLA",
-    pos: "LAT",
-    nome: "ALEX SANDRO",
     scouts: {
       rdd: {
         1: {pt:1, FS:2},
@@ -4490,11 +3555,6 @@ const SCOUTS = {
     }
   },
   "62977": {
-    id: 62977,
-    id_time: 266,
-    time: "FLU",
-    pos: "MEI",
-    nome: "GANSO",
     scouts: {
       rdd: {
         1: {pt:-0.3, FC:1},
@@ -4514,11 +3574,6 @@ const SCOUTS = {
     }
   },
   "63013": {
-    id: 63013,
-    id_time: 284,
-    time: "GRE",
-    pos: "LAT",
-    nome: "MARCOS ROCHA",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -4538,11 +3593,6 @@ const SCOUTS = {
     }
   },
   "63289": {
-    id: 63289,
-    id_time: 284,
-    time: "GRE",
-    pos: "MEI",
-    nome: "EDENÍLSON",
     scouts: {
       rdd: {
         1: {pt:2.5, FF:1, FS:1, DS:1, FC:1},
@@ -4562,11 +3612,6 @@ const SCOUTS = {
     }
   },
   "68685": {
-    id: 68685,
-    id_time: 285,
-    time: "INT",
-    pos: "MEI",
-    nome: "ALAN PATRICK",
     scouts: {
       rdd: {
         1: {pt:3, FD:1, FF:1, FS:2},
@@ -4586,11 +3631,6 @@ const SCOUTS = {
     }
   },
   "68708": {
-    id: 68708,
-    id_time: 2305,
-    time: "MIR",
-    pos: "MEI",
-    nome: "EDUARDO",
     scouts: {
       rdd: {
         1: {pt:7, G:1, FS:1, FC:5},
@@ -4610,11 +3650,6 @@ const SCOUTS = {
     }
   },
   "68806": {
-    id: 68806,
-    id_time: 263,
-    time: "BOT",
-    pos: "GOL",
-    nome: "NETO",
     scouts: {
       rdd: {
         1: {pt:10.2, SG:1, DE:4},
@@ -4634,11 +3669,6 @@ const SCOUTS = {
     }
   },
   "68899": {
-    id: 68899,
-    id_time: 267,
-    time: "VAS",
-    pos: "MEI",
-    nome: "PHILIPPE COUTINHO",
     scouts: {
       rdd: {
         1: {pt:10.8, G:1, FF:1, FS:1, DS:1},
@@ -4658,11 +3688,6 @@ const SCOUTS = {
     }
   },
   "68920": {
-    id: 68920,
-    id_time: 282,
-    time: "CAM",
-    pos: "ATA",
-    nome: "DUDU",
     scouts: {
       rdd: {
         1: {pt:2.5, FF:1, FS:1, DS:1, FC:1},
@@ -4682,11 +3707,6 @@ const SCOUTS = {
     }
   },
   "68928": {
-    id: 68928,
-    id_time: 276,
-    time: "SAO",
-    pos: "GOL",
-    nome: "RAFAEL",
     scouts: {
       rdd: {
         1: {pt:4.2, DE:4, GS:1},
@@ -4706,11 +3726,6 @@ const SCOUTS = {
     }
   },
   "68938": {
-    id: 68938,
-    id_time: 315,
-    time: "CHA",
-    pos: "MEI",
-    nome: "GIOVANNI AUGUSTO",
     scouts: {
       rdd: {
         1: {pt:1.7, FS:1, DS:1, FC:1},
@@ -4730,11 +3745,6 @@ const SCOUTS = {
     }
   },
   "68996": {
-    id: 68996,
-    id_time: 265,
-    time: "BAH",
-    pos: "ATA",
-    nome: "WILLIAN JOSÉ",
     scouts: {
       rdd: {
         1: {pt:9.5, G:1, DS:1},
@@ -4754,11 +3764,6 @@ const SCOUTS = {
     }
   },
   "69012": {
-    id: 69012,
-    id_time: 293,
-    time: "CAP",
-    pos: "GOL",
-    nome: "SANTOS",
     scouts: {
       rdd: {
         1: {pt:11.5, SG:1, DE:5},
@@ -4778,11 +3783,6 @@ const SCOUTS = {
     }
   },
   "69140": {
-    id: 69140,
-    id_time: 263,
-    time: "BOT",
-    pos: "MEI",
-    nome: "ALLAN",
     scouts: {
       rdd: {
         1: {pt:2.8, FF:2, FS:2, DS:1, CA:1, FC:1},
@@ -4802,11 +3802,6 @@ const SCOUTS = {
     }
   },
   "69208": {
-    id: 69208,
-    id_time: 264,
-    time: "COR",
-    pos: "ZAG",
-    nome: "GABRIEL PAULISTA",
     scouts: {
       rdd: {
         1: {pt:-0.3, FC:1},
@@ -4826,11 +3821,6 @@ const SCOUTS = {
     }
   },
   "70164": {
-    id: 70164,
-    id_time: 276,
-    time: "SAO",
-    pos: "MEI",
-    nome: "LUCAS MOURA",
     scouts: {
       rdd: {
         1: {pt:-0.3, FC:1},
@@ -4850,11 +3840,6 @@ const SCOUTS = {
     }
   },
   "70360": {
-    id: 70360,
-    id_time: 280,
-    time: "RBB",
-    pos: "ATA",
-    nome: "EDUARDO SASHA",
     scouts: {
       rdd: {
         1: {pt:3.9, FD:2, DS:1},
@@ -4874,11 +3859,6 @@ const SCOUTS = {
     }
   },
   "70449": {
-    id: 70449,
-    id_time: 287,
-    time: "VIT",
-    pos: "GOL",
-    nome: "GABRIEL",
     scouts: {
       rdd: {
         1: {pt:6.8, FS:1, SG:1, DE:1},
@@ -4898,11 +3878,6 @@ const SCOUTS = {
     }
   },
   "70666": {
-    id: 70666,
-    id_time: 364,
-    time: "REM",
-    pos: "ZAG",
-    nome: "MARLLON",
     scouts: {
       rdd: {
         1: {pt:3.5, FS:1, DS:2},
@@ -4922,11 +3897,6 @@ const SCOUTS = {
     }
   },
   "70800": {
-    id: 70800,
-    id_time: 282,
-    time: "CAM",
-    pos: "TEC",
-    nome: "JORGE SAMPAOLI",
     scouts: {
       rdd: {
         1: {pt:3.81},
@@ -4946,11 +3916,6 @@ const SCOUTS = {
     }
   },
   "70944": {
-    id: 70944,
-    id_time: 285,
-    time: "INT",
-    pos: "MEI",
-    nome: "BRUNO HENRIQUE",
     scouts: {
       rdd: {
         1: {pt:2.2, FD:1, FF:1, FS:1, FC:1},
@@ -4970,11 +3935,6 @@ const SCOUTS = {
     }
   },
   "70958": {
-    id: 70958,
-    id_time: 315,
-    time: "CHA",
-    pos: "MEI",
-    nome: "JEAN CARLOS",
     scouts: {
       rdd: {
         1: {pt:13, G:1, A:1},
@@ -4994,11 +3954,6 @@ const SCOUTS = {
     }
   },
   "71043": {
-    id: 71043,
-    id_time: 315,
-    time: "CHA",
-    pos: "GOL",
-    nome: "LÉO VIEIRA",
     scouts: {
       rdd: {
         1: {pt:2.2, DE:4, CA:1, GS:2},
@@ -5018,11 +3973,6 @@ const SCOUTS = {
     }
   },
   "71123": {
-    id: 71123,
-    id_time: 267,
-    time: "VAS",
-    pos: "MEI",
-    nome: "THIAGO MENDES",
     scouts: {
       rdd: {
         1: {pt:4.5, FS:3, DS:2},
@@ -5042,11 +3992,6 @@ const SCOUTS = {
     }
   },
   "71227": {
-    id: 71227,
-    id_time: 294,
-    time: "CFC",
-    pos: "ZAG",
-    nome: "MAICON",
     scouts: {
       rdd: {
         1: {pt:1.7, FS:1, DS:1, FC:1},
@@ -5066,11 +4011,6 @@ const SCOUTS = {
     }
   },
   "71631": {
-    id: 71631,
-    id_time: 284,
-    time: "GRE",
-    pos: "GOL",
-    nome: "WEVERTON",
     scouts: {
       rdd: {
         1: {pt:3.2, DE:4, GS:2},
@@ -5090,11 +4030,6 @@ const SCOUTS = {
     }
   },
   "71684": {
-    id: 71684,
-    id_time: 275,
-    time: "PAL",
-    pos: "ZAG",
-    nome: "GUSTAVO GÓMEZ",
     scouts: {
       rdd: {
         1: {pt:1.9, FS:2, DS:1, FC:2},
@@ -5114,11 +4049,6 @@ const SCOUTS = {
     }
   },
   "72294": {
-    id: 72294,
-    id_time: 282,
-    time: "CAM",
-    pos: "GOL",
-    nome: "EVERSON",
     scouts: {
       rdd: {
         1: {pt:3.7, FS:1, DE:4, GS:2},
@@ -5138,11 +4068,6 @@ const SCOUTS = {
     }
   },
   "72391": {
-    id: 72391,
-    id_time: 267,
-    time: "VAS",
-    pos: "TEC",
-    nome: "FERNANDO DINIZ",
     scouts: {
       rdd: {
         1: {pt:4},
@@ -5162,11 +4087,6 @@ const SCOUTS = {
     }
   },
   "72460": {
-    id: 72460,
-    id_time: 282,
-    time: "CAM",
-    pos: "MEI",
-    nome: "BERNARD",
     scouts: {
       rdd: {
         1: {pt:-0.6, FC:2},
@@ -5186,11 +4106,6 @@ const SCOUTS = {
     }
   },
   "72493": {
-    id: 72493,
-    id_time: 263,
-    time: "BOT",
-    pos: "LAT",
-    nome: "ALEX TELLES",
     scouts: {
       rdd: {
         1: {pt:8, DS:2, SG:1},
@@ -5210,11 +4125,6 @@ const SCOUTS = {
     }
   },
   "73384": {
-    id: 73384,
-    id_time: 266,
-    time: "FLU",
-    pos: "LAT",
-    nome: "SAMUEL XAVIER",
     scouts: {
       rdd: {
         1: {pt:3.7, FS:2, DS:2, FC:1},
@@ -5234,11 +4144,6 @@ const SCOUTS = {
     }
   },
   "73481": {
-    id: 73481,
-    id_time: 315,
-    time: "CHA",
-    pos: "TEC",
-    nome: "GILMAR DAL POZZO",
     scouts: {
       rdd: {
         1: {pt:7.95, V:1},
@@ -5258,11 +4163,6 @@ const SCOUTS = {
     }
   },
   "73717": {
-    id: 73717,
-    id_time: 364,
-    time: "REM",
-    pos: "TEC",
-    nome: "JUAN CARLOS OSORIO",
     scouts: {
       rdd: {
         1: {pt:1.97},
@@ -5282,11 +4182,6 @@ const SCOUTS = {
     }
   },
   "77485": {
-    id: 77485,
-    id_time: 264,
-    time: "COR",
-    pos: "MEI",
-    nome: "CARRILLO",
     scouts: {
       rdd: {
         1: {pt:3.2, FS:1, DS:2, FC:1},
@@ -5306,11 +4201,6 @@ const SCOUTS = {
     }
   },
   "77656": {
-    id: 77656,
-    id_time: 276,
-    time: "SAO",
-    pos: "LAT",
-    nome: "CÉDRIC SOARES",
     scouts: {
       rdd: {
         1: {pt:2.3, FF:1, DS:1},
@@ -5330,11 +4220,6 @@ const SCOUTS = {
     }
   },
   "77777": {
-    id: 77777,
-    id_time: 277,
-    time: "SAN",
-    pos: "MEI",
-    nome: "JOÃO SCHMIDT",
     scouts: {
       rdd: {
         1: {pt:3.2, FS:1, DS:2, FC:1},
@@ -5354,11 +4239,6 @@ const SCOUTS = {
     }
   },
   "78117": {
-    id: 78117,
-    id_time: 266,
-    time: "FLU",
-    pos: "ATA",
-    nome: "EVERALDO",
     scouts: {
       rdd: {
         1: {pt:0.9, FS:2, I:1},
@@ -5378,11 +4258,6 @@ const SCOUTS = {
     }
   },
   "78248": {
-    id: 78248,
-    id_time: 264,
-    time: "COR",
-    pos: "ZAG",
-    nome: "GUSTAVO HENRIQUE",
     scouts: {
       rdd: {
         1: {pt:9.2, FD:1, FF:1, DS:5, FC:1},
@@ -5402,11 +4277,6 @@ const SCOUTS = {
     }
   },
   "78435": {
-    id: 78435,
-    id_time: 264,
-    time: "COR",
-    pos: "ATA",
-    nome: "VITINHO",
     scouts: {
       rdd: {
         1: {pt:1.7, FS:1, DS:1, FC:1},
@@ -5426,11 +4296,6 @@ const SCOUTS = {
     }
   },
   "78445": {
-    id: 78445,
-    id_time: 266,
-    time: "FLU",
-    pos: "LAT",
-    nome: "RENÊ",
     scouts: {
       rdd: {
         1: {pt:7.4, A:1, FD:1, DS:1, FC:1},
@@ -5450,11 +4315,6 @@ const SCOUTS = {
     }
   },
   "78605": {
-    id: 78605,
-    id_time: 280,
-    time: "RBB",
-    pos: "MEI",
-    nome: "GABRIEL",
     scouts: {
       rdd: {
         1: {pt:0.7, FS:1, DS:1, CA:1, FC:1},
@@ -5474,11 +4334,6 @@ const SCOUTS = {
     }
   },
   "78850": {
-    id: 78850,
-    id_time: 2305,
-    time: "MIR",
-    pos: "LAT",
-    nome: "REINALDO",
     scouts: {
       rdd: {
         1: {pt:0.8, FF:1},
@@ -5498,11 +4353,6 @@ const SCOUTS = {
     }
   },
   "78855": {
-    id: 78855,
-    id_time: 294,
-    time: "CFC",
-    pos: "ZAG",
-    nome: "THIAGO SANTOS",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -5522,11 +4372,6 @@ const SCOUTS = {
     }
   },
   "79701": {
-    id: 79701,
-    id_time: 283,
-    time: "CRU",
-    pos: "MEI",
-    nome: "LUCAS SILVA",
     scouts: {
       rdd: {
         1: {pt:0.2, DS:1, CA:1, FC:1},
@@ -5546,11 +4391,6 @@ const SCOUTS = {
     }
   },
   "80129": {
-    id: 80129,
-    id_time: 293,
-    time: "CAP",
-    pos: "MEI",
-    nome: "JADSON",
     scouts: {
       rdd: {
         1: {pt:0.5, FS:1},
@@ -5570,11 +4410,6 @@ const SCOUTS = {
     }
   },
   "80196": {
-    id: 80196,
-    id_time: 364,
-    time: "REM",
-    pos: "MEI",
-    nome: "YAGO PIKACHU",
     scouts: {
       rdd: {
         1: {pt:2.1, FF:2, FS:1},
@@ -5594,11 +4429,6 @@ const SCOUTS = {
     }
   },
   "80287": {
-    id: 80287,
-    id_time: 276,
-    time: "SAO",
-    pos: "ATA",
-    nome: "LUCIANO",
     scouts: {
       rdd: {
         1: {pt:15.3, G:1, FD:1, FF:3, FS:2, DS:2, FC:1},
@@ -5618,11 +4448,6 @@ const SCOUTS = {
     }
   },
   "80313": {
-    id: 80313,
-    id_time: 265,
-    time: "BAH",
-    pos: "LAT",
-    nome: "GILBERTO",
     scouts: {
       rdd: {
         1: {pt:4.4, A:1, FC:2},
@@ -5642,11 +4467,6 @@ const SCOUTS = {
     }
   },
   "81952": {
-    id: 81952,
-    id_time: 294,
-    time: "CFC",
-    pos: "MEI",
-    nome: "WILLIAN OLIVEIRA",
     scouts: {
       rdd: {
         1: {pt:7.9, FS:2, DS:5, FC:2},
@@ -5666,11 +4486,6 @@ const SCOUTS = {
     }
   },
   "82455": {
-    id: 82455,
-    id_time: 277,
-    time: "SAN",
-    pos: "MEI",
-    nome: "ZÉ RAFAEL",
     scouts: {
       rdd: {
         1: {pt:7.9, A:1, FF:3, FS:1},
@@ -5690,11 +4505,6 @@ const SCOUTS = {
     }
   },
   "82628": {
-    id: 82628,
-    id_time: 294,
-    time: "CFC",
-    pos: "LAT",
-    nome: "TINGA",
     scouts: {
       rdd: {
         1: {pt:5, FS:1, DS:3},
@@ -5714,11 +4524,6 @@ const SCOUTS = {
     }
   },
   "82730": {
-    id: 82730,
-    id_time: 364,
-    time: "REM",
-    pos: "GOL",
-    nome: "MARCELO RANGEL",
     scouts: {
       rdd: {
         1: {pt:3.2, DE:4, GS:2},
@@ -5738,11 +4543,6 @@ const SCOUTS = {
     }
   },
   "83263": {
-    id: 83263,
-    id_time: 2305,
-    time: "MIR",
-    pos: "MEI",
-    nome: "YURI LARA",
     scouts: {
       rdd: {
         1: {pt:5.5, FS:2, DS:3},
@@ -5762,11 +4562,6 @@ const SCOUTS = {
     }
   },
   "83433": {
-    id: 83433,
-    id_time: 364,
-    time: "REM",
-    pos: "MEI",
-    nome: "PATRICK",
     scouts: {
       rdd: {
         1: {pt:1.3, FF:1, FS:1},
@@ -5786,11 +4581,6 @@ const SCOUTS = {
     }
   },
   "83528": {
-    id: 83528,
-    id_time: 262,
-    time: "FLA",
-    pos: "ZAG",
-    nome: "LÉO PEREIRA",
     scouts: {
       rdd: {
         1: {pt:0.1, FS:2, FC:3},
@@ -5810,11 +4600,6 @@ const SCOUTS = {
     }
   },
   "84339": {
-    id: 84339,
-    id_time: 294,
-    time: "CFC",
-    pos: "LAT",
-    nome: "BRUNO MELO",
     scouts: {
       rdd: {
         1: {pt:2.1, FS:1, I:1, DS:2, CA:1, FC:1},
@@ -5834,11 +4619,6 @@ const SCOUTS = {
     }
   },
   "84558": {
-    id: 84558,
-    id_time: 283,
-    time: "CRU",
-    pos: "MEI",
-    nome: "LUCAS ROMERO",
     scouts: {
       rdd: {
         1: {pt:2.2, FS:2, DS:1, FC:1},
@@ -5858,11 +4638,6 @@ const SCOUTS = {
     }
   },
   "84626": {
-    id: 84626,
-    id_time: 294,
-    time: "CFC",
-    pos: "MEI",
-    nome: "JOSUÉ",
     scouts: {
       rdd: {
         1: {pt:-1, FF:1, DS:1, CV:1, FC:1},
@@ -5882,11 +4657,6 @@ const SCOUTS = {
     }
   },
   "84735": {
-    id: 84735,
-    id_time: 262,
-    time: "FLA",
-    pos: "MEI",
-    nome: "JORGINHO",
     scouts: {
       rdd: {
         1: {pt:-1.8, DS:1, CV:1, FC:1},
@@ -5906,11 +4676,6 @@ const SCOUTS = {
     }
   },
   "84816": {
-    id: 84816,
-    id_time: 262,
-    time: "FLA",
-    pos: "LAT",
-    nome: "VARELA",
     scouts: {
       rdd: {
         1: {pt:6.7, FS:2, DS:4, FC:1},
@@ -5930,11 +4695,6 @@ const SCOUTS = {
     }
   },
   "84847": {
-    id: 84847,
-    id_time: 277,
-    time: "SAN",
-    pos: "ZAG",
-    nome: "LUAN PERES",
     scouts: {
       rdd: {
         1: {pt:1.7, FS:1, DS:1, FC:1},
@@ -5954,11 +4714,6 @@ const SCOUTS = {
     }
   },
   "84927": {
-    id: 84927,
-    id_time: 364,
-    time: "REM",
-    pos: "MEI",
-    nome: "DODÔ",
     scouts: {
       rdd: {
         1: {pt:-0.8, FS:1, CA:1, FC:1},
@@ -5978,11 +4733,6 @@ const SCOUTS = {
     }
   },
   "85048": {
-    id: 85048,
-    id_time: 264,
-    time: "COR",
-    pos: "ATA",
-    nome: "MEMPHIS DEPAY",
     scouts: {
       rdd: {
         1: {pt:3.7, FD:1, FF:1, FS:1, DS:1, FC:1},
@@ -6002,11 +4752,6 @@ const SCOUTS = {
     }
   },
   "85403": {
-    id: 85403,
-    id_time: 276,
-    time: "SAO",
-    pos: "MEI",
-    nome: "DANIELZINHO",
     scouts: {
       rdd: {
         1: {pt:7.6, G:1, FS:1, FC:3},
@@ -6026,11 +4771,6 @@ const SCOUTS = {
     }
   },
   "85626": {
-    id: 85626,
-    id_time: 293,
-    time: "CAP",
-    pos: "ZAG",
-    nome: "LÉO",
     scouts: {
       rdd: {
         1: {pt:4.7, SG:1, FC:1},
@@ -6050,11 +4790,6 @@ const SCOUTS = {
     }
   },
   "86292": {
-    id: 86292,
-    id_time: 315,
-    time: "CHA",
-    pos: "ATA",
-    nome: "BOLASIE",
     scouts: {
       rdd: {
         1: {pt:1.2, DS:1, FC:1},
@@ -6074,11 +4809,6 @@ const SCOUTS = {
     }
   },
   "86757": {
-    id: 86757,
-    id_time: 262,
-    time: "FLA",
-    pos: "ATA",
-    nome: "EVERTON",
     scouts: {
       rdd: {
         1: {pt:3.2, FD:1, FF:1, DS:1, FC:1},
@@ -6098,11 +4828,6 @@ const SCOUTS = {
     }
   },
   "86863": {
-    id: 86863,
-    id_time: 2305,
-    time: "MIR",
-    pos: "ZAG",
-    nome: "LUIZ OTÁVIO",
     scouts: {
       rdd: {
         1: {pt:1.5, DS:1},
@@ -6122,11 +4847,6 @@ const SCOUTS = {
     }
   },
   "87008": {
-    id: 87008,
-    id_time: 267,
-    time: "VAS",
-    pos: "GOL",
-    nome: "LÉO JARDIM",
     scouts: {
       rdd: {
         1: {pt:1.9, DE:3, GS:2},
@@ -6146,11 +4866,6 @@ const SCOUTS = {
     }
   },
   "87225": {
-    id: 87225,
-    id_time: 280,
-    time: "RBB",
-    pos: "ZAG",
-    nome: "PEDRO HENRIQUE",
     scouts: {
       rdd: {
         1: {pt:4.5, FF:1, SG:1, CA:1, FC:1},
@@ -6170,11 +4885,6 @@ const SCOUTS = {
     }
   },
   "87742": {
-    id: 87742,
-    id_time: 2305,
-    time: "MIR",
-    pos: "MEI",
-    nome: "NETO MOURA",
     scouts: {
       rdd: {
         1: {pt:0.5, FF:1, FC:1},
@@ -6194,11 +4904,6 @@ const SCOUTS = {
     }
   },
   "87863": {
-    id: 87863,
-    id_time: 262,
-    time: "FLA",
-    pos: "MEI",
-    nome: "ARRASCAETA",
     scouts: {
       rdd: {
         1: {pt:0.8, FF:1},
@@ -6218,11 +4923,6 @@ const SCOUTS = {
     }
   },
   "87999": {
-    id: 87999,
-    id_time: 282,
-    time: "CAM",
-    pos: "MEI",
-    nome: "GUSTAVO SCARPA",
     scouts: {
       rdd: {
         1: {pt:0.5, FS:1},
@@ -6242,11 +4942,6 @@ const SCOUTS = {
     }
   },
   "88037": {
-    id: 88037,
-    id_time: 284,
-    time: "GRE",
-    pos: "TEC",
-    nome: "LUÍS CASTRO",
     scouts: {
       rdd: {
         1: {pt:4.47},
@@ -6266,11 +4961,6 @@ const SCOUTS = {
     }
   },
   "88312": {
-    id: 88312,
-    id_time: 282,
-    time: "CAM",
-    pos: "ZAG",
-    nome: "JUNIOR ALONSO",
     scouts: {
       rdd: {
         1: {pt:3.5, FS:1, DS:2},
@@ -6290,11 +4980,6 @@ const SCOUTS = {
     }
   },
   "89256": {
-    id: 89256,
-    id_time: 283,
-    time: "CRU",
-    pos: "MEI",
-    nome: "GERSON",
     scouts: {
       rdd: {
         1: {pt:1.4, FD:1, FS:2, I:2, FC:2},
@@ -6314,11 +4999,6 @@ const SCOUTS = {
     }
   },
   "89273": {
-    id: 89273,
-    id_time: 284,
-    time: "GRE",
-    pos: "LAT",
-    nome: "JOÃO PEDRO",
     scouts: {
       rdd: {
         1: {pt:0.4, FS:1, I:1},
@@ -6338,11 +5018,6 @@ const SCOUTS = {
     }
   },
   "89274": {
-    id: 89274,
-    id_time: 275,
-    time: "PAL",
-    pos: "MEI",
-    nome: "ANDREAS PEREIRA",
     scouts: {
       rdd: {
         1: {pt:6.7, A:1, FF:1, DS:1, FC:2},
@@ -6362,11 +5037,6 @@ const SCOUTS = {
     }
   },
   "89837": {
-    id: 89837,
-    id_time: 266,
-    time: "FLU",
-    pos: "MEI",
-    nome: "LUCHO ACOSTA",
     scouts: {
       rdd: {
         1: {pt:13.8, G:1, FF:1, FS:1, DS:3},
@@ -6386,11 +5056,6 @@ const SCOUTS = {
     }
   },
   "89840": {
-    id: 89840,
-    id_time: 276,
-    time: "SAO",
-    pos: "ATA",
-    nome: "CALLERI",
     scouts: {
       rdd: {
         1: {pt:0.4, FS:2, FC:2},
@@ -6410,11 +5075,6 @@ const SCOUTS = {
     }
   },
   "89883": {
-    id: 89883,
-    id_time: 284,
-    time: "GRE",
-    pos: "MEI",
-    nome: "DODI",
     scouts: {
       rdd: {
         1: {pt:-1.1, FS:1, CA:1, FC:2},
@@ -6434,11 +5094,6 @@ const SCOUTS = {
     }
   },
   "89918": {
-    id: 89918,
-    id_time: 2305,
-    time: "MIR",
-    pos: "ATA",
-    nome: "EVERTON GALDINO",
     scouts: {
       rdd: {
         1: {pt:0.5, FS:1},
@@ -6458,11 +5113,6 @@ const SCOUTS = {
     }
   },
   "90031": {
-    id: 90031,
-    id_time: 293,
-    time: "CAP",
-    pos: "ATA",
-    nome: "MENDOZA",
     scouts: {
       rdd: {
         1: {pt:8.2, G:1, FS:1, FC:1},
@@ -6482,11 +5132,6 @@ const SCOUTS = {
     }
   },
   "90285": {
-    id: 90285,
-    id_time: 262,
-    time: "FLA",
-    pos: "ATA",
-    nome: "BRUNO HENRIQUE",
     scouts: {
       rdd: {
         1: {pt:0.8, FF:1},
@@ -6506,11 +5151,6 @@ const SCOUTS = {
     }
   },
   "90302": {
-    id: 90302,
-    id_time: 294,
-    time: "CFC",
-    pos: "ATA",
-    nome: "PEDRO ROCHA",
     scouts: {
       rdd: {
         1: {pt:2.8, FD:1, FF:1, FS:3, I:1, FC:2},
@@ -6530,11 +5170,6 @@ const SCOUTS = {
     }
   },
   "90370": {
-    id: 90370,
-    id_time: 264,
-    time: "COR",
-    pos: "MEI",
-    nome: "MATHEUS PEREIRA",
     scouts: {
       rdd: {
         1: {pt:-0.3, FC:1},
@@ -6554,11 +5189,6 @@ const SCOUTS = {
     }
   },
   "90532": {
-    id: 90532,
-    id_time: 284,
-    time: "GRE",
-    pos: "MEI",
-    nome: "ARTHUR MELO",
     scouts: {
       rdd: {
         1: {pt:5.7, FS:3, DS:3, FC:1},
@@ -6578,11 +5208,6 @@ const SCOUTS = {
     }
   },
   "90588": {
-    id: 90588,
-    id_time: 287,
-    time: "VIT",
-    pos: "MEI",
-    nome: "CAÍQUE",
     scouts: {
       rdd: {
         1: {pt:0.4, FS:2, FC:2},
@@ -6602,11 +5227,6 @@ const SCOUTS = {
     }
   },
   "90703": {
-    id: 90703,
-    id_time: 287,
-    time: "VIT",
-    pos: "MEI",
-    nome: "MATHEUZINHO",
     scouts: {
       rdd: {
         1: {pt:4, FD:1, FF:1, FS:1, DS:1},
@@ -6626,11 +5246,6 @@ const SCOUTS = {
     }
   },
   "90715": {
-    id: 90715,
-    id_time: 293,
-    time: "CAP",
-    pos: "ATA",
-    nome: "LUIZ FERNANDO",
     scouts: {
       rdd: {
         1: {pt:-0.3, FC:1},
@@ -6650,11 +5265,6 @@ const SCOUTS = {
     }
   },
   "90768": {
-    id: 90768,
-    id_time: 283,
-    time: "CRU",
-    pos: "ZAG",
-    nome: "FABRÍCIO BRUNO",
     scouts: {
       rdd: {
         1: {pt:0.5, FS:1},
@@ -6674,11 +5284,6 @@ const SCOUTS = {
     }
   },
   "90943": {
-    id: 90943,
-    id_time: 287,
-    time: "VIT",
-    pos: "ZAG",
-    nome: "ZÉ MARCOS",
     scouts: {
       rdd: {
         1: {pt:4.1, SG:1, FC:3},
@@ -6698,11 +5303,6 @@ const SCOUTS = {
     }
   },
   "91101": {
-    id: 91101,
-    id_time: 265,
-    time: "BAH",
-    pos: "GOL",
-    nome: "RONALDO",
     scouts: {
       rdd: {
         1: {pt:4.2, DE:4, GS:1},
@@ -6722,11 +5322,6 @@ const SCOUTS = {
     }
   },
   "91473": {
-    id: 91473,
-    id_time: 262,
-    time: "FLA",
-    pos: "MEI",
-    nome: "ERICK PULGAR",
     scouts: {
       rdd: {
         1: {pt:3.5, FS:1, DS:2},
@@ -6746,11 +5341,6 @@ const SCOUTS = {
     }
   },
   "91573": {
-    id: 91573,
-    id_time: 276,
-    time: "SAO",
-    pos: "ZAG",
-    nome: "ARBOLEDA",
     scouts: {
       rdd: {
         1: {pt:7.5, DS:5},
@@ -6770,11 +5360,6 @@ const SCOUTS = {
     }
   },
   "91706": {
-    id: 91706,
-    id_time: 284,
-    time: "GRE",
-    pos: "LAT",
-    nome: "MARLON",
     scouts: {
       rdd: {
         1: {pt:4.6, FS:1, I:1, DS:3, FC:1},
@@ -6794,11 +5379,6 @@ const SCOUTS = {
     }
   },
   "91772": {
-    id: 91772,
-    id_time: 265,
-    time: "BAH",
-    pos: "ZAG",
-    nome: "DAVID DUARTE",
     scouts: {
       rdd: {
         1: {pt:0.9, DS:1, FC:2},
@@ -6818,11 +5398,6 @@ const SCOUTS = {
     }
   },
   "91908": {
-    id: 91908,
-    id_time: 284,
-    time: "GRE",
-    pos: "ATA",
-    nome: "PAVÓN",
     scouts: {
       rdd: {
         1: {pt:2.9, FD:1, FS:1, DS:1, FC:1},
@@ -6842,11 +5417,6 @@ const SCOUTS = {
     }
   },
   "92171": {
-    id: 92171,
-    id_time: 263,
-    time: "BOT",
-    pos: "ATA",
-    nome: "ARTHUR CABRAL",
     scouts: {
       rdd: {
         1: {pt:7.1, A:1, FF:3, FC:1},
@@ -6866,11 +5436,6 @@ const SCOUTS = {
     }
   },
   "92180": {
-    id: 92180,
-    id_time: 287,
-    time: "VIT",
-    pos: "TEC",
-    nome: "JAIR VENTURA",
     scouts: {
       rdd: {
         1: {pt:9.26, V:1},
@@ -6890,11 +5455,6 @@ const SCOUTS = {
     }
   },
   "92273": {
-    id: 92273,
-    id_time: 293,
-    time: "CAP",
-    pos: "TEC",
-    nome: "ODAIR HELLMANN",
     scouts: {
       rdd: {
         1: {pt:8.09, V:1},
@@ -6914,11 +5474,6 @@ const SCOUTS = {
     }
   },
   "92696": {
-    id: 92696,
-    id_time: 287,
-    time: "VIT",
-    pos: "ATA",
-    nome: "RENATO KAYZER",
     scouts: {
       rdd: {
         1: {pt:10.4, G:1, FD:1, FF:1, FS:1, I:1},
@@ -6938,11 +5493,6 @@ const SCOUTS = {
     }
   },
   "92854": {
-    id: 92854,
-    id_time: 285,
-    time: "INT",
-    pos: "ATA",
-    nome: "BORRÉ",
     scouts: {
       rdd: {
         1: {pt:2.4, FD:2, FF:1, I:2, FC:2},
@@ -6962,11 +5512,6 @@ const SCOUTS = {
     }
   },
   "92981": {
-    id: 92981,
-    id_time: 285,
-    time: "INT",
-    pos: "MEI",
-    nome: "RONALDO",
     scouts: {
       rdd: {
         1: {pt:0.2, FF:1, FC:2},
@@ -6986,11 +5531,6 @@ const SCOUTS = {
     }
   },
   "93411": {
-    id: 93411,
-    id_time: 287,
-    time: "VIT",
-    pos: "MEI",
-    nome: "CANTALAPIEDRA",
     scouts: {
       rdd: {
         1: {pt:0.5, FF:1, FC:1},
@@ -7010,11 +5550,6 @@ const SCOUTS = {
     }
   },
   "93478": {
-    id: 93478,
-    id_time: 283,
-    time: "CRU",
-    pos: "ATA",
-    nome: "WANDERSON",
     scouts: {
       rdd: {
         1: {pt:0.9, FF:2, I:1, FC:2},
@@ -7034,11 +5569,6 @@ const SCOUTS = {
     }
   },
   "93790": {
-    id: 93790,
-    id_time: 275,
-    time: "PAL",
-    pos: "MEI",
-    nome: "MARLON FREITAS",
     scouts: {
       rdd: {
         1: {pt:1.4, I:1, DS:1},
@@ -7058,11 +5588,6 @@ const SCOUTS = {
     }
   },
   "93882": {
-    id: 93882,
-    id_time: 280,
-    time: "RBB",
-    pos: "GOL",
-    nome: "CLEITON",
     scouts: {
       rdd: {
         1: {pt:7.6, SG:1, DE:2},
@@ -7082,11 +5607,6 @@ const SCOUTS = {
     }
   },
   "93988": {
-    id: 93988,
-    id_time: 294,
-    time: "CFC",
-    pos: "ATA",
-    nome: "BRENO LOPES",
     scouts: {
       rdd: {
         1: {pt:1.1, FD:1, I:1},
@@ -7106,11 +5626,6 @@ const SCOUTS = {
     }
   },
   "94067": {
-    id: 94067,
-    id_time: 280,
-    time: "RBB",
-    pos: "MEI",
-    nome: "MATHEUS FERNANDES",
     scouts: {
       rdd: {
         1: {pt:0.3, FF:2, CA:1, FC:1},
@@ -7130,11 +5645,6 @@ const SCOUTS = {
     }
   },
   "94154": {
-    id: 94154,
-    id_time: 282,
-    time: "CAM",
-    pos: "MEI",
-    nome: "MAYCON",
     scouts: {
       rdd: {
         1: {pt:2.5, FF:1, FS:1, DS:1, FC:1},
@@ -7154,11 +5664,6 @@ const SCOUTS = {
     }
   },
   "94583": {
-    id: 94583,
-    id_time: 262,
-    time: "FLA",
-    pos: "ATA",
-    nome: "PEDRO",
     scouts: {
       rdd: {
         1: {pt:6.4, A:1, FS:1, DS:1, FC:2},
@@ -7178,11 +5683,6 @@ const SCOUTS = {
     }
   },
   "94968": {
-    id: 94968,
-    id_time: 280,
-    time: "RBB",
-    pos: "LAT",
-    nome: "JUNINHO CAPIXABA",
     scouts: {
       rdd: {
         1: {pt:16.2, G:1, FT:1, FF:1, SG:1, FC:2},
@@ -7202,11 +5702,6 @@ const SCOUTS = {
     }
   },
   "95332": {
-    id: 95332,
-    id_time: 315,
-    time: "CHA",
-    pos: "ATA",
-    nome: "MARCINHO",
     scouts: {
       rdd: {
         1: {pt:1.6, FS:1, I:1, DS:1, FC:1},
@@ -7226,11 +5721,6 @@ const SCOUTS = {
     }
   },
   "95466": {
-    id: 95466,
-    id_time: 277,
-    time: "SAN",
-    pos: "LAT",
-    nome: "IGOR VINÍCIUS",
     scouts: {
       rdd: {
         1: {pt:5.5, A:1, FS:1},
@@ -7250,11 +5740,6 @@ const SCOUTS = {
     }
   },
   "95556": {
-    id: 95556,
-    id_time: 264,
-    time: "COR",
-    pos: "MEI",
-    nome: "RANIELE",
     scouts: {
       rdd: {
         1: {pt:11.4, FF:1, FS:1, DS:8, CA:1, FC:3},
@@ -7274,11 +5759,6 @@ const SCOUTS = {
     }
   },
   "95799": {
-    id: 95799,
-    id_time: 263,
-    time: "BOT",
-    pos: "ATA",
-    nome: "ARTUR",
     scouts: {
       rdd: {
         1: {pt:8, G:1},
@@ -7298,11 +5778,6 @@ const SCOUTS = {
     }
   },
   "96591": {
-    id: 96591,
-    id_time: 282,
-    time: "CAM",
-    pos: "LAT",
-    nome: "RENAN LODI",
     scouts: {
       rdd: {
         1: {pt:11.2, A:1, FS:5, I:1, DS:4, CA:1, FC:4},
@@ -7322,11 +5797,6 @@ const SCOUTS = {
     }
   },
   "96610": {
-    id: 96610,
-    id_time: 283,
-    time: "CRU",
-    pos: "MEI",
-    nome: "MATHEUS PEREIRA",
     scouts: {
       rdd: {
         1: {pt:3.7, FD:1, FS:2, DS:1},
@@ -7346,11 +5816,6 @@ const SCOUTS = {
     }
   },
   "96793": {
-    id: 96793,
-    id_time: 287,
-    time: "VIT",
-    pos: "ZAG",
-    nome: "CAMUTANGA",
     scouts: {
       rdd: {
         1: {pt:9.5, FD:1, FF:1, FS:2, DS:1, SG:1},
@@ -7370,11 +5835,6 @@ const SCOUTS = {
     }
   },
   "97095": {
-    id: 97095,
-    id_time: 267,
-    time: "VAS",
-    pos: "ZAG",
-    nome: "CARLOS CUESTA",
     scouts: {
       rdd: {
         1: {pt:-1.1, FF:1, FS:1, DS:1, FC:3, GC:1},
@@ -7394,11 +5854,6 @@ const SCOUTS = {
     }
   },
   "97321": {
-    id: 97321,
-    id_time: 2305,
-    time: "MIR",
-    pos: "ATA",
-    nome: "ALESSON",
     scouts: {
       rdd: {
         1: {pt:9.7, A:1, FD:1, FF:1, DS:2, FC:1},
@@ -7418,11 +5873,6 @@ const SCOUTS = {
     }
   },
   "97341": {
-    id: 97341,
-    id_time: 265,
-    time: "BAH",
-    pos: "TEC",
-    nome: "ROGÉRIO CENI",
     scouts: {
       rdd: {
         1: {pt:5.19, V:1},
@@ -7442,11 +5892,6 @@ const SCOUTS = {
     }
   },
   "97432": {
-    id: 97432,
-    id_time: 315,
-    time: "CHA",
-    pos: "ZAG",
-    nome: "VICTOR CAETANO",
     scouts: {
       rdd: {
         1: {pt:3, DS:2},
@@ -7466,11 +5911,6 @@ const SCOUTS = {
     }
   },
   "97460": {
-    id: 97460,
-    id_time: 2305,
-    time: "MIR",
-    pos: "ZAG",
-    nome: "JOÃO VICTOR",
     scouts: {
       rdd: {
         1: {pt:1.5, DS:1},
@@ -7490,11 +5930,6 @@ const SCOUTS = {
     }
   },
   "97468": {
-    id: 97468,
-    id_time: 263,
-    time: "BOT",
-    pos: "LAT",
-    nome: "MARÇAL",
     scouts: {
       rdd: {
         1: {pt:8, DS:2, SG:1},
@@ -7514,11 +5949,6 @@ const SCOUTS = {
     }
   },
   "97642": {
-    id: 97642,
-    id_time: 285,
-    time: "INT",
-    pos: "ZAG",
-    nome: "FÉLIX TORRES",
     scouts: {
       rdd: {
         1: {pt:-0.1, FS:1, FC:2},
@@ -7538,11 +5968,6 @@ const SCOUTS = {
     }
   },
   "97653": {
-    id: 97653,
-    id_time: 275,
-    time: "PAL",
-    pos: "ZAG",
-    nome: "MURILO",
     scouts: {
       rdd: {
         1: {pt:-0.9, FC:3},
@@ -7562,11 +5987,6 @@ const SCOUTS = {
     }
   },
   "97735": {
-    id: 97735,
-    id_time: 364,
-    time: "REM",
-    pos: "MEI",
-    nome: "GIOVANNI PAVANI",
     scouts: {
       rdd: {
         1: {pt:1.5, DS:1},
@@ -7586,11 +6006,6 @@ const SCOUTS = {
     }
   },
   "97795": {
-    id: 97795,
-    id_time: 364,
-    time: "REM",
-    pos: "LAT",
-    nome: "MARCELINHO",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -7610,11 +6025,6 @@ const SCOUTS = {
     }
   },
   "97810": {
-    id: 97810,
-    id_time: 287,
-    time: "VIT",
-    pos: "ATA",
-    nome: "ERICK",
     scouts: {
       rdd: {
         1: {pt:12.5, A:2, FF:2, FS:2, I:1},
@@ -7634,11 +6044,6 @@ const SCOUTS = {
     }
   },
   "97867": {
-    id: 97867,
-    id_time: 262,
-    time: "FLA",
-    pos: "ZAG",
-    nome: "LÉO ORTIZ",
     scouts: {
       rdd: {
         1: {pt:-0.3, FC:1},
@@ -7658,11 +6063,6 @@ const SCOUTS = {
     }
   },
   "97878": {
-    id: 97878,
-    id_time: 294,
-    time: "CFC",
-    pos: "ZAG",
-    nome: "JACY",
     scouts: {
       rdd: {
         1: {pt:2, FS:1, DS:1},
@@ -7682,11 +6082,6 @@ const SCOUTS = {
     }
   },
   "97906": {
-    id: 97906,
-    id_time: 287,
-    time: "VIT",
-    pos: "ZAG",
-    nome: "RICCIELI",
     scouts: {
       rdd: {
         1: {pt:5, SG:1},
@@ -7706,11 +6101,6 @@ const SCOUTS = {
     }
   },
   "97969": {
-    id: 97969,
-    id_time: 315,
-    time: "CHA",
-    pos: "LAT",
-    nome: "MARCOS VINÍCIUS",
     scouts: {
       rdd: {
         1: {pt:-1.3, CA:1, FC:1},
@@ -7730,11 +6120,6 @@ const SCOUTS = {
     }
   },
   "98022": {
-    id: 98022,
-    id_time: 265,
-    time: "BAH",
-    pos: "MEI",
-    nome: "ERICK",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -7754,11 +6139,6 @@ const SCOUTS = {
     }
   },
   "98224": {
-    id: 98224,
-    id_time: 364,
-    time: "REM",
-    pos: "MEI",
-    nome: "JÁDERSON",
     scouts: {
       rdd: {
         1: {pt:1.7, FS:4, FC:1},
@@ -7778,11 +6158,6 @@ const SCOUTS = {
     }
   },
   "98225": {
-    id: 98225,
-    id_time: 264,
-    time: "COR",
-    pos: "ATA",
-    nome: "PEDRO RAUL",
     scouts: {
       rdd: {
         1: {pt:0},
@@ -7802,11 +6177,6 @@ const SCOUTS = {
     }
   },
   "98384": {
-    id: 98384,
-    id_time: 2305,
-    time: "MIR",
-    pos: "ATA",
-    nome: "NEGUEBA",
     scouts: {
       rdd: {
         1: {pt:4.8, FF:1, FS:2, DS:2},
@@ -7826,11 +6196,6 @@ const SCOUTS = {
     }
   },
   "98517": {
-    id: 98517,
-    id_time: 265,
-    time: "BAH",
-    pos: "MEI",
-    nome: "JEAN LUCAS",
     scouts: {
       rdd: {
         1: {pt:6.1, G:1, CA:1, FC:3},
@@ -7850,11 +6215,6 @@ const SCOUTS = {
     }
   },
   "98672": {
-    id: 98672,
-    id_time: 266,
-    time: "FLU",
-    pos: "MEI",
-    nome: "SAVARINO",
     scouts: {
       rdd: {
         1: {pt:0.5, FS:1},
@@ -7874,11 +6234,6 @@ const SCOUTS = {
     }
   },
   "98873": {
-    id: 98873,
-    id_time: 262,
-    time: "FLA",
-    pos: "ATA",
-    nome: "SAMUEL LINO",
     scouts: {
       rdd: {
         1: {pt:6.5, FS:1, DS:4},
@@ -7898,11 +6253,6 @@ const SCOUTS = {
     }
   },
   "98909": {
-    id: 98909,
-    id_time: 282,
-    time: "CAM",
-    pos: "ATA",
-    nome: "CUELLO",
     scouts: {
       rdd: {
         1: {pt:1.8, FF:1, I:2, DS:1, FC:1},
@@ -7922,11 +6272,6 @@ const SCOUTS = {
     }
   },
   "99213": {
-    id: 99213,
-    id_time: 267,
-    time: "VAS",
-    pos: "LAT",
-    nome: "PUMA RODRÍGUEZ",
     scouts: {
       rdd: {
         1: {pt:6.4, A:1, I:1, DS:1},
@@ -7946,11 +6291,6 @@ const SCOUTS = {
     }
   },
   "99274": {
-    id: 99274,
-    id_time: 263,
-    time: "BOT",
-    pos: "ZAG",
-    nome: "ALEXANDER BARBOZA",
     scouts: {
       rdd: {
         1: {pt:6.2, DS:1, SG:1, FC:1},
@@ -7970,11 +6310,6 @@ const SCOUTS = {
     }
   },
   "99366": {
-    id: 99366,
-    id_time: 266,
-    time: "FLU",
-    pos: "TEC",
-    nome: "LUIS ZUBELDÍA",
     scouts: {
       rdd: {
         1: {pt:5.55, V:1},
@@ -7994,11 +6329,6 @@ const SCOUTS = {
     }
   },
   "99440": {
-    id: 99440,
-    id_time: 287,
-    time: "VIT",
-    pos: "MEI",
-    nome: "BARALHAS",
     scouts: {
       rdd: {
         1: {pt:10.9, G:1, FS:3, DS:2, CA:1, FC:2},
@@ -8018,11 +6348,6 @@ const SCOUTS = {
     }
   },
   "99552": {
-    id: 99552,
-    id_time: 262,
-    time: "FLA",
-    pos: "GOL",
-    nome: "ROSSI",
     scouts: {
       rdd: {
         1: {pt:0.6, DE:2, GS:2},
@@ -8042,11 +6367,6 @@ const SCOUTS = {
     }
   },
   "99889": {
-    id: 99889,
-    id_time: 276,
-    time: "SAO",
-    pos: "ZAG",
-    nome: "ALAN FRANCO",
     scouts: {
       rdd: {
         1: {pt:3.2, FS:1, DS:2, FC:1},
@@ -8066,11 +6386,6 @@ const SCOUTS = {
     }
   },
   "100848": {
-    id: 100848,
-    id_time: 287,
-    time: "VIT",
-    pos: "LAT",
-    nome: "LUAN CÂNDIDO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8090,11 +6405,6 @@ const SCOUTS = {
     }
   },
   "101594": {
-    id: 101594,
-    id_time: 267,
-    time: "VAS",
-    pos: "MEI",
-    nome: "HUGO MOURA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8114,11 +6424,6 @@ const SCOUTS = {
     }
   },
   "101715": {
-    id: 101715,
-    id_time: 285,
-    time: "INT",
-    pos: "ATA",
-    nome: "ALERRANDRO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8138,11 +6443,6 @@ const SCOUTS = {
     }
   },
   "102909": {
-    id: 102909,
-    id_time: 276,
-    time: "SAO",
-    pos: "MEI",
-    nome: "LUAN VINÍCIUS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8162,11 +6462,6 @@ const SCOUTS = {
     }
   },
   "102975": {
-    id: 102975,
-    id_time: 277,
-    time: "SAN",
-    pos: "LAT",
-    nome: "ESCOBAR",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8186,11 +6481,6 @@ const SCOUTS = {
     }
   },
   "103295": {
-    id: 103295,
-    id_time: 280,
-    time: "RBB",
-    pos: "MEI",
-    nome: "ERIC RAMIRES",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8210,11 +6500,6 @@ const SCOUTS = {
     }
   },
   "105300": {
-    id: 105300,
-    id_time: 276,
-    time: "SAO",
-    pos: "ZAG",
-    nome: "FERRARESI",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8234,11 +6519,6 @@ const SCOUTS = {
     }
   },
   "106302": {
-    id: 106302,
-    id_time: 282,
-    time: "CAM",
-    pos: "LAT",
-    nome: "PRECIADO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8258,11 +6538,6 @@ const SCOUTS = {
     }
   },
   "106323": {
-    id: 106323,
-    id_time: 265,
-    time: "BAH",
-    pos: "MEI",
-    nome: "CAIO ALEXANDRE",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8282,11 +6557,6 @@ const SCOUTS = {
     }
   },
   "108131": {
-    id: 108131,
-    id_time: 315,
-    time: "CHA",
-    pos: "ATA",
-    nome: "GARCEZ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8306,11 +6576,6 @@ const SCOUTS = {
     }
   },
   "108133": {
-    id: 108133,
-    id_time: 280,
-    time: "RBB",
-    pos: "ATA",
-    nome: "ISIDRO PITTA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8330,11 +6595,6 @@ const SCOUTS = {
     }
   },
   "108469": {
-    id: 108469,
-    id_time: 277,
-    time: "SAN",
-    pos: "ZAG",
-    nome: "ADONIS FRÍAS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8354,11 +6614,6 @@ const SCOUTS = {
     }
   },
   "109966": {
-    id: 109966,
-    id_time: 284,
-    time: "GRE",
-    pos: "MEI",
-    nome: "MONSALVE",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8378,11 +6633,6 @@ const SCOUTS = {
     }
   },
   "110598": {
-    id: 110598,
-    id_time: 267,
-    time: "VAS",
-    pos: "ATA",
-    nome: "MARINO HINESTROZA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8402,11 +6652,6 @@ const SCOUTS = {
     }
   },
   "111760": {
-    id: 111760,
-    id_time: 280,
-    time: "RBB",
-    pos: "MEI",
-    nome: "FABINHO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8426,11 +6671,6 @@ const SCOUTS = {
     }
   },
   "111945": {
-    id: 111945,
-    id_time: 364,
-    time: "REM",
-    pos: "MEI",
-    nome: "DIEGO HERNÁNDEZ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8450,11 +6690,6 @@ const SCOUTS = {
     }
   },
   "112939": {
-    id: 112939,
-    id_time: 364,
-    time: "REM",
-    pos: "MEI",
-    nome: "CATAROZZI",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8474,11 +6709,6 @@ const SCOUTS = {
     }
   },
   "113125": {
-    id: 113125,
-    id_time: 364,
-    time: "REM",
-    pos: "MEI",
-    nome: "PICCO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8498,11 +6728,6 @@ const SCOUTS = {
     }
   },
   "113157": {
-    id: 113157,
-    id_time: 287,
-    time: "VIT",
-    pos: "LAT",
-    nome: "NATHAN MENDES",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8522,11 +6747,6 @@ const SCOUTS = {
     }
   },
   "115986": {
-    id: 115986,
-    id_time: 2305,
-    time: "MIR",
-    pos: "MEI",
-    nome: "DENILSON",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8546,11 +6766,6 @@ const SCOUTS = {
     }
   },
   "116066": {
-    id: 116066,
-    id_time: 315,
-    time: "CHA",
-    pos: "ATA",
-    nome: "RUBENS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8570,11 +6785,6 @@ const SCOUTS = {
     }
   },
   "130048": {
-    id: 130048,
-    id_time: 284,
-    time: "GRE",
-    pos: "ZAG",
-    nome: "NORIEGA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8594,11 +6804,6 @@ const SCOUTS = {
     }
   },
   "134678": {
-    id: 134678,
-    id_time: 287,
-    time: "VIT",
-    pos: "ATA",
-    nome: "LAWAN",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8618,11 +6823,6 @@ const SCOUTS = {
     }
   },
   "136156": {
-    id: 136156,
-    id_time: 275,
-    time: "PAL",
-    pos: "MEI",
-    nome: "LARSON",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8642,11 +6842,6 @@ const SCOUTS = {
     }
   },
   "136955": {
-    id: 136955,
-    id_time: 265,
-    time: "BAH",
-    pos: "ATA",
-    nome: "SANABRIA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8666,11 +6861,6 @@ const SCOUTS = {
     }
   },
   "139345": {
-    id: 139345,
-    id_time: 283,
-    time: "CRU",
-    pos: "LAT",
-    nome: "KAUÃ PRATES",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8690,11 +6880,6 @@ const SCOUTS = {
     }
   },
   "140438": {
-    id: 140438,
-    id_time: 315,
-    time: "CHA",
-    pos: "MEI",
-    nome: "DAVID",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8714,11 +6899,6 @@ const SCOUTS = {
     }
   },
   "146410": {
-    id: 146410,
-    id_time: 263,
-    time: "BOT",
-    pos: "MEI",
-    nome: "MARQUINHOS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8738,11 +6918,6 @@ const SCOUTS = {
     }
   },
   "146623": {
-    id: 146623,
-    id_time: 275,
-    time: "PAL",
-    pos: "MEI",
-    nome: "LUIS PACHECO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8762,11 +6937,6 @@ const SCOUTS = {
     }
   },
   "147088": {
-    id: 147088,
-    id_time: 282,
-    time: "CAM",
-    pos: "MEI",
-    nome: "CISSÉ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8786,11 +6956,6 @@ const SCOUTS = {
     }
   },
   "72951": {
-    id: 72951,
-    id_time: 285,
-    time: "INT",
-    pos: "ZAG",
-    nome: "MERCADO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8810,11 +6975,6 @@ const SCOUTS = {
     }
   },
   "81150": {
-    id: 81150,
-    id_time: 277,
-    time: "SAN",
-    pos: "LAT",
-    nome: "MAYKE",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8834,11 +6994,6 @@ const SCOUTS = {
     }
   },
   "83257": {
-    id: 83257,
-    id_time: 277,
-    time: "SAN",
-    pos: "ATA",
-    nome: "GABRIEL",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8858,11 +7013,6 @@ const SCOUTS = {
     }
   },
   "83786": {
-    id: 83786,
-    id_time: 287,
-    time: "VIT",
-    pos: "ZAG",
-    nome: "NERIS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8882,11 +7032,6 @@ const SCOUTS = {
     }
   },
   "84428": {
-    id: 84428,
-    id_time: 294,
-    time: "CFC",
-    pos: "MEI",
-    nome: "FERNANDO SOBRAL",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8906,11 +7051,6 @@ const SCOUTS = {
     }
   },
   "86485": {
-    id: 86485,
-    id_time: 294,
-    time: "CFC",
-    pos: "ATA",
-    nome: "KENO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8930,11 +7070,6 @@ const SCOUTS = {
     }
   },
   "86859": {
-    id: 86859,
-    id_time: 364,
-    time: "REM",
-    pos: "MEI",
-    nome: "JOSÉ WELISON",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8954,11 +7089,6 @@ const SCOUTS = {
     }
   },
   "87228": {
-    id: 87228,
-    id_time: 266,
-    time: "FLU",
-    pos: "LAT",
-    nome: "GUILHERME ARANA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -8978,11 +7108,6 @@ const SCOUTS = {
     }
   },
   "87552": {
-    id: 87552,
-    id_time: 364,
-    time: "REM",
-    pos: "MEI",
-    nome: "VITOR BUENO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9002,11 +7127,6 @@ const SCOUTS = {
     }
   },
   "87887": {
-    id: 87887,
-    id_time: 284,
-    time: "GRE",
-    pos: "ZAG",
-    nome: "BALBUENA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9026,11 +7146,6 @@ const SCOUTS = {
     }
   },
   "89275": {
-    id: 89275,
-    id_time: 283,
-    time: "CRU",
-    pos: "LAT",
-    nome: "WILLIAM",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9050,11 +7165,6 @@ const SCOUTS = {
     }
   },
   "89637": {
-    id: 89637,
-    id_time: 285,
-    time: "INT",
-    pos: "MEI",
-    nome: "THIAGO MAIA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9074,11 +7184,6 @@ const SCOUTS = {
     }
   },
   "90309": {
-    id: 90309,
-    id_time: 267,
-    time: "VAS",
-    pos: "ATA",
-    nome: "DAVID",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9098,11 +7203,6 @@ const SCOUTS = {
     }
   },
   "90917": {
-    id: 90917,
-    id_time: 2305,
-    time: "MIR",
-    pos: "ATA",
-    nome: "CARLOS EDUARDO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9122,11 +7222,6 @@ const SCOUTS = {
     }
   },
   "91251": {
-    id: 91251,
-    id_time: 2305,
-    time: "MIR",
-    pos: "ZAG",
-    nome: "RODRIGUES",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9146,11 +7241,6 @@ const SCOUTS = {
     }
   },
   "91607": {
-    id: 91607,
-    id_time: 277,
-    time: "SAN",
-    pos: "ATA",
-    nome: "RONY",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9170,11 +7260,6 @@ const SCOUTS = {
     }
   },
   "92811": {
-    id: 92811,
-    id_time: 275,
-    time: "PAL",
-    pos: "ATA",
-    nome: "BRUNO RODRIGUES",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9194,11 +7279,6 @@ const SCOUTS = {
     }
   },
   "93372": {
-    id: 93372,
-    id_time: 277,
-    time: "SAN",
-    pos: "ZAG",
-    nome: "JOÃO BASSO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9218,11 +7298,6 @@ const SCOUTS = {
     }
   },
   "94930": {
-    id: 94930,
-    id_time: 262,
-    time: "FLA",
-    pos: "MEI",
-    nome: "LUCAS PAQUETÁ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9242,11 +7317,6 @@ const SCOUTS = {
     }
   },
   "95620": {
-    id: 95620,
-    id_time: 315,
-    time: "CHA",
-    pos: "ZAG",
-    nome: "BRUNO LEONARDO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9266,11 +7336,6 @@ const SCOUTS = {
     }
   },
   "96340": {
-    id: 96340,
-    id_time: 266,
-    time: "FLU",
-    pos: "MEI",
-    nome: "LIMA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9290,11 +7355,6 @@ const SCOUTS = {
     }
   },
   "96870": {
-    id: 96870,
-    id_time: 262,
-    time: "FLA",
-    pos: "LAT",
-    nome: "EMERSON ROYAL",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9314,11 +7374,6 @@ const SCOUTS = {
     }
   },
   "99228": {
-    id: 99228,
-    id_time: 262,
-    time: "FLA",
-    pos: "MEI",
-    nome: "DE LA CRUZ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9338,11 +7393,6 @@ const SCOUTS = {
     }
   },
   "99789": {
-    id: 99789,
-    id_time: 267,
-    time: "VAS",
-    pos: "ATA",
-    nome: "BRENNER",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9362,11 +7412,6 @@ const SCOUTS = {
     }
   },
   "100695": {
-    id: 100695,
-    id_time: 280,
-    time: "RBB",
-    pos: "ATA",
-    nome: "FERNANDO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9386,11 +7431,6 @@ const SCOUTS = {
     }
   },
   "101290": {
-    id: 101290,
-    id_time: 276,
-    time: "SAO",
-    pos: "ATA",
-    nome: "FERREIRA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9410,11 +7450,6 @@ const SCOUTS = {
     }
   },
   "101319": {
-    id: 101319,
-    id_time: 266,
-    time: "FLU",
-    pos: "LAT",
-    nome: "GUGA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9434,11 +7469,6 @@ const SCOUTS = {
     }
   },
   "104666": {
-    id: 104666,
-    id_time: 277,
-    time: "SAN",
-    pos: "ATA",
-    nome: "MOISÉS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9458,11 +7488,6 @@ const SCOUTS = {
     }
   },
   "105373": {
-    id: 105373,
-    id_time: 265,
-    time: "BAH",
-    pos: "ZAG",
-    nome: "GABRIEL XAVIER",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9482,11 +7507,6 @@ const SCOUTS = {
     }
   },
   "110144": {
-    id: 110144,
-    id_time: 267,
-    time: "VAS",
-    pos: "ATA",
-    nome: "SPINELLI",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9506,11 +7526,6 @@ const SCOUTS = {
     }
   },
   "110668": {
-    id: 110668,
-    id_time: 293,
-    time: "CAP",
-    pos: "LAT",
-    nome: "ESQUIVEL",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9530,11 +7545,6 @@ const SCOUTS = {
     }
   },
   "111829": {
-    id: 111829,
-    id_time: 285,
-    time: "INT",
-    pos: "ATA",
-    nome: "KAYKY",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9554,11 +7564,6 @@ const SCOUTS = {
     }
   },
   "111832": {
-    id: 111832,
-    id_time: 275,
-    time: "PAL",
-    pos: "LAT",
-    nome: "JEFTÉ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9578,11 +7583,6 @@ const SCOUTS = {
     }
   },
   "114405": {
-    id: 114405,
-    id_time: 283,
-    time: "CRU",
-    pos: "ATA",
-    nome: "SINISTERRA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9602,11 +7602,6 @@ const SCOUTS = {
     }
   },
   "116447": {
-    id: 116447,
-    id_time: 266,
-    time: "FLU",
-    pos: "MEI",
-    nome: "HÉRCULES",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9626,11 +7621,6 @@ const SCOUTS = {
     }
   },
   "121824": {
-    id: 121824,
-    id_time: 264,
-    time: "COR",
-    pos: "ATA",
-    nome: "KAYKE",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9650,11 +7640,6 @@ const SCOUTS = {
     }
   },
   "122138": {
-    id: 122138,
-    id_time: 315,
-    time: "CHA",
-    pos: "MEI",
-    nome: "JOÃO VITOR",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9674,11 +7659,6 @@ const SCOUTS = {
     }
   },
   "123738": {
-    id: 123738,
-    id_time: 280,
-    time: "RBB",
-    pos: "ATA",
-    nome: "HERRERA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9698,11 +7678,6 @@ const SCOUTS = {
     }
   },
   "123744": {
-    id: 123744,
-    id_time: 285,
-    time: "INT",
-    pos: "MEI",
-    nome: "ALAN RODRÍGUEZ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9722,11 +7697,6 @@ const SCOUTS = {
     }
   },
   "126013": {
-    id: 126013,
-    id_time: 263,
-    time: "BOT",
-    pos: "ZAG",
-    nome: "YTHALLO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9746,11 +7716,6 @@ const SCOUTS = {
     }
   },
   "127970": {
-    id: 127970,
-    id_time: 293,
-    time: "CAP",
-    pos: "MEI",
-    nome: "FELIPE CHIQUETI",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9770,11 +7735,6 @@ const SCOUTS = {
     }
   },
   "132412": {
-    id: 132412,
-    id_time: 265,
-    time: "BAH",
-    pos: "LAT",
-    nome: "ROMÁN GÓMEZ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9794,11 +7754,6 @@ const SCOUTS = {
     }
   },
   "141165": {
-    id: 141165,
-    id_time: 294,
-    time: "CFC",
-    pos: "ATA",
-    nome: "ENZO VAGNER",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9818,11 +7773,6 @@ const SCOUTS = {
     }
   },
   "141615": {
-    id: 141615,
-    id_time: 276,
-    time: "SAO",
-    pos: "MEI",
-    nome: "PEDRO FERREIRA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9842,11 +7792,6 @@ const SCOUTS = {
     }
   },
   "142877": {
-    id: 142877,
-    id_time: 263,
-    time: "BOT",
-    pos: "ATA",
-    nome: "VILLALBA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9866,11 +7811,6 @@ const SCOUTS = {
     }
   },
   "146375": {
-    id: 146375,
-    id_time: 263,
-    time: "BOT",
-    pos: "ATA",
-    nome: "KADIR",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9890,11 +7830,6 @@ const SCOUTS = {
     }
   },
   "147194": {
-    id: 147194,
-    id_time: 293,
-    time: "CAP",
-    pos: "MEI",
-    nome: "BRUNINHO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9914,11 +7849,6 @@ const SCOUTS = {
     }
   },
   "71536": {
-    id: 71536,
-    id_time: 293,
-    time: "CAP",
-    pos: "MEI",
-    nome: "LUIZ GUSTAVO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9938,11 +7868,6 @@ const SCOUTS = {
     }
   },
   "82775": {
-    id: 82775,
-    id_time: 276,
-    time: "SAO",
-    pos: "LAT",
-    nome: "LUCAS RAMON",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9962,11 +7887,6 @@ const SCOUTS = {
     }
   },
   "84674": {
-    id: 84674,
-    id_time: 275,
-    time: "PAL",
-    pos: "MEI",
-    nome: "LUCAS EVANGELISTA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -9986,11 +7906,6 @@ const SCOUTS = {
     }
   },
   "87470": {
-    id: 87470,
-    id_time: 277,
-    time: "SAN",
-    pos: "MEI",
-    nome: "THACIANO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10010,11 +7925,6 @@ const SCOUTS = {
     }
   },
   "91639": {
-    id: 91639,
-    id_time: 2305,
-    time: "MIR",
-    pos: "LAT",
-    nome: "IGOR CARIÚS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10034,11 +7944,6 @@ const SCOUTS = {
     }
   },
   "91866": {
-    id: 91866,
-    id_time: 277,
-    time: "SAN",
-    pos: "ZAG",
-    nome: "ZÉ IVALDO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10058,11 +7963,6 @@ const SCOUTS = {
     }
   },
   "93716": {
-    id: 93716,
-    id_time: 267,
-    time: "VAS",
-    pos: "LAT",
-    nome: "PAULO HENRIQUE",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10082,11 +7982,6 @@ const SCOUTS = {
     }
   },
   "95555": {
-    id: 95555,
-    id_time: 364,
-    time: "REM",
-    pos: "LAT",
-    nome: "SÁVIO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10106,11 +8001,6 @@ const SCOUTS = {
     }
   },
   "96342": {
-    id: 96342,
-    id_time: 264,
-    time: "COR",
-    pos: "MEI",
-    nome: "CHARLES",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10130,11 +8020,6 @@ const SCOUTS = {
     }
   },
   "96652": {
-    id: 96652,
-    id_time: 264,
-    time: "COR",
-    pos: "MEI",
-    nome: "ALLAN",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10154,11 +8039,6 @@ const SCOUTS = {
     }
   },
   "98484": {
-    id: 98484,
-    id_time: 265,
-    time: "BAH",
-    pos: "ZAG",
-    nome: "KANU",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10178,11 +8058,6 @@ const SCOUTS = {
     }
   },
   "101708": {
-    id: 101708,
-    id_time: 294,
-    time: "CFC",
-    pos: "LAT",
-    nome: "FELIPE JONATAN",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10202,11 +8077,6 @@ const SCOUTS = {
     }
   },
   "101729": {
-    id: 101729,
-    id_time: 294,
-    time: "CFC",
-    pos: "ATA",
-    nome: "FABINHO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10226,11 +8096,6 @@ const SCOUTS = {
     }
   },
   "102887": {
-    id: 102887,
-    id_time: 267,
-    time: "VAS",
-    pos: "TEC",
-    nome: "BRUNO LAZARONI",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10250,11 +8115,6 @@ const SCOUTS = {
     }
   },
   "103523": {
-    id: 103523,
-    id_time: 266,
-    time: "FLU",
-    pos: "ZAG",
-    nome: "IGNÁCIO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10274,11 +8134,6 @@ const SCOUTS = {
     }
   },
   "105048": {
-    id: 105048,
-    id_time: 364,
-    time: "REM",
-    pos: "ATA",
-    nome: "JAJÁ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10298,11 +8153,6 @@ const SCOUTS = {
     }
   },
   "106434": {
-    id: 106434,
-    id_time: 280,
-    time: "RBB",
-    pos: "ZAG",
-    nome: "EDUARDO SANTOS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10322,11 +8172,6 @@ const SCOUTS = {
     }
   },
   "106593": {
-    id: 106593,
-    id_time: 283,
-    time: "CRU",
-    pos: "ZAG",
-    nome: "VILLALBA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10346,11 +8191,6 @@ const SCOUTS = {
     }
   },
   "107554": {
-    id: 107554,
-    id_time: 282,
-    time: "CAM",
-    pos: "LAT",
-    nome: "NATANAEL",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10370,11 +8210,6 @@ const SCOUTS = {
     }
   },
   "108162": {
-    id: 108162,
-    id_time: 284,
-    time: "GRE",
-    pos: "MEI",
-    nome: "NARDONI",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10394,11 +8229,6 @@ const SCOUTS = {
     }
   },
   "110708": {
-    id: 110708,
-    id_time: 294,
-    time: "CFC",
-    pos: "GOL",
-    nome: "PEDRO RANGEL",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10418,11 +8248,6 @@ const SCOUTS = {
     }
   },
   "111577": {
-    id: 111577,
-    id_time: 282,
-    time: "CAM",
-    pos: "TEC",
-    nome: "LUCAS GONÇALVES",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10442,11 +8267,6 @@ const SCOUTS = {
     }
   },
   "114040": {
-    id: 114040,
-    id_time: 282,
-    time: "CAM",
-    pos: "ATA",
-    nome: "MINDA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10466,11 +8286,6 @@ const SCOUTS = {
     }
   },
   "114308": {
-    id: 114308,
-    id_time: 364,
-    time: "REM",
-    pos: "LAT",
-    nome: "CUFRÉ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10490,11 +8305,6 @@ const SCOUTS = {
     }
   },
   "116065": {
-    id: 116065,
-    id_time: 267,
-    time: "VAS",
-    pos: "LAT",
-    nome: "CUIABANO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10514,11 +8324,6 @@ const SCOUTS = {
     }
   },
   "118655": {
-    id: 118655,
-    id_time: 267,
-    time: "VAS",
-    pos: "ZAG",
-    nome: "SALDIVIA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10538,11 +8343,6 @@ const SCOUTS = {
     }
   },
   "123101": {
-    id: 123101,
-    id_time: 293,
-    time: "CAP",
-    pos: "ATA",
-    nome: "LEOZINHO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10562,11 +8362,6 @@ const SCOUTS = {
     }
   },
   "123360": {
-    id: 123360,
-    id_time: 276,
-    time: "SAO",
-    pos: "MEI",
-    nome: "CAULY",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10586,11 +8381,6 @@ const SCOUTS = {
     }
   },
   "123689": {
-    id: 123689,
-    id_time: 264,
-    time: "COR",
-    pos: "LAT",
-    nome: "MILANS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10610,11 +8400,6 @@ const SCOUTS = {
     }
   },
   "124270": {
-    id: 124270,
-    id_time: 285,
-    time: "INT",
-    pos: "MEI",
-    nome: "ALLEX",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10634,11 +8419,6 @@ const SCOUTS = {
     }
   },
   "125467": {
-    id: 125467,
-    id_time: 284,
-    time: "GRE",
-    pos: "ZAG",
-    nome: "VIERY",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10658,11 +8438,6 @@ const SCOUTS = {
     }
   },
   "125488": {
-    id: 125488,
-    id_time: 264,
-    time: "COR",
-    pos: "ZAG",
-    nome: "JOÃO PEDRO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10682,11 +8457,6 @@ const SCOUTS = {
     }
   },
   "128431": {
-    id: 128431,
-    id_time: 293,
-    time: "CAP",
-    pos: "MEI",
-    nome: "JOÃO CRUZ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10706,11 +8476,6 @@ const SCOUTS = {
     }
   },
   "131516": {
-    id: 131516,
-    id_time: 294,
-    time: "CFC",
-    pos: "LAT",
-    nome: "JP CHERMONT",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10730,11 +8495,6 @@ const SCOUTS = {
     }
   },
   "141595": {
-    id: 141595,
-    id_time: 284,
-    time: "GRE",
-    pos: "ATA",
-    nome: "GABRIEL MEC",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10754,11 +8514,6 @@ const SCOUTS = {
     }
   },
   "141995": {
-    id: 141995,
-    id_time: 264,
-    time: "COR",
-    pos: "MEI",
-    nome: "DIEGUINHO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10778,11 +8533,6 @@ const SCOUTS = {
     }
   },
   "147545": {
-    id: 147545,
-    id_time: 284,
-    time: "GRE",
-    pos: "MEI",
-    nome: "JEFINHO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10802,11 +8552,6 @@ const SCOUTS = {
     }
   },
   "147546": {
-    id: 147546,
-    id_time: 284,
-    time: "GRE",
-    pos: "MEI",
-    nome: "ROGER",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10826,11 +8571,6 @@ const SCOUTS = {
     }
   },
   "148215": {
-    id: 148215,
-    id_time: 276,
-    time: "SAO",
-    pos: "MEI",
-    nome: "DJHORDNEY",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10850,11 +8590,6 @@ const SCOUTS = {
     }
   },
   "63007": {
-    id: 63007,
-    id_time: 277,
-    time: "SAN",
-    pos: "MEI",
-    nome: "NEYMAR",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10874,11 +8609,6 @@ const SCOUTS = {
     }
   },
   "63008": {
-    id: 63008,
-    id_time: 276,
-    time: "SAO",
-    pos: "ZAG",
-    nome: "RAFAEL TOLÓI",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10898,11 +8628,6 @@ const SCOUTS = {
     }
   },
   "70592": {
-    id: 70592,
-    id_time: 275,
-    time: "PAL",
-    pos: "MEI",
-    nome: "FELIPE ANDERSON",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10922,11 +8647,6 @@ const SCOUTS = {
     }
   },
   "72605": {
-    id: 72605,
-    id_time: 282,
-    time: "CAM",
-    pos: "ZAG",
-    nome: "VITOR HUGO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10946,11 +8666,6 @@ const SCOUTS = {
     }
   },
   "78478": {
-    id: 78478,
-    id_time: 277,
-    time: "SAN",
-    pos: "MEI",
-    nome: "WILLIAN ARÃO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10970,11 +8685,6 @@ const SCOUTS = {
     }
   },
   "80570": {
-    id: 80570,
-    id_time: 276,
-    time: "SAO",
-    pos: "LAT",
-    nome: "WENDELL",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -10994,11 +8704,6 @@ const SCOUTS = {
     }
   },
   "82463": {
-    id: 82463,
-    id_time: 266,
-    time: "FLU",
-    pos: "MEI",
-    nome: "OTÁVIO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11018,11 +8723,6 @@ const SCOUTS = {
     }
   },
   "86686": {
-    id: 86686,
-    id_time: 267,
-    time: "VAS",
-    pos: "MEI",
-    nome: "TCHÊ TCHÊ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11042,11 +8742,6 @@ const SCOUTS = {
     }
   },
   "87258": {
-    id: 87258,
-    id_time: 266,
-    time: "FLU",
-    pos: "ATA",
-    nome: "SOTELDO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11066,11 +8761,6 @@ const SCOUTS = {
     }
   },
   "92440": {
-    id: 92440,
-    id_time: 264,
-    time: "COR",
-    pos: "ZAG",
-    nome: "ANDRÉ RAMALHO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11090,11 +8780,6 @@ const SCOUTS = {
     }
   },
   "95362": {
-    id: 95362,
-    id_time: 282,
-    time: "CAM",
-    pos: "ATA",
-    nome: "CASSIERRA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11114,11 +8799,6 @@ const SCOUTS = {
     }
   },
   "96831": {
-    id: 96831,
-    id_time: 364,
-    time: "REM",
-    pos: "ATA",
-    nome: "CARLINHOS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11138,11 +8818,6 @@ const SCOUTS = {
     }
   },
   "98720": {
-    id: 98720,
-    id_time: 264,
-    time: "COR",
-    pos: "LAT",
-    nome: "ANGILERI",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11162,11 +8837,6 @@ const SCOUTS = {
     }
   },
   "99815": {
-    id: 99815,
-    id_time: 275,
-    time: "PAL",
-    pos: "MEI",
-    nome: "ARIAS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11186,11 +8856,6 @@ const SCOUTS = {
     }
   },
   "100804": {
-    id: 100804,
-    id_time: 364,
-    time: "REM",
-    pos: "ZAG",
-    nome: "TCHAMBA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11210,11 +8875,6 @@ const SCOUTS = {
     }
   },
   "102318": {
-    id: 102318,
-    id_time: 284,
-    time: "GRE",
-    pos: "LAT",
-    nome: "CAIO PAULISTA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11234,11 +8894,6 @@ const SCOUTS = {
     }
   },
   "102340": {
-    id: 102340,
-    id_time: 287,
-    time: "VIT",
-    pos: "ZAG",
-    nome: "CACÁ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11258,11 +8913,6 @@ const SCOUTS = {
     }
   },
   "103388": {
-    id: 103388,
-    id_time: 287,
-    time: "VIT",
-    pos: "MEI",
-    nome: "EMMANUEL MARTÍNEZ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11282,11 +8932,6 @@ const SCOUTS = {
     }
   },
   "104036": {
-    id: 104036,
-    id_time: 264,
-    time: "COR",
-    pos: "MEI",
-    nome: "LABYAD",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11306,11 +8951,6 @@ const SCOUTS = {
     }
   },
   "104085": {
-    id: 104085,
-    id_time: 275,
-    time: "PAL",
-    pos: "ZAG",
-    nome: "BRUNO FUCHS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11330,11 +8970,6 @@ const SCOUTS = {
     }
   },
   "104118": {
-    id: 104118,
-    id_time: 287,
-    time: "VIT",
-    pos: "GOL",
-    nome: "LUCAS ARCANJO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11354,11 +8989,6 @@ const SCOUTS = {
     }
   },
   "105842": {
-    id: 105842,
-    id_time: 287,
-    time: "VIT",
-    pos: "ZAG",
-    nome: "EDU",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11378,11 +9008,6 @@ const SCOUTS = {
     }
   },
   "111682": {
-    id: 111682,
-    id_time: 267,
-    time: "VAS",
-    pos: "MEI",
-    nome: "ADSON",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11402,11 +9027,6 @@ const SCOUTS = {
     }
   },
   "111690": {
-    id: 111690,
-    id_time: 283,
-    time: "CRU",
-    pos: "GOL",
-    nome: "MATHEUS CUNHA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11426,11 +9046,6 @@ const SCOUTS = {
     }
   },
   "118563": {
-    id: 118563,
-    id_time: 280,
-    time: "RBB",
-    pos: "MEI",
-    nome: "RODRIGUINHO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11450,11 +9065,6 @@ const SCOUTS = {
     }
   },
   "122573": {
-    id: 122573,
-    id_time: 262,
-    time: "FLA",
-    pos: "ATA",
-    nome: "WALLACE YAN",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11474,11 +9084,6 @@ const SCOUTS = {
     }
   },
   "122660": {
-    id: 122660,
-    id_time: 283,
-    time: "CRU",
-    pos: "MEI",
-    nome: "JAPA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11498,11 +9103,6 @@ const SCOUTS = {
     }
   },
   "124424": {
-    id: 124424,
-    id_time: 266,
-    time: "FLU",
-    pos: "ATA",
-    nome: "RODRIGO CASTILLO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11522,11 +9122,6 @@ const SCOUTS = {
     }
   },
   "124661": {
-    id: 124661,
-    id_time: 282,
-    time: "CAM",
-    pos: "ZAG",
-    nome: "IVÁN ROMÁN",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11546,11 +9141,6 @@ const SCOUTS = {
     }
   },
   "126189": {
-    id: 126189,
-    id_time: 282,
-    time: "CAM",
-    pos: "MEI",
-    nome: "TOMÁS PÉREZ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11570,11 +9160,6 @@ const SCOUTS = {
     }
   },
   "131617": {
-    id: 131617,
-    id_time: 276,
-    time: "SAO",
-    pos: "ATA",
-    nome: "ANDRÉ SILVA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11594,11 +9179,6 @@ const SCOUTS = {
     }
   },
   "131967": {
-    id: 131967,
-    id_time: 283,
-    time: "CRU",
-    pos: "ATA",
-    nome: "VILLARREAL",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11618,11 +9198,6 @@ const SCOUTS = {
     }
   },
   "140726": {
-    id: 140726,
-    id_time: 265,
-    time: "BAH",
-    pos: "MEI",
-    nome: "DAVID MARTINS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11642,11 +9217,6 @@ const SCOUTS = {
     }
   },
   "142593": {
-    id: 142593,
-    id_time: 364,
-    time: "REM",
-    pos: "ATA",
-    nome: "NICOLÁS FERREIRA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11666,11 +9236,6 @@ const SCOUTS = {
     }
   },
   "143173": {
-    id: 143173,
-    id_time: 284,
-    time: "GRE",
-    pos: "MEI",
-    nome: "LEONEL PÉREZ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11690,11 +9255,6 @@ const SCOUTS = {
     }
   },
   "145659": {
-    id: 145659,
-    id_time: 276,
-    time: "SAO",
-    pos: "LAT",
-    nome: "NICOLAS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11714,11 +9274,6 @@ const SCOUTS = {
     }
   },
   "147864": {
-    id: 147864,
-    id_time: 364,
-    time: "REM",
-    pos: "ATA",
-    nome: "RAFAEL MONTI",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11738,11 +9293,6 @@ const SCOUTS = {
     }
   },
   "37457": {
-    id: 37457,
-    id_time: 364,
-    time: "REM",
-    pos: "TEC",
-    nome: "LÉO CONDÉ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11762,11 +9312,6 @@ const SCOUTS = {
     }
   },
   "41929": {
-    id: 41929,
-    id_time: 267,
-    time: "VAS",
-    pos: "TEC",
-    nome: "RENATO GAÚCHO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11786,11 +9331,6 @@ const SCOUTS = {
     }
   },
   "68952": {
-    id: 68952,
-    id_time: 287,
-    time: "VIT",
-    pos: "ATA",
-    nome: "MARINHO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11810,11 +9350,6 @@ const SCOUTS = {
     }
   },
   "79437": {
-    id: 79437,
-    id_time: 276,
-    time: "SAO",
-    pos: "TEC",
-    nome: "ROGER MACHADO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11834,11 +9369,6 @@ const SCOUTS = {
     }
   },
   "81845": {
-    id: 81845,
-    id_time: 266,
-    time: "FLU",
-    pos: "MEI",
-    nome: "ALISSON",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11858,11 +9388,6 @@ const SCOUTS = {
     }
   },
   "82627": {
-    id: 82627,
-    id_time: 262,
-    time: "FLA",
-    pos: "ATA",
-    nome: "LUIZ ARAÚJO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11882,11 +9407,6 @@ const SCOUTS = {
     }
   },
   "88293": {
-    id: 88293,
-    id_time: 315,
-    time: "CHA",
-    pos: "ATA",
-    nome: "NETO PESSOA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11906,11 +9426,6 @@ const SCOUTS = {
     }
   },
   "88963": {
-    id: 88963,
-    id_time: 262,
-    time: "FLA",
-    pos: "TEC",
-    nome: "LEONARDO JARDIM",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11930,11 +9445,6 @@ const SCOUTS = {
     }
   },
   "90608": {
-    id: 90608,
-    id_time: 283,
-    time: "CRU",
-    pos: "ATA",
-    nome: "CHICO DA COSTA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11954,11 +9464,6 @@ const SCOUTS = {
     }
   },
   "92747": {
-    id: 92747,
-    id_time: 282,
-    time: "CAM",
-    pos: "TEC",
-    nome: "EDUARDO DOMÍNGUEZ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -11978,11 +9483,6 @@ const SCOUTS = {
     }
   },
   "101002": {
-    id: 101002,
-    id_time: 263,
-    time: "BOT",
-    pos: "ATA",
-    nome: "JÚNIOR SANTOS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12002,11 +9502,6 @@ const SCOUTS = {
     }
   },
   "101807": {
-    id: 101807,
-    id_time: 277,
-    time: "SAN",
-    pos: "MEI",
-    nome: "OLIVA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12026,11 +9521,6 @@ const SCOUTS = {
     }
   },
   "104191": {
-    id: 104191,
-    id_time: 263,
-    time: "BOT",
-    pos: "GOL",
-    nome: "RAUL",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12050,11 +9540,6 @@ const SCOUTS = {
     }
   },
   "105518": {
-    id: 105518,
-    id_time: 293,
-    time: "CAP",
-    pos: "ATA",
-    nome: "RENAN PEIXOTO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12074,11 +9559,6 @@ const SCOUTS = {
     }
   },
   "108683": {
-    id: 108683,
-    id_time: 275,
-    time: "PAL",
-    pos: "MEI",
-    nome: "EMILIANO MARTÍNEZ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12098,11 +9578,6 @@ const SCOUTS = {
     }
   },
   "109987": {
-    id: 109987,
-    id_time: 263,
-    time: "BOT",
-    pos: "MEI",
-    nome: "MEDINA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12122,11 +9597,6 @@ const SCOUTS = {
     }
   },
   "110605": {
-    id: 110605,
-    id_time: 315,
-    time: "CHA",
-    pos: "MEI",
-    nome: "VINÍCIUS BALIEIRO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12146,11 +9616,6 @@ const SCOUTS = {
     }
   },
   "111951": {
-    id: 111951,
-    id_time: 287,
-    time: "VIT",
-    pos: "ATA",
-    nome: "RENZO LÓPEZ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12170,11 +9635,6 @@ const SCOUTS = {
     }
   },
   "112017": {
-    id: 112017,
-    id_time: 293,
-    time: "CAP",
-    pos: "MEI",
-    nome: "FELIPINHO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12194,11 +9654,6 @@ const SCOUTS = {
     }
   },
   "115141": {
-    id: 115141,
-    id_time: 267,
-    time: "VAS",
-    pos: "ZAG",
-    nome: "LUCAS FREITAS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12218,11 +9673,6 @@ const SCOUTS = {
     }
   },
   "118844": {
-    id: 118844,
-    id_time: 264,
-    time: "COR",
-    pos: "ATA",
-    nome: "KAIO CÉSAR",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12242,11 +9692,6 @@ const SCOUTS = {
     }
   },
   "129666": {
-    id: 129666,
-    id_time: 267,
-    time: "VAS",
-    pos: "MEI",
-    nome: "JP",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12266,11 +9711,6 @@ const SCOUTS = {
     }
   },
   "130620": {
-    id: 130620,
-    id_time: 287,
-    time: "VIT",
-    pos: "MEI",
-    nome: "EDENÍLSON",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12290,11 +9730,6 @@ const SCOUTS = {
     }
   },
   "141776": {
-    id: 141776,
-    id_time: 277,
-    time: "SAN",
-    pos: "MEI",
-    nome: "GUSTAVO HENRIQUE",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12314,11 +9749,6 @@ const SCOUTS = {
     }
   },
   "143600": {
-    id: 143600,
-    id_time: 283,
-    time: "CRU",
-    pos: "LAT",
-    nome: "KAUÃ MORAES",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12338,11 +9768,6 @@ const SCOUTS = {
     }
   },
   "147268": {
-    id: 147268,
-    id_time: 287,
-    time: "VIT",
-    pos: "ATA",
-    nome: "ANDERSON PATO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12362,11 +9787,6 @@ const SCOUTS = {
     }
   },
   "148125": {
-    id: 148125,
-    id_time: 280,
-    time: "RBB",
-    pos: "LAT",
-    nome: "RYAN AUGUSTO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12386,11 +9806,6 @@ const SCOUTS = {
     }
   },
   "71898": {
-    id: 71898,
-    id_time: 2305,
-    time: "MIR",
-    pos: "MEI",
-    nome: "GABRIEL PIRES",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12410,11 +9825,6 @@ const SCOUTS = {
     }
   },
   "81005": {
-    id: 81005,
-    id_time: 2305,
-    time: "MIR",
-    pos: "ATA",
-    nome: "ANDRÉ LUIS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12434,11 +9844,6 @@ const SCOUTS = {
     }
   },
   "84042": {
-    id: 84042,
-    id_time: 2305,
-    time: "MIR",
-    pos: "ATA",
-    nome: "TIQUINHO SOARES",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12458,11 +9863,6 @@ const SCOUTS = {
     }
   },
   "86410": {
-    id: 86410,
-    id_time: 2305,
-    time: "MIR",
-    pos: "LAT",
-    nome: "VICTOR LUIS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12482,11 +9882,6 @@ const SCOUTS = {
     }
   },
   "88393": {
-    id: 88393,
-    id_time: 262,
-    time: "FLA",
-    pos: "LAT",
-    nome: "AYRTON LUCAS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12506,11 +9901,6 @@ const SCOUTS = {
     }
   },
   "94286": {
-    id: 94286,
-    id_time: 315,
-    time: "CHA",
-    pos: "ATA",
-    nome: "PEROTTI",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12530,11 +9920,6 @@ const SCOUTS = {
     }
   },
   "97520": {
-    id: 97520,
-    id_time: 2305,
-    time: "MIR",
-    pos: "MEI",
-    nome: "SHAYLON",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12554,11 +9939,6 @@ const SCOUTS = {
     }
   },
   "97899": {
-    id: 97899,
-    id_time: 285,
-    time: "INT",
-    pos: "LAT",
-    nome: "MATHEUS BAHIA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12578,11 +9958,6 @@ const SCOUTS = {
     }
   },
   "97900": {
-    id: 97900,
-    id_time: 262,
-    time: "FLA",
-    pos: "ZAG",
-    nome: "VITÃO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12602,11 +9977,6 @@ const SCOUTS = {
     }
   },
   "98280": {
-    id: 98280,
-    id_time: 263,
-    time: "BOT",
-    pos: "ZAG",
-    nome: "BASTOS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12626,11 +9996,6 @@ const SCOUTS = {
     }
   },
   "140906": {
-    id: 140906,
-    id_time: 280,
-    time: "RBB",
-    pos: "ATA",
-    nome: "DAVI GOMES",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12650,11 +10015,6 @@ const SCOUTS = {
     }
   },
   "143153": {
-    id: 143153,
-    id_time: 287,
-    time: "VIT",
-    pos: "ATA",
-    nome: "TARZIA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12674,11 +10034,6 @@ const SCOUTS = {
     }
   },
   "143350": {
-    id: 143350,
-    id_time: 283,
-    time: "CRU",
-    pos: "MEI",
-    nome: "MURILO RHIKMAN",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12698,11 +10053,6 @@ const SCOUTS = {
     }
   },
   "145400": {
-    id: 145400,
-    id_time: 280,
-    time: "RBB",
-    pos: "LAT",
-    nome: "CAUÊ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12722,11 +10072,6 @@ const SCOUTS = {
     }
   },
   "146430": {
-    id: 146430,
-    id_time: 263,
-    time: "BOT",
-    pos: "ZAG",
-    nome: "JUSTINO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12746,11 +10091,6 @@ const SCOUTS = {
     }
   },
   "146991": {
-    id: 146991,
-    id_time: 283,
-    time: "CRU",
-    pos: "MEI",
-    nome: "RHUAN GABRIEL",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12770,11 +10110,6 @@ const SCOUTS = {
     }
   },
   "72018": {
-    id: 72018,
-    id_time: 280,
-    time: "RBB",
-    pos: "GOL",
-    nome: "TIAGO VOLPI",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12794,11 +10129,6 @@ const SCOUTS = {
     }
   },
   "73318": {
-    id: 73318,
-    id_time: 2305,
-    time: "MIR",
-    pos: "LAT",
-    nome: "DANIEL BORGES",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12818,11 +10148,6 @@ const SCOUTS = {
     }
   },
   "91971": {
-    id: 91971,
-    id_time: 283,
-    time: "CRU",
-    pos: "TEC",
-    nome: "WESLEY CARVALHO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12842,11 +10167,6 @@ const SCOUTS = {
     }
   },
   "92087": {
-    id: 92087,
-    id_time: 282,
-    time: "CAM",
-    pos: "ZAG",
-    nome: "LYANCO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12866,11 +10186,6 @@ const SCOUTS = {
     }
   },
   "95131": {
-    id: 95131,
-    id_time: 364,
-    time: "REM",
-    pos: "ATA",
-    nome: "GABRIEL TALIARI",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12890,11 +10205,6 @@ const SCOUTS = {
     }
   },
   "96353": {
-    id: 96353,
-    id_time: 263,
-    time: "BOT",
-    pos: "ATA",
-    nome: "JOAQUÍN CORREA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12914,11 +10224,6 @@ const SCOUTS = {
     }
   },
   "100969": {
-    id: 100969,
-    id_time: 287,
-    time: "VIT",
-    pos: "MEI",
-    nome: "RONALD LOPES",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12938,11 +10243,6 @@ const SCOUTS = {
     }
   },
   "102877": {
-    id: 102877,
-    id_time: 364,
-    time: "REM",
-    pos: "ATA",
-    nome: "GABRIEL POVEDA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12962,11 +10262,6 @@ const SCOUTS = {
     }
   },
   "104204": {
-    id: 104204,
-    id_time: 2305,
-    time: "MIR",
-    pos: "ATA",
-    nome: "EDSON CARIOCA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -12986,11 +10281,6 @@ const SCOUTS = {
     }
   },
   "146374": {
-    id: 146374,
-    id_time: 293,
-    time: "CAP",
-    pos: "LAT",
-    nome: "GILBERTO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13010,11 +10300,6 @@ const SCOUTS = {
     }
   },
   "42411": {
-    id: 42411,
-    id_time: 277,
-    time: "SAN",
-    pos: "TEC",
-    nome: "CUCA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13034,11 +10319,6 @@ const SCOUTS = {
     }
   },
   "69783": {
-    id: 69783,
-    id_time: 262,
-    time: "FLA",
-    pos: "ZAG",
-    nome: "DANILO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13058,11 +10338,6 @@ const SCOUTS = {
     }
   },
   "74187": {
-    id: 74187,
-    id_time: 277,
-    time: "SAN",
-    pos: "MEI",
-    nome: "RINCÓN",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13082,11 +10357,6 @@ const SCOUTS = {
     }
   },
   "85425": {
-    id: 85425,
-    id_time: 265,
-    time: "BAH",
-    pos: "GOL",
-    nome: "JOÃO PAULO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13106,11 +10376,6 @@ const SCOUTS = {
     }
   },
   "89368": {
-    id: 89368,
-    id_time: 284,
-    time: "GRE",
-    pos: "ATA",
-    nome: "BRAITHWAITE",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13130,11 +10395,6 @@ const SCOUTS = {
     }
   },
   "90061": {
-    id: 90061,
-    id_time: 315,
-    time: "CHA",
-    pos: "LAT",
-    nome: "BRUNO PACHECO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13154,11 +10414,6 @@ const SCOUTS = {
     }
   },
   "93368": {
-    id: 93368,
-    id_time: 277,
-    time: "SAN",
-    pos: "ZAG",
-    nome: "LUCAS VERÍSSIMO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13178,11 +10433,6 @@ const SCOUTS = {
     }
   },
   "101820": {
-    id: 101820,
-    id_time: 364,
-    time: "REM",
-    pos: "LAT",
-    nome: "MAYK",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13202,11 +10452,6 @@ const SCOUTS = {
     }
   },
   "107256": {
-    id: 107256,
-    id_time: 287,
-    time: "VIT",
-    pos: "MEI",
-    nome: "ZÉ VITOR",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13226,11 +10471,6 @@ const SCOUTS = {
     }
   },
   "107516": {
-    id: 107516,
-    id_time: 315,
-    time: "CHA",
-    pos: "ATA",
-    nome: "ÊNIO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13250,11 +10490,6 @@ const SCOUTS = {
     }
   },
   "111683": {
-    id: 111683,
-    id_time: 285,
-    time: "INT",
-    pos: "GOL",
-    nome: "ANTHONI",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13274,11 +10509,6 @@ const SCOUTS = {
     }
   },
   "121823": {
-    id: 121823,
-    id_time: 264,
-    time: "COR",
-    pos: "GOL",
-    nome: "KAUÊ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13298,11 +10528,6 @@ const SCOUTS = {
     }
   },
   "123016": {
-    id: 123016,
-    id_time: 364,
-    time: "REM",
-    pos: "MEI",
-    nome: "DAVID BRAGA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13322,11 +10547,6 @@ const SCOUTS = {
     }
   },
   "127273": {
-    id: 127273,
-    id_time: 283,
-    time: "CRU",
-    pos: "TEC",
-    nome: "ARTUR JORGE",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13346,11 +10566,6 @@ const SCOUTS = {
     }
   },
   "130209": {
-    id: 130209,
-    id_time: 287,
-    time: "VIT",
-    pos: "ATA",
-    nome: "RENÊ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13370,11 +10585,6 @@ const SCOUTS = {
     }
   },
   "130232": {
-    id: 130232,
-    id_time: 263,
-    time: "BOT",
-    pos: "LAT",
-    nome: "CAIO ROQUE",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13394,11 +10604,6 @@ const SCOUTS = {
     }
   },
   "141405": {
-    id: 141405,
-    id_time: 267,
-    time: "VAS",
-    pos: "LAT",
-    nome: "AVELLAR",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13418,11 +10623,6 @@ const SCOUTS = {
     }
   },
   "141594": {
-    id: 141594,
-    id_time: 284,
-    time: "GRE",
-    pos: "LAT",
-    nome: "PEDRO GABRIEL",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13442,11 +10642,6 @@ const SCOUTS = {
     }
   },
   "142260": {
-    id: 142260,
-    id_time: 284,
-    time: "GRE",
-    pos: "MEI",
-    nome: "BERNARDO ZORTEA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13466,11 +10661,6 @@ const SCOUTS = {
     }
   },
   "147090": {
-    id: 147090,
-    id_time: 282,
-    time: "CAM",
-    pos: "LAT",
-    nome: "KAUÃ PASCINI",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13490,11 +10680,6 @@ const SCOUTS = {
     }
   },
   "147850": {
-    id: 147850,
-    id_time: 263,
-    time: "BOT",
-    pos: "TEC",
-    nome: "RODRIGO BELLÃO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13514,11 +10699,6 @@ const SCOUTS = {
     }
   },
   "148717": {
-    id: 148717,
-    id_time: 276,
-    time: "SAO",
-    pos: "ATA",
-    nome: "TETÊ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13538,11 +10718,6 @@ const SCOUTS = {
     }
   },
   "68822": {
-    id: 68822,
-    id_time: 315,
-    time: "CHA",
-    pos: "GOL",
-    nome: "RAFAEL SANTOS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13562,11 +10737,6 @@ const SCOUTS = {
     }
   },
   "79631": {
-    id: 79631,
-    id_time: 266,
-    time: "FLU",
-    pos: "ATA",
-    nome: "CANO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13586,11 +10756,6 @@ const SCOUTS = {
     }
   },
   "81720": {
-    id: 81720,
-    id_time: 264,
-    time: "COR",
-    pos: "ATA",
-    nome: "LINGARD",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13610,11 +10775,6 @@ const SCOUTS = {
     }
   },
   "94034": {
-    id: 94034,
-    id_time: 315,
-    time: "CHA",
-    pos: "ATA",
-    nome: "KEVIN RAMÍREZ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13634,11 +10794,6 @@ const SCOUTS = {
     }
   },
   "97868": {
-    id: 97868,
-    id_time: 265,
-    time: "BAH",
-    pos: "LAT",
-    nome: "IAGO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13658,11 +10813,6 @@ const SCOUTS = {
     }
   },
   "97911": {
-    id: 97911,
-    id_time: 287,
-    time: "VIT",
-    pos: "ATA",
-    nome: "LUCAS SILVA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13682,11 +10832,6 @@ const SCOUTS = {
     }
   },
   "103347": {
-    id: 103347,
-    id_time: 364,
-    time: "REM",
-    pos: "LAT",
-    nome: "MATHEUS ALEXANDRE",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13706,11 +10851,6 @@ const SCOUTS = {
     }
   },
   "78946": {
-    id: 78946,
-    id_time: 276,
-    time: "SAO",
-    pos: "ZAG",
-    nome: "DÓRIA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13730,11 +10870,6 @@ const SCOUTS = {
     }
   },
   "88717": {
-    id: 88717,
-    id_time: 315,
-    time: "CHA",
-    pos: "TEC",
-    nome: "CELSO RODRIGUES",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13754,11 +10889,6 @@ const SCOUTS = {
     }
   },
   "92182": {
-    id: 92182,
-    id_time: 285,
-    time: "INT",
-    pos: "ZAG",
-    nome: "JUNINHO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13778,11 +10908,6 @@ const SCOUTS = {
     }
   },
   "94514": {
-    id: 94514,
-    id_time: 2305,
-    time: "MIR",
-    pos: "ZAG",
-    nome: "LUCAS OLIVEIRA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13802,11 +10927,6 @@ const SCOUTS = {
     }
   },
   "103179": {
-    id: 103179,
-    id_time: 263,
-    time: "BOT",
-    pos: "ATA",
-    nome: "CHRIS RAMOS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13826,11 +10946,6 @@ const SCOUTS = {
     }
   },
   "107771": {
-    id: 107771,
-    id_time: 315,
-    time: "CHA",
-    pos: "TEC",
-    nome: "FÁBIO MATIAS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13850,11 +10965,6 @@ const SCOUTS = {
     }
   },
   "131964": {
-    id: 131964,
-    id_time: 263,
-    time: "BOT",
-    pos: "LAT",
-    nome: "JHOAN HERNÁNDEZ",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13874,11 +10984,6 @@ const SCOUTS = {
     }
   },
   "141609": {
-    id: 141609,
-    id_time: 276,
-    time: "SAO",
-    pos: "ATA",
-    nome: "LUCCA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13898,11 +11003,6 @@ const SCOUTS = {
     }
   },
   "147089": {
-    id: 147089,
-    id_time: 282,
-    time: "CAM",
-    pos: "ATA",
-    nome: "CAUÃ SOARES",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13922,11 +11022,6 @@ const SCOUTS = {
     }
   },
   "149990": {
-    id: 149990,
-    id_time: 263,
-    time: "BOT",
-    pos: "TEC",
-    nome: "FRANCLIM CARVALHO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13946,11 +11041,6 @@ const SCOUTS = {
     }
   },
   "149994": {
-    id: 149994,
-    id_time: 280,
-    time: "RBB",
-    pos: "ATA",
-    nome: "JHUAN NUNES",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13970,11 +11060,6 @@ const SCOUTS = {
     }
   },
   "124674": {
-    id: 124674,
-    id_time: 276,
-    time: "SAO",
-    pos: "MEI",
-    nome: "FELIPE NEGRUCCI",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -13994,11 +11079,6 @@ const SCOUTS = {
     }
   },
   "133679": {
-    id: 133679,
-    id_time: 275,
-    time: "PAL",
-    pos: "ZAG",
-    nome: "BENEDETTI",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -14018,11 +11098,6 @@ const SCOUTS = {
     }
   },
   "140484": {
-    id: 140484,
-    id_time: 266,
-    time: "FLU",
-    pos: "ATA",
-    nome: "RIQUELME FELIPE",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -14042,11 +11117,6 @@ const SCOUTS = {
     }
   },
   "149715": {
-    id: 149715,
-    id_time: 277,
-    time: "SAN",
-    pos: "LAT",
-    nome: "RAFAEL GONZAGA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -14066,11 +11136,6 @@ const SCOUTS = {
     }
   },
   "79066": {
-    id: 79066,
-    id_time: 2305,
-    time: "MIR",
-    pos: "GOL",
-    nome: "ALEX MURALHA",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -14090,11 +11155,6 @@ const SCOUTS = {
     }
   },
   "80061": {
-    id: 80061,
-    id_time: 262,
-    time: "FLA",
-    pos: "MEI",
-    nome: "SAÚL",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -14114,11 +11174,6 @@ const SCOUTS = {
     }
   },
   "102906": {
-    id: 102906,
-    id_time: 315,
-    time: "CHA",
-    pos: "GOL",
-    nome: "ANDERSON",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -14138,11 +11193,6 @@ const SCOUTS = {
     }
   },
   "110698": {
-    id: 110698,
-    id_time: 293,
-    time: "CAP",
-    pos: "GOL",
-    nome: "MYCAEL",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -14162,11 +11212,6 @@ const SCOUTS = {
     }
   },
   "113690": {
-    id: 113690,
-    id_time: 277,
-    time: "SAN",
-    pos: "GOL",
-    nome: "DIÓGENES",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -14186,11 +11231,6 @@ const SCOUTS = {
     }
   },
   "130889": {
-    id: 130889,
-    id_time: 284,
-    time: "GRE",
-    pos: "MEI",
-    nome: "RIQUELME",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -14210,11 +11250,6 @@ const SCOUTS = {
     }
   },
   "137618": {
-    id: 137618,
-    id_time: 285,
-    time: "INT",
-    pos: "ZAG",
-    nome: "CLAYTON SAMPAIO",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -14234,11 +11269,6 @@ const SCOUTS = {
     }
   },
   "145563": {
-    id: 145563,
-    id_time: 277,
-    time: "SAN",
-    pos: "ZAG",
-    nome: "JOÃO ANANIAS",
     scouts: {
       rdd: {
         1: {pt:"-"},
@@ -14258,11 +11288,6 @@ const SCOUTS = {
     }
   },
   "83048": {
-    id: 83048,
-    id_time: 315,
-    time: "CHA",
-    pos: "ZAG",
-    nome: "RAFAEL THYERE",
     scouts: {
       rdd: {
         1: {pt:"-"},
