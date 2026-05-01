@@ -1,30 +1,15 @@
 /* ============================================================
-   PROVÁVEIS ESCALAÇÕES — V.8 (COM CACHE E MODAL REORGANIZADO)
+   PROVÁVEIS ESCALAÇÕES — V.FINAL (COM GRÁFICO DE PONTUAÇÃO)
    ============================================================ */
 
 const PROXY_URL = 'https://josabet-proxy.onrender.com';
 
 const SLUG_TO_CARTOLA_ID = {
-  corinthians_v2: 264,
-  palmeiras_v2: 275,
-  flamengo_v2: 262,
-  vasco_v2: 267,
-  'atletico-mg_v2': 282,
-  cruzeiro_v2: 283,
-  gremio_v2: 284,
-  internacional_v2: 285,
-  botafogo_v2: 263,
-  fluminense_v2: 266,
-  'sao-paulo_v2': 276,
-  santos_v2: 277,
-  bragantino_v2: 280,
-  'athletico-pr_v2': 293,
-  bahia_v2: 265,
-  vitoria_v2: 287,
-  mirassol_v2: 2305,
-  chapecoense_v2: 315,
-  coritiba_v2: 294,
-  remo_v2: 364,
+  corinthians_v2: 264, palmeiras_v2: 275, flamengo_v2: 262, vasco_v2: 267,
+  'atletico-mg_v2': 282, cruzeiro_v2: 283, gremio_v2: 284, internacional_v2: 285,
+  botafogo_v2: 263, fluminense_v2: 266, 'sao-paulo_v2': 276, santos_v2: 277,
+  bragantino_v2: 280, 'athletico-pr_v2': 293, bahia_v2: 265, vitoria_v2: 287,
+  mirassol_v2: 2305, chapecoense_v2: 315, coritiba_v2: 294, remo_v2: 364,
 };
 
 let provavelState = {
@@ -101,9 +86,7 @@ function formatarDataPartida(iso) {
 }
 
 function resolvePos(slot, xy) {
-  if (xy && Number.isFinite(xy.x) && Number.isFinite(xy.y)) {
-    return { x: xy.x, y: xy.y };
-  }
+  if (xy && Number.isFinite(xy.x) && Number.isFinite(xy.y)) return { x: xy.x, y: xy.y };
   return { x: 50, y: 50 };
 }
 
@@ -111,7 +94,7 @@ function getNomeJogador(id, mercadoImagesMap) {
   const jogador = mercadoImagesMap?.get(id);
   let nome = jogador?.apelido || jogador?.nome;
   if (!nome && typeof JOGADORES !== 'undefined' && JOGADORES[id] && JOGADORES[id].slug) {
-    nome = JOGADORES[id].slug.split('-').map(palavra => palavra.charAt(0).toUpperCase() + palavra.slice(1)).join(' ');
+    nome = JOGADORES[id].slug.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
   }
   return nome || `#${id}`;
 }
@@ -141,9 +124,7 @@ function renderJogadoresCampo(lineup, timeId, mercadoImagesMap) {
       const pos = resolvePos(p.slot, { x: p.x, y: p.y });
       const isDuvida = p.sit === 'duvida';
       let duvidaComNome = '';
-      if (isDuvida && p.duvida_com) {
-        duvidaComNome = getNomeJogador(p.duvida_com, mercadoImagesMap);
-      }
+      if (isDuvida && p.duvida_com) duvidaComNome = getNomeJogador(p.duvida_com, mercadoImagesMap);
       const abreviar = (n) => {
         const partes = n.trim().split(' ');
         if (partes.length <= 1) return n;
@@ -157,14 +138,13 @@ function renderJogadoresCampo(lineup, timeId, mercadoImagesMap) {
              style="left: ${pos.x}%; top: ${pos.y}%; transform: translate(-50%, -50%); z-index: 20;" 
              ${onClickAttr}>
           <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/80 p-1 shadow-md ${isDuvida ? 'border-2 border-orange-500' : ''}">
-            <img src="${foto}" alt="${nome}" class="w-full h-full object-contain rounded-full" 
-                 onerror="this.onerror=null; this.src='${fotoProxy || `./ESCUDOS_BRASILEIRAO/${timeId}.png`}'">
+            <img src="${foto}" class="w-full h-full object-contain rounded-full" onerror="this.onerror=null; this.src='${fotoProxy || `./ESCUDOS_BRASILEIRAO/${timeId}.png`}'">
           </div>
           <div class="mt-1 px-1.5 py-0.5 bg-white/40 backdrop-blur-sm rounded-md text-center" style="min-width:48px; max-width:70px;">
             <p class="text-[10px] md:text-[11px] font-semibold text-gray-900 leading-tight text-center">${nomeAbrev}</p>
           </div>
           ${isDuvida && duvidaAbrev ? `
-            <div class="mt-0.5 px-1.5 py-0.5 bg-white/25 backdrop-blur-sm rounded-md text-center" style="min-width:48px; max-width:70px;">
+            <div class="mt-0.5 px-1.5 py-0.5 bg-white/25 backdrop-blur-sm rounded-md text-center">
               <p class="text-[9px] md:text-[10px] font-medium text-gray-700 leading-tight text-center">${duvidaAbrev}</p>
             </div>
           ` : ''}
@@ -186,12 +166,12 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index, mercadoImagesMap) 
       const dt = new Date(lastUpdate);
       const pad = n => String(n).padStart(2, '0');
       const hhmm = pad(dt.getHours()) + 'h' + pad(dt.getMinutes());
-      const sameDay = now.toDateString() === dt.toDateString();
-      const yest = new Date(now);
-      yest.setDate(now.getDate() - 1);
-      if (sameDay) fmtUpdate = 'Hoje ' + hhmm;
-      else if (yest.toDateString() === dt.toDateString()) fmtUpdate = 'Ontem ' + hhmm;
-      else fmtUpdate = pad(dt.getDate()) + '/' + pad(dt.getMonth() + 1) + ' ' + hhmm;
+      if (now.toDateString() === dt.toDateString()) fmtUpdate = 'Hoje ' + hhmm;
+      else {
+        const yest = new Date(now); yest.setDate(now.getDate() - 1);
+        if (yest.toDateString() === dt.toDateString()) fmtUpdate = 'Ontem ' + hhmm;
+        else fmtUpdate = pad(dt.getDate()) + '/' + pad(dt.getMonth() + 1) + ' ' + hhmm;
+      }
     } catch (e) {}
   }
   let partidaInfo = null;
@@ -199,12 +179,11 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index, mercadoImagesMap) 
     const adversarioId = partida.clube_casa_id === timeId ? partida.clube_visitante_id : partida.clube_casa_id;
     const adversarioClube = provavelState.partidasData.clubes?.[adversarioId] || {};
     const isMandante = partida.clube_casa_id === timeId;
-    const dataFmt = formatarDataPartida(partida.partida_data);
     partidaInfo = {
       adversarioNome: adversarioClube.nome_fantasia || adversarioClube.nome || '???',
       adversarioEscudo: `./ESCUDOS_BRASILEIRAO/${adversarioId}.png`,
       local: partida.local || '—',
-      data: dataFmt,
+      data: formatarDataPartida(partida.partida_data),
       mando: isMandante ? 'Casa' : 'Fora',
     };
   }
@@ -251,7 +230,7 @@ function renderTimeCard(timeId, partida, timesNaOrdem, index, mercadoImagesMap) 
   `;
 }
 
-// ========== MODAL DO JOGADOR (REORGANIZADO) ==========
+// ========== MODAL DO JOGADOR (CORRIGIDO COM GRÁFICO) ==========
 function fecharModal() {
   const modal = document.getElementById('modal-jogador-scout');
   if (modal) modal.remove();
@@ -260,12 +239,13 @@ window.fecharModal = fecharModal;
 
 window.abrirModalJogador = function(jogadorId, timeId) {
   const idStr = String(jogadorId);
-  if (typeof SCOUTS === 'undefined') {
+  // Usa o SCOUTS global (que inclui os dados de rodadas, pois rodadas.js foi carregado)
+  if (typeof window.SCOUTS === 'undefined') {
     console.error("SCOUTS não definido");
-    alert("Erro: base de jogadores não carregada.");
+    alert("Erro: dados dos jogadores não carregados.");
     return;
   }
-  const dadosJogador = SCOUTS[idStr];
+  const dadosJogador = window.SCOUTS[idStr];
   if (!dadosJogador) {
     console.error(`Jogador ID ${idStr} não encontrado`);
     alert(`Dados do jogador ID ${idStr} não encontrados.`);
@@ -278,10 +258,9 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   const fotoProxy = mercadoImagesMap?.get(parseInt(idStr))?.foto || '';
   const foto = fotoLocal || fotoProxy || `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
 
-  // Dados do confronto
+  // Confronto
   const partidas = provavelState.partidasData?.partidas || [];
   const partida = partidas.find(p => p.clube_casa_id === timeId || p.clube_visitante_id === timeId);
-  
   let confrontoHtml = '';
   let dataHora = '—', local = '—';
   if (partida) {
@@ -293,15 +272,9 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     const posVisitante = partida.clube_visitante_posicao ? partida.clube_visitante_posicao + "º" : "?";
     confrontoHtml = `
       <div class="flex items-center justify-between gap-2">
-        <div class="flex flex-col items-center">
-          <img src="${escudoCasa}" class="w-8 h-8 object-contain" onerror="this.style.display='none'">
-          <span class="text-[10px] font-mono">${posCasa}</span>
-        </div>
+        <div class="flex flex-col items-center"><img src="${escudoCasa}" class="w-8 h-8 object-contain" onerror="this.style.display='none'"><span class="text-[10px] font-mono">${posCasa}</span></div>
         <span class="text-sm font-black text-gray-700">VS</span>
-        <div class="flex flex-col items-center">
-          <img src="${escudoVisitante}" class="w-8 h-8 object-contain" onerror="this.style.display='none'">
-          <span class="text-[10px] font-mono">${posVisitante}</span>
-        </div>
+        <div class="flex flex-col items-center"><img src="${escudoVisitante}" class="w-8 h-8 object-contain" onerror="this.style.display='none'"><span class="text-[10px] font-mono">${posVisitante}</span></div>
       </div>
     `;
     dataHora = formatarDataPartida(partida.partida_data);
@@ -310,6 +283,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     confrontoHtml = `<p class="text-xs text-gray-400 text-center">Dados não disponíveis</p>`;
   }
 
+  // Dados principais
   const preco = dadosJogador.preco?.toFixed(2) || "0.00";
   const varValor = dadosJogador.var || 0;
   const varFormatado = varValor > 0 ? `+${varValor.toFixed(2)}` : varValor.toFixed(2);
@@ -325,54 +299,39 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   const scoutsDef = dadosJogador.scouts?.def || {};
 
   const ataques = [
-    { label: "G", value: scoutsAta.G || 0, red: false },
-    { label: "A", value: scoutsAta.A || 0, red: false },
-    { label: "FT", value: scoutsAta.FT || 0, red: false },
-    { label: "FD", value: scoutsAta.FD || 0, red: false },
-    { label: "FF", value: scoutsAta.FF || 0, red: false },
-    { label: "FS", value: scoutsAta.FS || 0, red: false },
-    { label: "PS", value: scoutsAta.PS || 0, red: false },
-    { label: "V", value: scoutsAta.V || 0, red: false },
-    { label: "I", value: scoutsAta.I || 0, red: true },
-    { label: "PP", value: scoutsAta.PP || 0, red: true }
+    { label: "G", value: scoutsAta.G || 0, red: false }, { label: "A", value: scoutsAta.A || 0, red: false },
+    { label: "FT", value: scoutsAta.FT || 0, red: false }, { label: "FD", value: scoutsAta.FD || 0, red: false },
+    { label: "FF", value: scoutsAta.FF || 0, red: false }, { label: "FS", value: scoutsAta.FS || 0, red: false },
+    { label: "PS", value: scoutsAta.PS || 0, red: false }, { label: "V", value: scoutsAta.V || 0, red: false },
+    { label: "I", value: scoutsAta.I || 0, red: true }, { label: "PP", value: scoutsAta.PP || 0, red: true }
   ];
 
   const defesas = [
-    { label: "DS", value: scoutsDef.DS || 0, red: false },
-    { label: "SG", value: scoutsDef.SG || 0, red: false },
-    { label: "DE", value: scoutsDef.DE || 0, red: false },
-    { label: "DP", value: scoutsDef.DP || 0, red: false },
-    { label: "CV", value: scoutsDef.CV || 0, red: true },
-    { label: "CA", value: scoutsDef.CA || 0, red: true },
-    { label: "FC", value: scoutsDef.FC || 0, red: true },
-    { label: "GC", value: scoutsDef.GC || 0, red: true },
-    { label: "GS", value: scoutsDef.GS || 0, red: true },
-    { label: "PC", value: scoutsDef.PC || 0, red: true }
+    { label: "DS", value: scoutsDef.DS || 0, red: false }, { label: "SG", value: scoutsDef.SG || 0, red: false },
+    { label: "DE", value: scoutsDef.DE || 0, red: false }, { label: "DP", value: scoutsDef.DP || 0, red: false },
+    { label: "CV", value: scoutsDef.CV || 0, red: true }, { label: "CA", value: scoutsDef.CA || 0, red: true },
+    { label: "FC", value: scoutsDef.FC || 0, red: true }, { label: "GC", value: scoutsDef.GC || 0, red: true },
+    { label: "GS", value: scoutsDef.GS || 0, red: true }, { label: "PC", value: scoutsDef.PC || 0, red: true }
   ];
 
   const renderCell = (label, value, isRed) => {
     const bgColor = isRed ? "bg-red-100" : "bg-green-100";
-    return `
-      <div class="${bgColor} rounded-md p-1 text-center min-w-[40px]">
-        <div class="text-[9px] font-bold uppercase text-gray-600">${label}</div>
-        <div class="text-sm font-black text-gray-800">${value}</div>
-      </div>
-    `;
+    return `<div class="${bgColor} rounded-md p-1 text-center min-w-[40px]"><div class="text-[9px] font-bold uppercase text-gray-600">${label}</div><div class="text-sm font-black text-gray-800">${value}</div></div>`;
   };
-
   const ataquesHtml = `<div class="flex flex-wrap gap-1 justify-start">${ataques.map(a => renderCell(a.label, a.value, a.red)).join('')}</div>`;
   const defesasHtml = `<div class="flex flex-wrap gap-1 justify-start">${defesas.map(d => renderCell(d.label, d.value, d.red)).join('')}</div>`;
-  
-  // ========== GRÁFICO DE BARRAS (PONTUAÇÃO ÚLTIMAS 10 RODADAS) ==========
+
+  // ===== GRÁFICO DE PONTUAÇÃO =====
   const rodadaAtual = (typeof RODADA !== 'undefined') ? RODADA : 13;
   const inicio = Math.max(1, rodadaAtual - 9);
   const listaRodadas = [];
   for (let r = inicio; r <= rodadaAtual; r++) listaRodadas.push(r);
-  
-  const scoutsRdd = dadosJogador.scouts?.rdd || {};
-  const alturaMaxima = 60; // pixels
-  const pontoMaximo = 10;  // pontuação máxima para escala
-  
+
+  const scoutsRdd = dadosJogador.scouts?.rdd || {}; // ← aqui estão as pontuações por rodada
+  console.log(`📊 ${dadosJogador.nome} (${idStr}) - scouts.rdd:`, scoutsRdd); // debug
+
+  const alturaMaxima = 60;
+  const pontoMaximo = 10;
   const barrasHtml = listaRodadas.map(rd => {
     const dado = scoutsRdd[rd];
     let pt = dado?.pt;
@@ -380,7 +339,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     let classeCor = '';
     let altura = 0;
     let textoTopo = '';
-    
+
     if (pt === undefined || pt === '-') {
       classeCor = 'bg-gray-300';
       altura = 20;
@@ -399,7 +358,6 @@ window.abrirModalJogador = function(jogadorId, timeId) {
         textoTopo = valorNum.toFixed(1);
       }
     }
-    
     return `
       <div class="flex flex-col items-center gap-1" style="width: 28px;">
         <div class="relative flex justify-center" style="height: ${alturaMaxima + 24}px;">
@@ -412,10 +370,8 @@ window.abrirModalJogador = function(jogadorId, timeId) {
       </div>
     `;
   }).join('');
-  
   const graficoHtml = `<div class="flex justify-around items-end gap-1 overflow-x-auto py-2">${barrasHtml}</div>`;
-  // ==============================================================
-  
+
   fecharModal();
   const modalHtml = `
     <div id="modal-jogador-scout" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm transition-all" onclick="if(event.target === this) fecharModal()">
@@ -448,18 +404,12 @@ window.abrirModalJogador = function(jogadorId, timeId) {
           <div class="flex items-center justify-between bg-black/[0.02] rounded-xl p-2 border border-black/5">
             <div class="flex items-center gap-2">
               <div class="w-8 h-8 rounded-full bg-[#FF6321] text-white flex items-center justify-center font-black text-sm shadow-sm">C$</div>
-              <div>
-                <p class="text-[10px] text-gray-400 uppercase">Preço</p>
-                <p class="text-lg font-black text-gray-900">${preco}</p>
-              </div>
+              <div><p class="text-[10px] text-gray-400 uppercase">Preço</p><p class="text-lg font-black text-gray-900">${preco}</p></div>
             </div>
-            <div class="text-right">
-              <p class="text-[10px] text-gray-400 uppercase">Variação</p>
-              <p class="text-base font-black ${corVar}">${varFormatado}</p>
-            </div>
+            <div class="text-right"><p class="text-[10px] text-gray-400 uppercase">Variação</p><p class="text-base font-black ${corVar}">${varFormatado}</p></div>
           </div>
 
-          <!-- MÉTRICAS JOGOS, ULT., MÉDIA, MPV, CEDIDO -->
+          <!-- MÉTRICAS JUNTAS (JOGOS, ULT., MÉDIA, MPV, CEDIDO) -->
           <div class="grid grid-cols-5 gap-1 bg-black/[0.02] rounded-xl p-2 border border-black/5 text-center">
             <div><p class="text-[9px] uppercase tracking-wider text-gray-400">JOGOS</p><p class="text-base font-black text-gray-800">${jogos}</p></div>
             <div><p class="text-[9px] uppercase tracking-wider text-gray-400">ULT.</p><p class="text-base font-black text-gray-800">${ult}</p></div>
@@ -502,8 +452,6 @@ window.renderProvaveis = async function() {
 
   try {
     let lineupsData, mercadoImagesMap, teamUpdatesData, partidasData;
-
-    // Tenta usar cache do index.html
     if (window.preloadedProvaveisData) {
       console.log("📦 Usando cache de PROVÁVEIS");
       lineupsData = window.preloadedProvaveisData.lineups;
@@ -512,7 +460,6 @@ window.renderProvaveis = async function() {
       partidasData = window.preloadedProvaveisData.partidas;
       delete window.preloadedProvaveisData;
     } else {
-      // Requisições normais
       const [lineupsRes, mercadoImagesRes, teamUpdatesRes, partidasRes] = await Promise.all([
         fetch(`${PROXY_URL}/provaveis/lineups`),
         fetch(`${PROXY_URL}/provaveis/mercado-images`),
@@ -555,7 +502,7 @@ window.renderProvaveis = async function() {
     }).join('');
 
     main.innerHTML = `<div class="space-y-6 animate-in fade-in duration-300 pt-6">${gridEscudos}<div class="space-y-4 px-4">${cardsHtml}</div></div>`;
-    console.log("✅ Prováveis escalações renderizadas com sucesso (modal reorganizado)");
+    console.log("✅ Prováveis escalações renderizadas com sucesso (gráfico incluso)");
   } catch (err) {
     console.error('❌ Erro:', err);
     renderError(err.message || 'Falha ao carregar os dados.');
@@ -564,6 +511,5 @@ window.renderProvaveis = async function() {
   }
 };
 
-// Disponibiliza highlightCard globalmente
 window.highlightCard = highlightCard;
-console.log("✅ provaveis.js v8 carregado (modal reordenado, cache, sem botão de scroll duplicado)");
+console.log("✅ provaveis.js carregado - gráfico de pontuação ativo");
