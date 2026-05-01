@@ -362,6 +362,59 @@ window.abrirModalJogador = function(jogadorId, timeId) {
 
   const ataquesHtml = `<div class="flex flex-wrap gap-1 justify-start">${ataques.map(a => renderCell(a.label, a.value, a.red)).join('')}</div>`;
   const defesasHtml = `<div class="flex flex-wrap gap-1 justify-start">${defesas.map(d => renderCell(d.label, d.value, d.red)).join('')}</div>`;
+  
+  // ========== GRÁFICO DAS ÚLTIMAS 10 RODADAS (lógica interna) ==========
+  const rodadaAtual = typeof RODADA !== 'undefined' ? RODADA : 13;
+  const inicio = Math.max(1, rodadaAtual - 9);
+  const listaRodadas = [];
+  for (let r = inicio; r <= rodadaAtual; r++) listaRodadas.push(r);
+  
+  const scoutsRdd = SCOUTS[idStr]?.scouts?.rdd || {};
+  const alturaMaxima = 60;
+  const pontoMaximo = 10;
+  
+  const barrasHtml = listaRodadas.map(rd => {
+    const dado = scoutsRdd[rd];
+    let pt = dado?.pt;
+    let valorNum = null;
+    let classeCor = '';
+    let altura = 0;
+    let textoTopo = '';
+    
+    if (pt === undefined || pt === '-') {
+      classeCor = 'bg-gray-300';
+      altura = 20;
+      textoTopo = '-';
+    } else {
+      valorNum = parseFloat(pt);
+      if (isNaN(valorNum)) {
+        classeCor = 'bg-gray-300';
+        altura = 20;
+        textoTopo = '-';
+      } else {
+        classeCor = valorNum >= 0 ? 'bg-green-400' : 'bg-red-400';
+        let valorAbs = Math.min(Math.abs(valorNum), pontoMaximo);
+        altura = (valorAbs / pontoMaximo) * alturaMaxima;
+        if (altura < 4 && valorAbs > 0) altura = 4;
+        textoTopo = valorNum.toFixed(1);
+      }
+    }
+    
+    return `
+      <div class="flex flex-col items-center gap-1" style="width: 24px;">
+        <div class="relative flex justify-center" style="height: ${alturaMaxima + 20}px;">
+          <div class="absolute bottom-0 w-full flex justify-center">
+            <div class="${classeCor} rounded-t-md transition-all duration-300" style="height: ${altura}px; width: 20px;"></div>
+          </div>
+          <span class="absolute -top-5 text-[9px] font-mono font-bold text-gray-600">${textoTopo}</span>
+        </div>
+        <span class="text-[9px] font-mono text-gray-400">${rd}</span>
+      </div>
+    `;
+  }).join('');
+  
+  const graficoHtml = `<div class="flex justify-around items-end gap-1 overflow-x-auto pb-2">${barrasHtml}</div>`;
+  // ================================================================
    
   fecharModal();
   const modalHtml = `
@@ -408,26 +461,11 @@ window.abrirModalJogador = function(jogadorId, timeId) {
 
           <!-- 4 - CONTAINER ÚNICO: JOGOS | ULT. | MÉDIA | MPV | CEDIDO -->
           <div class="grid grid-cols-5 gap-1 bg-black/[0.02] rounded-xl p-2 border border-black/5 text-center">
-            <div>
-              <p class="text-[9px] uppercase tracking-wider text-gray-400">JOGOS</p>
-              <p class="text-base font-black text-gray-800">${jogos}</p>
-            </div>
-            <div>
-              <p class="text-[9px] uppercase tracking-wider text-gray-400">ULT.</p>
-              <p class="text-base font-black text-gray-800">${ult}</p>
-            </div>
-            <div>
-              <p class="text-[9px] uppercase tracking-wider text-gray-400">MÉDIA</p>
-              <p class="text-base font-black text-gray-800">${media}</p>
-            </div>
-            <div>
-              <p class="text-[9px] uppercase tracking-wider text-gray-400">MPV</p>
-              <p class="text-base font-black text-gray-800">${mpv}</p>
-            </div>
-            <div>
-              <p class="text-[9px] uppercase tracking-wider text-gray-400">CEDIDO</p>
-              <p class="text-base font-black text-gray-800">${pt_ced}</p>
-            </div>
+            <div><p class="text-[9px] uppercase tracking-wider text-gray-400">JOGOS</p><p class="text-base font-black text-gray-800">${jogos}</p></div>
+            <div><p class="text-[9px] uppercase tracking-wider text-gray-400">ULT.</p><p class="text-base font-black text-gray-800">${ult}</p></div>
+            <div><p class="text-[9px] uppercase tracking-wider text-gray-400">MÉDIA</p><p class="text-base font-black text-gray-800">${media}</p></div>
+            <div><p class="text-[9px] uppercase tracking-wider text-gray-400">MPV</p><p class="text-base font-black text-gray-800">${mpv}</p></div>
+            <div><p class="text-[9px] uppercase tracking-wider text-gray-400">CEDIDO</p><p class="text-base font-black text-gray-800">${pt_ced}</p></div>
           </div>
 
           <!-- 5 - SCOUTS ATAQUE -->
@@ -440,6 +478,12 @@ window.abrirModalJogador = function(jogadorId, timeId) {
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
             <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">SCOUTS - DEFESA</p>
             ${defesasHtml}
+          </div>
+
+          <!-- 7 - GRÁFICO ÚLTIMAS 10 RODADAS -->
+          <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
+            <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">ÚLTIMAS 10 RODADAS (PONTUAÇÃO)</p>
+            ${graficoHtml}
           </div>
         </div>
       </div>
