@@ -363,18 +363,19 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   const ataquesHtml = `<div class="flex flex-wrap gap-1 justify-start">${ataques.map(a => renderCell(a.label, a.value, a.red)).join('')}</div>`;
   const defesasHtml = `<div class="flex flex-wrap gap-1 justify-start">${defesas.map(d => renderCell(d.label, d.value, d.red)).join('')}</div>`;
   
-  // ========== GRÁFICO DAS ÚLTIMAS 10 RODADAS (lógica interna) ==========
+  // ========== GRÁFICO DAS ÚLTIMAS 10 RODADAS ==========
   const rodadaAtual = typeof RODADA !== 'undefined' ? RODADA : 13;
   const inicio = Math.max(1, rodadaAtual - 9);
   const listaRodadas = [];
   for (let r = inicio; r <= rodadaAtual; r++) listaRodadas.push(r);
   
-  const scoutsRdd = SCOUTS[idStr]?.scouts?.rdd || {};
+  // Acessa os dados de pontuação do jogador no SCOUTS (rodadas.js)
+  const pontuacoesRodada = dadosJogador.scouts?.rdd || {};
   const alturaMaxima = 60;
   const pontoMaximo = 10;
   
   const barrasHtml = listaRodadas.map(rd => {
-    const dado = scoutsRdd[rd];
+    const dado = pontuacoesRodada[rd];
     let pt = dado?.pt;
     let valorNum = null;
     let classeCor = '';
@@ -414,7 +415,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   }).join('');
   
   const graficoHtml = `<div class="flex justify-around items-end gap-1 overflow-x-auto pb-2">${barrasHtml}</div>`;
-  // ================================================================
+  // =====================================================
    
   fecharModal();
   const modalHtml = `
@@ -437,7 +438,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
           </div>
         </div>
 
-        <div class="p-4 space-y-3">
+        <div class="p-4 space-y-1.5">   <!-- espaço reduzido -->
           <!-- 2 - CONFRONTO DO TIME -->
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5 space-y-1">
             ${confrontoHtml}
@@ -480,9 +481,9 @@ window.abrirModalJogador = function(jogadorId, timeId) {
             ${defesasHtml}
           </div>
 
-          <!-- 7 - GRÁFICO ÚLTIMAS 10 RODADAS -->
+          <!-- 7 - GRÁFICO PONTUAÇÃO (ÚLTIMAS 10 RODADAS) -->
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
-            <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">ÚLTIMAS 10 RODADAS (PONTUAÇÃO)</p>
+            <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">PONTUAÇÃO</p>
             ${graficoHtml}
           </div>
         </div>
