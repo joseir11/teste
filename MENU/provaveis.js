@@ -369,19 +369,22 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   const listaRodadas = [];
   for (let r = inicio; r <= rodadaAtual; r++) listaRodadas.push(r);
   
-  // Acessa os dados de pontuação do jogador no SCOUTS (rodadas.js)
-  const pontuacoesRodada = dadosJogador.scouts?.rdd || {};
+  // Obtém as pontuações do jogador (caminho correto)
+  const scoutsRdd = dadosJogador.scouts?.rdd || {};
+  console.log(`📊 Pontuações do jogador ${dadosJogador.nome} (${idStr}):`, scoutsRdd);
+  
   const alturaMaxima = 60;
   const pontoMaximo = 10;
   
   const barrasHtml = listaRodadas.map(rd => {
-    const dado = pontuacoesRodada[rd];
+    const dado = scoutsRdd[rd];
     let pt = dado?.pt;
     let valorNum = null;
     let classeCor = '';
     let altura = 0;
     let textoTopo = '';
     
+    // Se pt for undefined ou string "-"
     if (pt === undefined || pt === '-') {
       classeCor = 'bg-gray-300';
       altura = 20;
@@ -393,7 +396,11 @@ window.abrirModalJogador = function(jogadorId, timeId) {
         altura = 20;
         textoTopo = '-';
       } else {
-        classeCor = valorNum >= 0 ? 'bg-green-400' : 'bg-red-400';
+        if (valorNum >= 0) {
+          classeCor = 'bg-green-400';
+        } else {
+          classeCor = 'bg-red-400';
+        }
         let valorAbs = Math.min(Math.abs(valorNum), pontoMaximo);
         altura = (valorAbs / pontoMaximo) * alturaMaxima;
         if (altura < 4 && valorAbs > 0) altura = 4;
@@ -415,7 +422,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   }).join('');
   
   const graficoHtml = `<div class="flex justify-around items-end gap-1 overflow-x-auto pb-2">${barrasHtml}</div>`;
-  // =====================================================
+  // ==========================================================
    
   fecharModal();
   const modalHtml = `
@@ -425,7 +432,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
         
-        <!-- 1 - CABEÇALHO (FOTO + NOME) -->
+        <!-- 1 - CABEÇALHO -->
         <div class="bg-gradient-to-r from-orange-50 to-white p-4 border-b border-orange-100">
           <div class="flex items-center gap-3">
             <div class="w-14 h-14 bg-white rounded-full p-1 shadow-md border border-orange-200">
@@ -438,8 +445,8 @@ window.abrirModalJogador = function(jogadorId, timeId) {
           </div>
         </div>
 
-        <div class="p-4 space-y-1.5">   <!-- espaço reduzido -->
-          <!-- 2 - CONFRONTO DO TIME -->
+        <div class="p-4 space-y-1.5">
+          <!-- 2 - CONFRONTO -->
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5 space-y-1">
             ${confrontoHtml}
             <p class="text-center text-[9px] font-mono text-gray-500">${local} • ${dataHora}</p>
@@ -460,7 +467,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
             </div>
           </div>
 
-          <!-- 4 - CONTAINER ÚNICO: JOGOS | ULT. | MÉDIA | MPV | CEDIDO -->
+          <!-- 4 - MÉTRICAS JUNTAS -->
           <div class="grid grid-cols-5 gap-1 bg-black/[0.02] rounded-xl p-2 border border-black/5 text-center">
             <div><p class="text-[9px] uppercase tracking-wider text-gray-400">JOGOS</p><p class="text-base font-black text-gray-800">${jogos}</p></div>
             <div><p class="text-[9px] uppercase tracking-wider text-gray-400">ULT.</p><p class="text-base font-black text-gray-800">${ult}</p></div>
@@ -481,7 +488,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
             ${defesasHtml}
           </div>
 
-          <!-- 7 - GRÁFICO PONTUAÇÃO (ÚLTIMAS 10 RODADAS) -->
+          <!-- 7 - GRÁFICO PONTUAÇÃO -->
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
             <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">PONTUAÇÃO</p>
             ${graficoHtml}
