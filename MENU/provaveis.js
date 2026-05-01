@@ -239,10 +239,9 @@ window.fecharModal = fecharModal;
 
 window.abrirModalJogador = function(jogadorId, timeId) {
   const idStr = String(jogadorId);
-  // Usa window.SCOUTS (que agora contém tanto scouts.js quanto rodadas.js)
   if (typeof window.SCOUTS === 'undefined') {
     console.error("SCOUTS não definido");
-    alert("Erro: dados dos jogadores não carregados.");
+    alert("Erro: base de jogadores não carregada.");
     return;
   }
   const dadosJogador = window.SCOUTS[idStr];
@@ -258,10 +257,9 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   const fotoProxy = mercadoImagesMap?.get(parseInt(idStr))?.foto || '';
   const foto = fotoLocal || fotoProxy || `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
 
-  // Dados do confronto
+  // Confronto
   const partidas = provavelState.partidasData?.partidas || [];
   const partida = partidas.find(p => p.clube_casa_id === timeId || p.clube_visitante_id === timeId);
-  
   let confrontoHtml = '';
   let dataHora = '—', local = '—';
   if (partida) {
@@ -290,6 +288,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     confrontoHtml = `<p class="text-xs text-gray-400 text-center">Dados não disponíveis</p>`;
   }
 
+  // Dados principais
   const preco = dadosJogador.preco?.toFixed(2) || "0.00";
   const varValor = dadosJogador.var || 0;
   const varFormatado = varValor > 0 ? `+${varValor.toFixed(2)}` : varValor.toFixed(2);
@@ -305,54 +304,37 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   const scoutsDef = dadosJogador.scouts?.def || {};
 
   const ataques = [
-    { label: "G", value: scoutsAta.G || 0, red: false },
-    { label: "A", value: scoutsAta.A || 0, red: false },
-    { label: "FT", value: scoutsAta.FT || 0, red: false },
-    { label: "FD", value: scoutsAta.FD || 0, red: false },
-    { label: "FF", value: scoutsAta.FF || 0, red: false },
-    { label: "FS", value: scoutsAta.FS || 0, red: false },
-    { label: "PS", value: scoutsAta.PS || 0, red: false },
-    { label: "V", value: scoutsAta.V || 0, red: false },
-    { label: "I", value: scoutsAta.I || 0, red: true },
-    { label: "PP", value: scoutsAta.PP || 0, red: true }
+    { label: "G", value: scoutsAta.G || 0, red: false }, { label: "A", value: scoutsAta.A || 0, red: false },
+    { label: "FT", value: scoutsAta.FT || 0, red: false }, { label: "FD", value: scoutsAta.FD || 0, red: false },
+    { label: "FF", value: scoutsAta.FF || 0, red: false }, { label: "FS", value: scoutsAta.FS || 0, red: false },
+    { label: "PS", value: scoutsAta.PS || 0, red: false }, { label: "V", value: scoutsAta.V || 0, red: false },
+    { label: "I", value: scoutsAta.I || 0, red: true }, { label: "PP", value: scoutsAta.PP || 0, red: true }
   ];
 
   const defesas = [
-    { label: "DS", value: scoutsDef.DS || 0, red: false },
-    { label: "SG", value: scoutsDef.SG || 0, red: false },
-    { label: "DE", value: scoutsDef.DE || 0, red: false },
-    { label: "DP", value: scoutsDef.DP || 0, red: false },
-    { label: "CV", value: scoutsDef.CV || 0, red: true },
-    { label: "CA", value: scoutsDef.CA || 0, red: true },
-    { label: "FC", value: scoutsDef.FC || 0, red: true },
-    { label: "GC", value: scoutsDef.GC || 0, red: true },
-    { label: "GS", value: scoutsDef.GS || 0, red: true },
-    { label: "PC", value: scoutsDef.PC || 0, red: true }
+    { label: "DS", value: scoutsDef.DS || 0, red: false }, { label: "SG", value: scoutsDef.SG || 0, red: false },
+    { label: "DE", value: scoutsDef.DE || 0, red: false }, { label: "DP", value: scoutsDef.DP || 0, red: false },
+    { label: "CV", value: scoutsDef.CV || 0, red: true }, { label: "CA", value: scoutsDef.CA || 0, red: true },
+    { label: "FC", value: scoutsDef.FC || 0, red: true }, { label: "GC", value: scoutsDef.GC || 0, red: true },
+    { label: "GS", value: scoutsDef.GS || 0, red: true }, { label: "PC", value: scoutsDef.PC || 0, red: true }
   ];
 
   const renderCell = (label, value, isRed) => {
     const bgColor = isRed ? "bg-red-100" : "bg-green-100";
-    return `
-      <div class="${bgColor} rounded-md p-1 text-center min-w-[40px]">
-        <div class="text-[9px] font-bold uppercase text-gray-600">${label}</div>
-        <div class="text-sm font-black text-gray-800">${value}</div>
-      </div>
-    `;
+    return `<div class="${bgColor} rounded-md p-1 text-center min-w-[40px]"><div class="text-[9px] font-bold uppercase text-gray-600">${label}</div><div class="text-sm font-black text-gray-800">${value}</div></div>`;
   };
-
   const ataquesHtml = `<div class="flex flex-wrap gap-1 justify-start">${ataques.map(a => renderCell(a.label, a.value, a.red)).join('')}</div>`;
   const defesasHtml = `<div class="flex flex-wrap gap-1 justify-start">${defesas.map(d => renderCell(d.label, d.value, d.red)).join('')}</div>`;
-  
+
   // ========== GRÁFICO DAS ÚLTIMAS 10 RODADAS ==========
   const rodadaAtual = (typeof RODADA !== 'undefined') ? RODADA : 13;
   const inicio = Math.max(1, rodadaAtual - 9);
   const listaRodadas = [];
   for (let r = inicio; r <= rodadaAtual; r++) listaRodadas.push(r);
   
-  // Acessa os dados de pontuação por rodada (já mesclados)
   const scoutsRdd = dadosJogador.scouts?.rdd || {};
-  const alturaMaxima = 60; // pixels
-  const pontoMaximo = 10;  // escala máxima para a barra (pontuação 10 = 60px)
+  const alturaMaxima = 60;
+  const pontoMaximo = 10;
   
   const barrasHtml = listaRodadas.map(rd => {
     const dado = scoutsRdd[rd];
@@ -395,7 +377,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   }).join('');
   
   const graficoHtml = `<div class="flex justify-around items-end gap-1 overflow-x-auto py-2">${barrasHtml}</div>`;
-  // ==========================================================
+  // ========================================================
 
   fecharModal();
   const modalHtml = `
@@ -405,7 +387,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
         
-        <!-- 1 - CABEÇALHO (FOTO + NOME) -->
+        <!-- CABEÇALHO -->
         <div class="bg-gradient-to-r from-orange-50 to-white p-4 border-b border-orange-100">
           <div class="flex items-center gap-3">
             <div class="w-14 h-14 bg-white rounded-full p-1 shadow-md border border-orange-200">
@@ -419,28 +401,22 @@ window.abrirModalJogador = function(jogadorId, timeId) {
         </div>
 
         <div class="p-4 space-y-1.5">
-          <!-- 2 - CONFRONTO DO TIME -->
+          <!-- CONFRONTO -->
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5 space-y-1">
             ${confrontoHtml}
             <p class="text-center text-[9px] font-mono text-gray-500">${local} • ${dataHora}</p>
           </div>
 
-          <!-- 3 - PREÇO / VARIAÇÃO -->
+          <!-- PREÇO / VARIAÇÃO -->
           <div class="flex items-center justify-between bg-black/[0.02] rounded-xl p-2 border border-black/5">
             <div class="flex items-center gap-2">
               <div class="w-8 h-8 rounded-full bg-[#FF6321] text-white flex items-center justify-center font-black text-sm shadow-sm">C$</div>
-              <div>
-                <p class="text-[10px] text-gray-400 uppercase">Preço</p>
-                <p class="text-lg font-black text-gray-900">${preco}</p>
-              </div>
+              <div><p class="text-[10px] text-gray-400 uppercase">Preço</p><p class="text-lg font-black text-gray-900">${preco}</p></div>
             </div>
-            <div class="text-right">
-              <p class="text-[10px] text-gray-400 uppercase">Variação</p>
-              <p class="text-base font-black ${corVar}">${varFormatado}</p>
-            </div>
+            <div class="text-right"><p class="text-[10px] text-gray-400 uppercase">Variação</p><p class="text-base font-black ${corVar}">${varFormatado}</p></div>
           </div>
 
-          <!-- 4 - CONTAINER ÚNICO: JOGOS | ULT. | MÉDIA | MPV | CEDIDO -->
+          <!-- JOGOS | ULT. | MÉDIA | MPV | CEDIDO -->
           <div class="grid grid-cols-5 gap-1 bg-black/[0.02] rounded-xl p-2 border border-black/5 text-center">
             <div><p class="text-[9px] uppercase tracking-wider text-gray-400">JOGOS</p><p class="text-base font-black text-gray-800">${jogos}</p></div>
             <div><p class="text-[9px] uppercase tracking-wider text-gray-400">ULT.</p><p class="text-base font-black text-gray-800">${ult}</p></div>
@@ -449,19 +425,19 @@ window.abrirModalJogador = function(jogadorId, timeId) {
             <div><p class="text-[9px] uppercase tracking-wider text-gray-400">CEDIDO</p><p class="text-base font-black text-gray-800">${pt_ced}</p></div>
           </div>
 
-          <!-- 5 - SCOUTS ATAQUE -->
+          <!-- SCOUTS ATAQUE -->
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
             <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">SCOUTS - ATAQUE</p>
             ${ataquesHtml}
           </div>
 
-          <!-- 6 - SCOUTS DEFESA -->
+          <!-- SCOUTS DEFESA -->
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
             <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">SCOUTS - DEFESA</p>
             ${defesasHtml}
           </div>
 
-          <!-- 7 - GRÁFICO PONTUAÇÃO -->
+          <!-- PONTUAÇÃO (GRÁFICO) -->
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
             <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">PONTUAÇÃO</p>
             ${graficoHtml}
