@@ -175,13 +175,14 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     return;
   }
 
-  // Usa a mesma lógica de foto do renderJogadoresCampo
+  // Foto do jogador
   const mercadoImagesMap = provavelState.mercadoImages;
   const nomeArquivo = getNomeArquivoJogador(parseInt(idStr), mercadoImagesMap);
   const fotoLocal = nomeArquivo ? `./JOGADORES/${idStr}_${nomeArquivo}.webp` : null;
   const fotoProxy = mercadoImagesMap?.get(parseInt(idStr))?.foto || '';
   const foto = fotoLocal || fotoProxy || `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
 
+  // Confronto
   const partidas = provavelState.partidasData?.partidas || [];
   const partida = partidas.find(p => p.clube_casa_id === timeId || p.clube_visitante_id === timeId);
   
@@ -214,21 +215,23 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     confrontoHtml = `<p class="text-xs text-gray-400 text-center">Dados não disponíveis</p>`;
   }
 
+  // Preço e variação
   const preco = dadosJogador.preco?.toFixed(2) || "0.00";
   const varValor = dadosJogador.var || 0;
   const varFormatado = varValor > 0 ? `+${varValor.toFixed(2)}` : varValor.toFixed(2);
   const corVar = varValor > 0 ? "text-green-500" : (varValor < 0 ? "text-red-500" : "text-gray-400");
+
+  // Dados para o container unificado
   const jogos = dadosJogador.jogos || 0;
+  const ult = dadosJogador.ult !== undefined ? dadosJogador.ult.toFixed(1) : "-";
   const media = dadosJogador.media?.toFixed(2) || "0.00";
   const mpv = dadosJogador.mpv?.toFixed(2) || "0.00";
   const pt_ced = dadosJogador.pt_ced?.toFixed(1) || "0.0";
-  const ult = dadosJogador.ult !== undefined ? dadosJogador.ult.toFixed(1) : "-";
 
   // Scouts
   const scoutsAta = dadosJogador.scouts?.ata || {};
   const scoutsDef = dadosJogador.scouts?.def || {};
 
-  // Definição das células: [label, valor, corVermelha?]
   const ataques = [
     { label: "G", value: scoutsAta.G || 0, red: false },
     { label: "A", value: scoutsAta.A || 0, red: false },
@@ -255,7 +258,6 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     { label: "PC", value: scoutsDef.PC || 0, red: true }
   ];
 
-  // Função para gerar uma célula com cor condicional
   const renderCell = (label, value, isRed) => {
     const bgColor = isRed ? "bg-red-100" : "bg-green-100";
     return `
@@ -266,11 +268,12 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     `;
   };
 
-  // Gera linha de scouts de ataque (flex wrap)
-const ataquesHtml = `<div class="flex flex-wrap gap-1 justify-start">${ataques.map(a => renderCell(a.label, a.value, a.red)).join('')}</div>`;
-const defesasHtml = `<div class="flex flex-wrap gap-1 justify-start">${defesas.map(d => renderCell(d.label, d.value, d.red)).join('')}</div>`;
-   
+  const ataquesHtml = `<div class="flex flex-wrap gap-1 justify-start">${ataques.map(a => renderCell(a.label, a.value, a.red)).join('')}</div>`;
+  const defesasHtml = `<div class="flex flex-wrap gap-1 justify-start">${defesas.map(d => renderCell(d.label, d.value, d.red)).join('')}</div>`;
+
+  // Fechar modal anterior se existir
   fecharModal();
+
   const modalHtml = `
     <div id="modal-jogador-scout" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm transition-all" onclick="if(event.target === this) fecharModal()">
       <div class="relative w-full max-w-md mx-3 bg-white rounded-2xl shadow-2xl overflow-y-auto max-h-[90vh] animate-in fade-in zoom-in duration-200">
@@ -278,22 +281,28 @@ const defesasHtml = `<div class="flex flex-wrap gap-1 justify-start">${defesas.m
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
         
-        <!-- Cabeçalho com foto e nome -->
+        <!-- 1. CABEÇALHO: FOTO + NOME -->
         <div class="bg-gradient-to-r from-orange-50 to-white p-4 border-b border-orange-100">
           <div class="flex items-center gap-3">
             <div class="w-14 h-14 bg-white rounded-full p-1 shadow-md border border-orange-200">
               <img src="${foto}" class="w-full h-full object-contain rounded-full" onerror="this.onerror=null; this.src='${fotoProxy || `./ESCUDOS_BRASILEIRAO/${timeId}.png`}'">
             </div>
-               <div>
-                 <h3 class="text-2xl uppercase tracking-wide text-gray-800" style="font-family: 'Segoe UI', 'FontJogos', sans-serif; font-weight: 900;">${dadosJogador.nome}</h3>
-                 <p class="text-xs font-mono text-gray-500">${dadosJogador.pos}</p>
-               </div>
+            <div>
+              <h3 class="text-2xl uppercase tracking-wide text-gray-800" style="font-family: 'Segoe UI', 'FontJogos', sans-serif; font-weight: 900;">${dadosJogador.nome}</h3>
+              <p class="text-xs font-mono text-gray-500">${dadosJogador.pos}</p>
+            </div>
           </div>
         </div>
 
-        <div class="p-4 space-y-3">
-          <!-- Preço e variação -->
-          <div class="flex items-center justify-between bg-black/[0.02] rounded-xl p-2 border border-black/5">
+        <div class="p-4 space-y-4">
+          <!-- 2. CONFRONTO DO TIME -->
+          <div class="bg-black/[0.02] rounded-xl p-3 border border-black/5 space-y-2">
+            ${confrontoHtml}
+            <p class="text-center text-[10px] font-mono text-gray-500">${local} • ${dataHora}</p>
+          </div>
+
+          <!-- 3. PREÇO / VARIAÇÃO -->
+          <div class="flex items-center justify-between bg-black/[0.02] rounded-xl p-3 border border-black/5">
             <div class="flex items-center gap-2">
               <div class="w-8 h-8 rounded-full bg-[#FF6321] text-white flex items-center justify-center font-black text-sm shadow-sm">C$</div>
               <div>
@@ -307,49 +316,38 @@ const defesasHtml = `<div class="flex flex-wrap gap-1 justify-start">${defesas.m
             </div>
           </div>
 
-          <!-- MPV / CEDIDO agrupados -->
-          <div class="flex items-center justify-between gap-2 bg-black/[0.02] rounded-xl p-2 border border-black/5">
-            <div class="flex-1 text-center">
-              <p class="text-[10px] text-gray-400 uppercase">MPV</p>
+          <!-- 4. CONTAINER ÚNICO: JOGOS / ULT. / MÉDIA / MPV / CEDIDO -->
+          <div class="grid grid-cols-5 gap-2">
+            <div class="bg-black/[0.02] rounded-xl p-2 text-center border border-black/5">
+              <p class="text-[9px] uppercase tracking-wider text-gray-400">JOGOS</p>
+              <p class="text-lg font-black text-gray-800">${jogos}</p>
+            </div>
+            <div class="bg-black/[0.02] rounded-xl p-2 text-center border border-black/5">
+              <p class="text-[9px] uppercase tracking-wider text-gray-400">ULT.</p>
+              <p class="text-lg font-black text-gray-800">${ult}</p>
+            </div>
+            <div class="bg-black/[0.02] rounded-xl p-2 text-center border border-black/5">
+              <p class="text-[9px] uppercase tracking-wider text-gray-400">MÉDIA</p>
+              <p class="text-lg font-black text-gray-800">${media}</p>
+            </div>
+            <div class="bg-black/[0.02] rounded-xl p-2 text-center border border-black/5">
+              <p class="text-[9px] uppercase tracking-wider text-gray-400">MPV</p>
               <p class="text-lg font-black text-gray-800">${mpv}</p>
             </div>
-            <div class="w-px h-8 bg-gray-200"></div>
-            <div class="flex-1 text-center">
-              <p class="text-[10px] text-gray-400 uppercase">CEDIDO</p>
+            <div class="bg-black/[0.02] rounded-xl p-2 text-center border border-black/5">
+              <p class="text-[9px] uppercase tracking-wider text-gray-400">CEDIDO</p>
               <p class="text-lg font-black text-gray-800">${pt_ced}</p>
             </div>
           </div>
 
-          <!-- Confronto -->
-          <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5 space-y-1">
-            ${confrontoHtml}
-            <p class="text-center text-[9px] font-mono text-gray-500">${local} • ${dataHora}</p>
-          </div>
-
-          <!-- Badges JOGOS / MÉDIA / ULT -->
-          <div class="grid grid-cols-3 gap-2">
-            <div class="bg-black/[0.02] rounded-xl p-2 text-center border border-black/5">
-              <p class="text-[9px] uppercase tracking-wider text-gray-400">JOGOS</p>
-              <p class="text-xl font-black text-gray-800">${jogos}</p>
-            </div>
-            <div class="bg-black/[0.02] rounded-xl p-2 text-center border border-black/5">
-              <p class="text-[9px] uppercase tracking-wider text-gray-400">MÉDIA</p>
-              <p class="text-xl font-black text-gray-800">${media}</p>
-            </div>
-            <div class="bg-black/[0.02] rounded-xl p-2 text-center border border-black/5">
-              <p class="text-[9px] uppercase tracking-wider text-gray-400">ULT.</p>
-              <p class="text-xl font-black text-gray-800">${ult}</p>
-            </div>
-          </div>
-
-          <!-- Tabela de Scouts - ATAQUE -->
-          <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
+          <!-- 5. SCOUTS ATAQUE -->
+          <div class="bg-black/[0.02] rounded-xl p-3 border border-black/5">
             <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">SCOUTS - ATAQUE</p>
             ${ataquesHtml}
           </div>
 
-          <!-- Tabela de Scouts - DEFESA -->
-          <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
+          <!-- 6. SCOUTS DEFESA -->
+          <div class="bg-black/[0.02] rounded-xl p-3 border border-black/5">
             <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">SCOUTS - DEFESA</p>
             ${defesasHtml}
           </div>
