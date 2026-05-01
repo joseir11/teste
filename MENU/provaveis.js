@@ -251,13 +251,13 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     return;
   }
 
+  // Obter foto usando a mesma lógica que você já tinha (sem getNomeArquivoJogador)
   const mercadoImagesMap = provavelState.mercadoImages;
-  const nomeArquivo = (typeof getNomeArquivoJogador === 'function') 
-    ? getNomeArquivoJogador(parseInt(idStr), mercadoImagesMap) 
-    : '';
-  const fotoLocal = nomeArquivo ? `./JOGADORES/${idStr}_${nomeArquivo}.webp` : null;
-  const fotoProxy = mercadoImagesMap?.get(parseInt(idStr))?.foto || '';
-  const foto = fotoLocal || fotoProxy || `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
+  let foto = `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
+  if (mercadoImagesMap) {
+    const fotoProxy = mercadoImagesMap.get(parseInt(idStr))?.foto || '';
+    if (fotoProxy) foto = fotoProxy;
+  }
 
   // Confronto
   const partidas = provavelState.partidasData?.partidas || [];
@@ -304,29 +304,19 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   const scoutsDef = dadosJogador.scouts?.def || {};
 
   const ataques = [
-    { label: "G", value: scoutsAta.G || 0, red: false },
-    { label: "A", value: scoutsAta.A || 0, red: false },
-    { label: "FT", value: scoutsAta.FT || 0, red: false },
-    { label: "FD", value: scoutsAta.FD || 0, red: false },
-    { label: "FF", value: scoutsAta.FF || 0, red: false },
-    { label: "FS", value: scoutsAta.FS || 0, red: false },
-    { label: "PS", value: scoutsAta.PS || 0, red: false },
-    { label: "V", value: scoutsAta.V || 0, red: false },
-    { label: "I", value: scoutsAta.I || 0, red: true },
-    { label: "PP", value: scoutsAta.PP || 0, red: true }
+    { label: "G", value: scoutsAta.G || 0, red: false }, { label: "A", value: scoutsAta.A || 0, red: false },
+    { label: "FT", value: scoutsAta.FT || 0, red: false }, { label: "FD", value: scoutsAta.FD || 0, red: false },
+    { label: "FF", value: scoutsAta.FF || 0, red: false }, { label: "FS", value: scoutsAta.FS || 0, red: false },
+    { label: "PS", value: scoutsAta.PS || 0, red: false }, { label: "V", value: scoutsAta.V || 0, red: false },
+    { label: "I", value: scoutsAta.I || 0, red: true }, { label: "PP", value: scoutsAta.PP || 0, red: true }
   ];
 
   const defesas = [
-    { label: "DS", value: scoutsDef.DS || 0, red: false },
-    { label: "SG", value: scoutsDef.SG || 0, red: false },
-    { label: "DE", value: scoutsDef.DE || 0, red: false },
-    { label: "DP", value: scoutsDef.DP || 0, red: false },
-    { label: "CV", value: scoutsDef.CV || 0, red: true },
-    { label: "CA", value: scoutsDef.CA || 0, red: true },
-    { label: "FC", value: scoutsDef.FC || 0, red: true },
-    { label: "GC", value: scoutsDef.GC || 0, red: true },
-    { label: "GS", value: scoutsDef.GS || 0, red: true },
-    { label: "PC", value: scoutsDef.PC || 0, red: true }
+    { label: "DS", value: scoutsDef.DS || 0, red: false }, { label: "SG", value: scoutsDef.SG || 0, red: false },
+    { label: "DE", value: scoutsDef.DE || 0, red: false }, { label: "DP", value: scoutsDef.DP || 0, red: false },
+    { label: "CV", value: scoutsDef.CV || 0, red: true }, { label: "CA", value: scoutsDef.CA || 0, red: true },
+    { label: "FC", value: scoutsDef.FC || 0, red: true }, { label: "GC", value: scoutsDef.GC || 0, red: true },
+    { label: "GS", value: scoutsDef.GS || 0, red: true }, { label: "PC", value: scoutsDef.PC || 0, red: true }
   ];
 
   const renderCell = (label, value, isRed) => {
@@ -335,6 +325,58 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   };
   const ataquesHtml = `<div class="flex flex-wrap gap-1 justify-start">${ataques.map(a => renderCell(a.label, a.value, a.red)).join('')}</div>`;
   const defesasHtml = `<div class="flex flex-wrap gap-1 justify-start">${defesas.map(d => renderCell(d.label, d.value, d.red)).join('')}</div>`;
+
+  // GRÁFICO DAS ÚLTIMAS 10 RODADAS
+  const rodadaAtual = (typeof RODADA !== 'undefined') ? RODADA : 13;
+  const inicio = Math.max(1, rodadaAtual - 9);
+  const listaRodadas = [];
+  for (let r = inicio; r <= rodadaAtual; r++) listaRodadas.push(r);
+  
+  const scoutsRdd = dadosJogador.scouts?.rdd || {};
+  const alturaMaxima = 60;
+  const pontoMaximo = 10;
+  
+  const barrasHtml = listaRodadas.map(rd => {
+    const dado = scoutsRdd[rd];
+    let pt = dado?.pt;
+    let valorNum = null;
+    let classeCor = '';
+    let altura = 0;
+    let textoTopo = '';
+    
+    if (pt === undefined || pt === '-') {
+      classeCor = 'bg-gray-300';
+      altura = 20;
+      textoTopo = '-';
+    } else {
+      valorNum = parseFloat(pt);
+      if (isNaN(valorNum)) {
+        classeCor = 'bg-gray-300';
+        altura = 20;
+        textoTopo = '-';
+      } else {
+        classeCor = valorNum >= 0 ? 'bg-green-400' : 'bg-red-400';
+        let valorAbs = Math.min(Math.abs(valorNum), pontoMaximo);
+        altura = (valorAbs / pontoMaximo) * alturaMaxima;
+        if (altura < 4 && valorAbs > 0) altura = 4;
+        textoTopo = valorNum.toFixed(1);
+      }
+    }
+    
+    return `
+      <div class="flex flex-col items-center gap-1" style="width: 28px;">
+        <div class="relative flex justify-center" style="height: ${alturaMaxima + 24}px;">
+          <div class="absolute bottom-0 w-full flex justify-center">
+            <div class="${classeCor} rounded-t-md" style="height: ${altura}px; width: 22px;"></div>
+          </div>
+          <span class="absolute -top-6 text-[10px] font-mono font-bold text-gray-700">${textoTopo}</span>
+        </div>
+        <span class="text-[10px] font-mono text-gray-500">${rd}</span>
+      </div>
+    `;
+  }).join('');
+  
+  const graficoHtml = `<div class="flex justify-around items-end gap-1 overflow-x-auto py-2">${barrasHtml}</div>`;
 
   fecharModal();
   const modalHtml = `
@@ -347,7 +389,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
         <div class="bg-gradient-to-r from-orange-50 to-white p-4 border-b border-orange-100">
           <div class="flex items-center gap-3">
             <div class="w-14 h-14 bg-white rounded-full p-1 shadow-md border border-orange-200">
-              <img src="${foto}" class="w-full h-full object-contain rounded-full" onerror="this.onerror=null; this.src='${fotoProxy || `./ESCUDOS_BRASILEIRAO/${timeId}.png`}'">
+              <img src="${foto}" class="w-full h-full object-contain rounded-full" onerror="this.onerror=null; this.src='${foto}'">
             </div>
             <div>
               <h3 class="text-2xl uppercase tracking-wide text-gray-800" style="font-family: 'Segoe UI', 'FontJogos', sans-serif; font-weight: 900;">${dadosJogador.nome}</h3>
@@ -356,7 +398,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
           </div>
         </div>
 
-        <div class="p-4 space-y-3">
+        <div class="p-4 space-y-1.5">
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5 space-y-1">
             ${confrontoHtml}
             <p class="text-center text-[9px] font-mono text-gray-500">${local} • ${dataHora}</p>
@@ -386,6 +428,11 @@ window.abrirModalJogador = function(jogadorId, timeId) {
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
             <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">SCOUTS - DEFESA</p>
             ${defesasHtml}
+          </div>
+
+          <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
+            <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">PONTUAÇÃO</p>
+            ${graficoHtml}
           </div>
         </div>
       </div>
