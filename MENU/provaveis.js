@@ -239,19 +239,20 @@ window.fecharModal = fecharModal;
 
 window.abrirModalJogador = function(jogadorId, timeId) {
   const idStr = String(jogadorId);
-  if (typeof SCOUTS === 'undefined') {
-    console.error("SCOUTS não definido");
-    alert("Erro: base de jogadores não carregada.");
-    return;
-  }
-  const dadosJogador = SCOUTS[idStr];
-  if (!dadosJogador) {
-    console.error(`Jogador ID ${idStr} não encontrado`);
-    alert(`Dados do jogador ID ${idStr} não encontrados.`);
+  
+  // Verifica as bases de dados necessárias
+  if (typeof SCOUTS === 'undefined' || typeof dadosRodadas === 'undefined') {
+    console.error("Bases de dados (SCOUTS ou dadosRodadas) não carregadas.");
     return;
   }
 
-  // Obter foto
+  const dadosJogador = SCOUTS[idStr];
+  if (!dadosJogador) {
+    console.error(`Jogador ID ${idStr} não encontrado em SCOUTS`);
+    return;
+  }
+
+  // Foto do Jogador
   const mercadoImagesMap = provavelState.mercadoImages;
   let foto = `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
   if (mercadoImagesMap) {
@@ -259,11 +260,12 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     if (fotoProxy) foto = fotoProxy;
   }
 
-  // Confronto
+  // Lógica de Confronto
   const partidas = provavelState.partidasData?.partidas || [];
   const partida = partidas.find(p => p.clube_casa_id === timeId || p.clube_visitante_id === timeId);
   let confrontoHtml = '';
   let dataHora = '—', local = '—';
+
   if (partida) {
     const timeCasaId = partida.clube_casa_id;
     const timeVisitanteId = partida.clube_visitante_id;
@@ -274,12 +276,12 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     confrontoHtml = `
       <div class="flex items-center justify-between gap-2">
         <div class="flex flex-col items-center">
-          <img src="${escudoCasa}" class="w-8 h-8 object-contain" onerror="this.style.display='none'">
+          <img src="${escudoCasa}" class="w-8 h-8 object-contain">
           <span class="text-[10px] font-mono">${posCasa}</span>
         </div>
         <span class="text-sm font-black text-gray-700">VS</span>
         <div class="flex flex-col items-center">
-          <img src="${escudoVisitante}" class="w-8 h-8 object-contain" onerror="this.style.display='none'">
+          <img src="${escudoVisitante}" class="w-8 h-8 object-contain">
           <span class="text-[10px] font-mono">${posVisitante}</span>
         </div>
       </div>
@@ -290,6 +292,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     confrontoHtml = `<p class="text-xs text-gray-400 text-center">Dados não disponíveis</p>`;
   }
 
+  // Dados Financeiros e Médias
   const preco = dadosJogador.preco?.toFixed(2) || "0.00";
   const varValor = dadosJogador.var || 0;
   const varFormatado = varValor > 0 ? `+${varValor.toFixed(2)}` : varValor.toFixed(2);
@@ -300,6 +303,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   const mpv = dadosJogador.mpv?.toFixed(2) || "0.00";
   const pt_ced = dadosJogador.pt_ced?.toFixed(1) || "0.0";
 
+  // Scouts de Ataque e Defesa
   const scoutsAta = dadosJogador.scouts?.ata || {};
   const scoutsDef = dadosJogador.scouts?.def || {};
 
@@ -323,111 +327,110 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     const bgColor = isRed ? "bg-red-100" : "bg-green-100";
     return `<div class="${bgColor} rounded-md p-1 text-center min-w-[40px]"><div class="text-[9px] font-bold uppercase text-gray-600">${label}</div><div class="text-sm font-black text-gray-800">${value}</div></div>`;
   };
+
   const ataquesHtml = `<div class="flex flex-wrap gap-1 justify-start">${ataques.map(a => renderCell(a.label, a.value, a.red)).join('')}</div>`;
   const defesasHtml = `<div class="flex flex-wrap gap-1 justify-start">${defesas.map(d => renderCell(d.label, d.value, d.red)).join('')}</div>`;
 
-  // --- LÓGICA DINÂMICA DO GRÁFICO ---
-  const scoutsRdd = dadosJogador.scouts?.rdd || {};
-  const chavesRodadas = Object.keys(scoutsRdd).map(Number);
-  // Detecta a maior rodada existente nos dados do jogador
-  const ultimaRodadaFinalizada = chavesRodadas.length > 0 ? Math.max(...chavesRodadas) : 1;
-  
-  const alturaMaxima = 60;
-  const pontoMaximo = 12; // Ajuste conforme a escala desejada
+  // --- LÓGICA DO GRÁFICO (ALIMENTADO PELO RODADAS.JS) ---[cite: 1, 3]
+  const rodadaReferencia = (typeof RODADA !== 'undefined') ? RODADA : 13;
   const listaRodadas = [];
-  for (let r = ultimaRodadaFinalizada - 9; r <= ultimaRodadaFinalizada; r++) {
+  for (let r = rodadaReferencia - 9; r <= rodadaReferencia; r++) {
     if (r > 0) listaRodadas.push(r);
   }
 
-  const barrasHtml = listaRodadas.map(rd => {
-    const dado = scoutsRdd[rd];
-    let pt = dado?.pt;
-    let corHex = '#e5e7eb'; // Default cinza (bg-gray-200)
-    let altura = 6; 
-    let textoTopo = '-';
+  // Acessa o histórico específico do jogador no objeto global dadosRodadas[cite: 1]
+  const rddSource = dadosRodadas[idStr]?.scouts?.rdd || {};
+  const alturaMaxGrafico = 50;
 
-    if (pt !== undefined && pt !== '-') {
-      const valorNum = parseFloat(pt);
-      textoTopo = valorNum.toFixed(1);
-      if (valorNum > 0) {
-        corHex = '#bbf7d0'; // Verde suave
-        altura = Math.min((valorNum / pontoMaximo) * alturaMaxima, alturaMaxima);
-      } else if (valorNum < 0) {
-        corHex = '#fecaca'; // Vermelho suave
-        altura = Math.min((Math.abs(valorNum) / pontoMaximo) * alturaMaxima, alturaMaxima);
-      } else {
-        corHex = '#e5e7eb'; // 0.0 é cinza
-        altura = 6;
-      }
+  const barrasHtml = listaRodadas.map(rd => {
+    const dado = rddSource[rd];
+    const ptRaw = dado?.pt; 
+    
+    let corBarra = '#e5e7eb'; // Cinza suave (Padrão para "-" ou 0.0)
+    let alturaBarra = 4;
+    let textoPontos = '-';
+
+    if (ptRaw !== undefined && ptRaw !== "-") {
+      const v = parseFloat(ptRaw);
+      textoPontos = v.toFixed(1);
+      
+      // Define a altura proporcional (escala: 10 pontos = altura máxima)
+      alturaBarra = Math.min(Math.max(Math.abs(v) * 5, 4), alturaMaxGrafico);
+      
+      if (v > 0) corBarra = '#bbf7d0';      // Verde suave
+      else if (v < 0) corBarra = '#fecaca'; // Vermelho suave
     }
 
     return `
-      <div class="flex flex-col items-center flex-1 min-w-[24px]">
-        <div class="relative flex flex-col justify-end items-center" style="height: ${alturaMaxima + 20}px; width: 100%;">
-          <span class="text-[9px] font-bold text-gray-600 mb-1">${textoTopo}</span>
-          <div style="background-color: ${corHex}; height: ${Math.max(altura, 4)}px; width: 18px;" class="rounded-t-sm transition-all duration-500"></div>
-        </div>
-        <span class="text-[9px] font-mono text-gray-400 mt-1">${rd}</span>
+      <div class="flex flex-col items-center justify-end h-full flex-1" style="min-width: 22px;">
+        <span style="font-size: 9px; font-weight: bold; color: #4b5563; margin-bottom: 2px;">${textoPontos}</span>
+        <div style="background-color: ${corBarra}; height: ${alturaBarra}px; width: 18px; border-radius: 2px 2px 0 0;"></div>
+        <span style="font-size: 9px; color: #9ca3af; margin-top: 4px; font-family: monospace;">${rd}</span>
       </div>
     `;
   }).join('');
 
-  const graficoHtml = `<div class="flex justify-between items-end gap-1 px-1 py-2">${barrasHtml}</div>`;
+  const graficoHtml = `
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; height: 85px; width: 100%; padding: 0 4px;">
+      ${barrasHtml}
+    </div>
+  `;
 
+  // Renderização Final do Modal
   fecharModal();
   const modalHtml = `
-    <div id="modal-jogador-scout" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm transition-all" onclick="if(event.target === this) fecharModal()">
+    <div id="modal-jogador-scout" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onclick="if(event.target === this) fecharModal()">
       <div class="relative w-full max-w-md mx-3 bg-white rounded-2xl shadow-2xl overflow-y-auto max-h-[90vh] animate-in fade-in zoom-in duration-200">
-        <button onclick="fecharModal()" class="absolute top-3 right-3 z-10 w-7 h-7 rounded-full bg-black/20 hover:bg-black/40 flex items-center justify-center transition">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        <button onclick="fecharModal()" class="absolute top-3 right-3 z-10 w-7 h-7 rounded-full bg-black/20 hover:bg-black/40 flex items-center justify-center text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
         
         <div class="bg-gradient-to-r from-orange-50 to-white p-4 border-b border-orange-100">
           <div class="flex items-center gap-3">
             <div class="w-14 h-14 bg-white rounded-full p-1 shadow-md border border-orange-200">
-              <img src="${foto}" class="w-full h-full object-contain rounded-full" onerror="this.onerror=null; this.src='${foto}'">
+              <img src="${foto}" class="w-full h-full object-contain rounded-full">
             </div>
             <div>
-              <h3 class="text-2xl uppercase tracking-wide text-gray-800" style="font-family: 'Segoe UI', 'FontJogos', sans-serif; font-weight: 900;">${dadosJogador.nome}</h3>
+              <h3 class="text-2xl uppercase tracking-wide text-gray-800" style="font-family: 'Segoe UI', sans-serif; font-weight: 900;">${dadosJogador.nome}</h3>
               <p class="text-xs font-mono text-gray-500">${dadosJogador.pos}</p>
             </div>
           </div>
         </div>
 
-        <div class="p-4 space-y-1.5">
-          <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5 space-y-1">
+        <div class="p-4 space-y-2">
+          <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
             ${confrontoHtml}
-            <p class="text-center text-[9px] font-mono text-gray-500">${local} • ${dataHora}</p>
+            <p class="text-center text-[9px] font-mono text-gray-500 mt-1">${local} • ${dataHora}</p>
           </div>
 
           <div class="flex items-center justify-between bg-black/[0.02] rounded-xl p-2 border border-black/5">
             <div class="flex items-center gap-2">
-              <div class="w-8 h-8 rounded-full bg-[#FF6321] text-white flex items-center justify-center font-black text-sm shadow-sm">C$</div>
+              <div class="w-8 h-8 rounded-full bg-[#FF6321] text-white flex items-center justify-center font-black text-sm">C$</div>
               <div><p class="text-[10px] text-gray-400 uppercase">Preço</p><p class="text-lg font-black text-gray-900">${preco}</p></div>
             </div>
             <div class="text-right"><p class="text-[10px] text-gray-400 uppercase">Variação</p><p class="text-base font-black ${corVar}">${varFormatado}</p></div>
           </div>
 
           <div class="grid grid-cols-5 gap-1 bg-black/[0.02] rounded-xl p-2 border border-black/5 text-center">
-            <div><p class="text-[9px] uppercase tracking-wider text-gray-400">JOGOS</p><p class="text-base font-black text-gray-800">${jogos}</p></div>
-            <div><p class="text-[9px] uppercase tracking-wider text-gray-400">ULT.</p><p class="text-base font-black text-gray-800">${ult}</p></div>
-            <div><p class="text-[9px] uppercase tracking-wider text-gray-400">MÉDIA</p><p class="text-base font-black text-gray-800">${media}</p></div>
-            <div><p class="text-[9px] uppercase tracking-wider text-gray-400">MPV</p><p class="text-base font-black text-gray-800">${mpv}</p></div>
-            <div><p class="text-[9px] uppercase tracking-wider text-gray-400">CEDIDO</p><p class="text-base font-black text-gray-800">${pt_ced}</p></div>
+            <div><p class="text-[9px] text-gray-400">JOGOS</p><p class="text-base font-black text-gray-800">${jogos}</p></div>
+            <div><p class="text-[9px] text-gray-400">ULT.</p><p class="text-base font-black text-gray-800">${ult}</p></div>
+            <div><p class="text-[9px] text-gray-400">MÉDIA</p><p class="text-base font-black text-gray-800">${media}</p></div>
+            <div><p class="text-[9px] text-gray-400">MPV</p><p class="text-base font-black text-gray-800">${mpv}</p></div>
+            <div><p class="text-[9px] text-gray-400">CEDIDO</p><p class="text-base font-black text-gray-800">${pt_ced}</p></div>
           </div>
 
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
-            <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">SCOUTS - ATAQUE</p>
+            <p class="text-[10px] font-black uppercase text-gray-600 mb-2">SCOUTS - ATAQUE</p>
             ${ataquesHtml}
           </div>
 
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
-            <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">SCOUTS - DEFESA</p>
+            <p class="text-[10px] font-black uppercase text-gray-600 mb-2">SCOUTS - DEFESA</p>
             ${defesasHtml}
           </div>
 
-          <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
-            <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2 text-center">ÚLTIMAS PONTUAÇÕES</p>
+          <div class="bg-black/[0.02] rounded-xl p-3 border border-black/5">
+            <p class="text-[10px] font-black uppercase text-gray-600 mb-3 text-center">ÚLTIMAS PONTUAÇÕES</p>
             ${graficoHtml}
           </div>
         </div>
@@ -436,7 +439,6 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   `;
   document.body.insertAdjacentHTML('beforeend', modalHtml);
 };
-
 // ========== FUNÇÃO PRINCIPAL RENDER PROVÁVEIS (COM CACHE) ==========
 window.renderProvaveis = async function() {
   if (provaveisRenderizando) return;
