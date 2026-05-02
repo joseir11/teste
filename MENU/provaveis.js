@@ -251,7 +251,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
     return;
   }
 
-  // Obter foto usando a mesma lógica que você já tinha (sem getNomeArquivoJogador)
+  // Obter foto
   const mercadoImagesMap = provavelState.mercadoImages;
   let foto = `./ESCUDOS_BRASILEIRAO/${timeId}.png`;
   if (mercadoImagesMap) {
@@ -326,57 +326,53 @@ window.abrirModalJogador = function(jogadorId, timeId) {
   const ataquesHtml = `<div class="flex flex-wrap gap-1 justify-start">${ataques.map(a => renderCell(a.label, a.value, a.red)).join('')}</div>`;
   const defesasHtml = `<div class="flex flex-wrap gap-1 justify-start">${defesas.map(d => renderCell(d.label, d.value, d.red)).join('')}</div>`;
 
-  // GRÁFICO DAS ÚLTIMAS 10 RODADAS
-  const rodadaAtual = (typeof RODADA !== 'undefined') ? RODADA : 13;
-  const inicio = Math.max(1, rodadaAtual - 9);
-  const listaRodadas = [];
-  for (let r = inicio; r <= rodadaAtual; r++) listaRodadas.push(r);
-  
+  // --- LÓGICA DINÂMICA DO GRÁFICO ---
   const scoutsRdd = dadosJogador.scouts?.rdd || {};
-  const alturaMaxima = 60;
-  const pontoMaximo = 10;
+  const chavesRodadas = Object.keys(scoutsRdd).map(Number);
+  // Detecta a maior rodada existente nos dados do jogador
+  const ultimaRodadaFinalizada = chavesRodadas.length > 0 ? Math.max(...chavesRodadas) : 1;
   
+  const alturaMaxima = 60;
+  const pontoMaximo = 12; // Ajuste conforme a escala desejada
+  const listaRodadas = [];
+  for (let r = ultimaRodadaFinalizada - 9; r <= ultimaRodadaFinalizada; r++) {
+    if (r > 0) listaRodadas.push(r);
+  }
+
   const barrasHtml = listaRodadas.map(rd => {
     const dado = scoutsRdd[rd];
     let pt = dado?.pt;
-    let valorNum = null;
-    let classeCor = '';
-    let altura = 0;
-    let textoTopo = '';
-    
-    if (pt === undefined || pt === '-') {
-      classeCor = 'bg-gray-300';
-      altura = 20;
-      textoTopo = '-';
-    } else {
-      valorNum = parseFloat(pt);
-      if (isNaN(valorNum)) {
-        classeCor = 'bg-gray-300';
-        altura = 20;
-        textoTopo = '-';
+    let corHex = '#e5e7eb'; // Default cinza (bg-gray-200)
+    let altura = 6; 
+    let textoTopo = '-';
+
+    if (pt !== undefined && pt !== '-') {
+      const valorNum = parseFloat(pt);
+      textoTopo = valorNum.toFixed(1);
+      if (valorNum > 0) {
+        corHex = '#bbf7d0'; // Verde suave
+        altura = Math.min((valorNum / pontoMaximo) * alturaMaxima, alturaMaxima);
+      } else if (valorNum < 0) {
+        corHex = '#fecaca'; // Vermelho suave
+        altura = Math.min((Math.abs(valorNum) / pontoMaximo) * alturaMaxima, alturaMaxima);
       } else {
-        classeCor = valorNum >= 0 ? 'bg-green-400' : 'bg-red-400';
-        let valorAbs = Math.min(Math.abs(valorNum), pontoMaximo);
-        altura = (valorAbs / pontoMaximo) * alturaMaxima;
-        if (altura < 4 && valorAbs > 0) altura = 4;
-        textoTopo = valorNum.toFixed(1);
+        corHex = '#e5e7eb'; // 0.0 é cinza
+        altura = 6;
       }
     }
-    
+
     return `
-      <div class="flex flex-col items-center gap-1" style="width: 28px;">
-        <div class="relative flex justify-center" style="height: ${alturaMaxima + 24}px;">
-          <div class="absolute bottom-0 w-full flex justify-center">
-            <div class="${classeCor} rounded-t-md" style="height: ${altura}px; width: 22px;"></div>
-          </div>
-          <span class="absolute -top-6 text-[10px] font-mono font-bold text-gray-700">${textoTopo}</span>
+      <div class="flex flex-col items-center flex-1 min-w-[24px]">
+        <div class="relative flex flex-col justify-end items-center" style="height: ${alturaMaxima + 20}px; width: 100%;">
+          <span class="text-[9px] font-bold text-gray-600 mb-1">${textoTopo}</span>
+          <div style="background-color: ${corHex}; height: ${Math.max(altura, 4)}px; width: 18px;" class="rounded-t-sm transition-all duration-500"></div>
         </div>
-        <span class="text-[10px] font-mono text-gray-500">${rd}</span>
+        <span class="text-[9px] font-mono text-gray-400 mt-1">${rd}</span>
       </div>
     `;
   }).join('');
-  
-  const graficoHtml = `<div class="flex justify-around items-end gap-1 overflow-x-auto py-2">${barrasHtml}</div>`;
+
+  const graficoHtml = `<div class="flex justify-between items-end gap-1 px-1 py-2">${barrasHtml}</div>`;
 
   fecharModal();
   const modalHtml = `
@@ -431,7 +427,7 @@ window.abrirModalJogador = function(jogadorId, timeId) {
           </div>
 
           <div class="bg-black/[0.02] rounded-xl p-2 border border-black/5">
-            <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">PONTUAÇÃO</p>
+            <p class="text-xs font-black uppercase tracking-wider text-gray-600 mb-2 text-center">ÚLTIMAS PONTUAÇÕES</p>
             ${graficoHtml}
           </div>
         </div>
