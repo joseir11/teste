@@ -1,229 +1,216 @@
 /* ============================================================
-   JOGOS DA RODADA — CARTOLA FC (COM PRÉ-CARREGAMENTO)
-   VERSÃO: 5.0
+   JOGOS DA RODADA — COM MODAL CORRIGIDO (X NO CABEÇALHO)
    ============================================================ */
 
 const mainContent = document.getElementById("main-content");
 const btnJogos = document.getElementById("btn-jogos");
-const btnProvaveis = document.getElementById("btn-provaveis");
-
 const ESCUDOS_PATH = "./ESCUDOS_BRASILEIRAO";
 
-let jogosRenderizando = false; // evita múltiplas chamadas
+let jogosRenderizando = false;
 
-/* ── LOADER E ERRO ────────────────────────────────────── */
 function renderLoader() {
-  if (!mainContent) return;
-  mainContent.innerHTML = `
-    <div class="flex flex-col justify-center items-center h-screen gap-3 px-6 text-center">
-      <div class="loader"></div>
-      <p class="uppercase text-[10px] font-bold tracking-[0.3em] text-gray-400">
-        Carregando jogos...
-      </p>
-    </div>
-  `;
+  mainContent.innerHTML = `<div class="flex flex-col justify-center items-center h-screen"><div class="loader"></div><p class="text-xs mt-2">Carregando...</p></div>`;
 }
-
 function renderError(msg) {
-  if (!mainContent) return;
-  mainContent.innerHTML = `
-    <div class="flex flex-col justify-center items-center h-screen gap-2 px-6 text-center">
-      <p class="uppercase text-xs font-bold tracking-widest text-red-500">
-        Erro ao carregar
-      </p>
-      <p class="text-sm text-gray-500">${msg}</p>
-      <button onclick="window.carregarJogos()" 
-        class="mt-4 px-4 py-2 bg-black text-white text-xs uppercase tracking-widest rounded-full">
-        Tentar novamente
-      </button>
-    </div>
-  `;
+  mainContent.innerHTML = `<div class="text-center py-10"><p class="text-red-500">${msg}</p><button onclick="window.carregarJogos()" class="mt-4 px-4 py-2 bg-black text-white rounded-full">Tentar novamente</button></div>`;
 }
-
-/* ── UTILITÁRIOS ──────────────────────────────────────── */
 function formatarData(iso) {
   if (!iso) return "A definir";
   const d = new Date(iso);
-  if (isNaN(d.getTime())) return iso;
-  const data = d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
-  const hora = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-  return `${data} • ${hora}`;
+  return `${d.toLocaleDateString("pt-BR")} ${d.toLocaleTimeString("pt-BR", { hour:"2-digit", minute:"2-digit" })}`;
 }
-
-function formatarPosicao(pos) {
-  if (!pos || pos === 0) return "";
-  return `${pos}º`;
+function formatarPosicao(pos) { return pos ? `${pos}º` : ""; }
+function formatarFechamento(f) { if(!f) return "--/-- --:--"; return `${String(f.dia).padStart(2,"0")}/${String(f.mes).padStart(2,"0")} ${String(f.hora).padStart(2,"0")}:${String(f.minuto).padStart(2,"0")}`; }
+function statusMercado(s) {
+  const m = {1:{l:"ABERTO",c:"text-emerald-500",t:"MERCADO FECHA"},2:{l:"FECHADO",c:"text-rose-500",t:"FECHADO EM"},3:{l:"ATUALIZANDO",c:"text-amber-500",t:"AGUARDE"},4:{l:"MANUTENÇÃO",c:"text-gray-500",t:"EM MANUTENÇÃO"},6:{l:"ENCERRADO",c:"text-gray-500",t:"FIM DE TEMPORADA"}};
+  return m[s]||{l:"—",c:"text-gray-400",t:"—"};
 }
-
-function formatarFechamento(fechamento) {
-  if (!fechamento) return "--/-- --:--";
-  const { dia, mes, hora, minuto } = fechamento;
-  const dd = String(dia).padStart(2, "0");
-  const mm = String(mes).padStart(2, "0");
-  const hh = String(hora).padStart(2, "0");
-  const mi = String(minuto).padStart(2, "0");
-  return `${dd}/${mm} ${hh}:${mi}`;
-}
-
-function statusMercado(status) {
-  const map = {
-    1: { label: "ABERTO", cor: "text-emerald-500", labelTempo: "MERCADO FECHA" },
-    2: { label: "FECHADO", cor: "text-rose-500", labelTempo: "MERCADO ABRE" },
-    3: { label: "ATUALIZANDO", cor: "text-amber-500", labelTempo: "AGUARDE" },
-    4: { label: "MANUTENÇÃO", cor: "text-gray-500", labelTempo: "EM MANUTENÇÃO" },
-    6: { label: "ENCERRADO", cor: "text-gray-500", labelTempo: "FIM DE TEMPORADA" },
-  };
-  return map[status] || { label: "—", cor: "text-gray-400", labelTempo: "—" };
-}
-
 function renderStatusMercado(mercado) {
-  const status = statusMercado(mercado.status_mercado);
-  const fechamento = formatarFechamento(mercado.fechamento);
-  return `
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mx-4 mb-4 overflow-hidden">
-      <div class="bg-orange-50 px-4 py-2.5 border-b border-orange-100">
-        <p class="text-xl font-black text-black text-center">Jogos da Rodada</p>
-      </div>
-      <div class="grid grid-cols-3 divide-x divide-gray-100 p-5">
-        <div class="flex flex-col items-center justify-center text-center">
-          <p class="text-[10px] uppercase tracking-[0.2em] text-gray-400 mb-2">Rodada Atual</p>
-          <p class="text-2xl font-black text-black tabular-nums">${mercado.rodada_atual ?? "-"}</p>
+  const s = statusMercado(mercado.status_mercado);
+  return `<div class="bg-white rounded-2xl shadow-sm border mx-4 mb-4"><div class="bg-orange-50 px-4 py-2.5 border-b"><p class="text-xl font-black text-center">Jogos da Rodada</p></div><div class="grid grid-cols-3 divide-x p-5"><div class="text-center"><p class="text-[10px] text-gray-400">Rodada Atual</p><p class="text-2xl font-black">${mercado.rodada_atual??"-"}</p></div><div class="text-center"><p class="text-[10px] text-gray-400">Status</p><p class="text-2xl font-black ${s.c}">${s.l}</p></div><div class="text-center"><p class="text-[10px] text-gray-400">${s.t}</p><p class="text-lg font-black">${formatarFechamento(mercado.fechamento)}</p></div></div></div>`;
+}
+function renderAproveitamento(aprov) {
+  if(!Array.isArray(aprov)) return "";
+  const cores = {v:"bg-emerald-200",d:"bg-rose-200",e:"bg-gray-200"};
+  return `<div class="flex justify-center gap-1 mt-2">${aprov.map(r=>`<span class="w-2 h-2 rounded-full ${cores[r]||"bg-gray-100"}"></span>`).join("")}</div>`;
+}
+function renderCardPartida(p, clubes) {
+  const casa = clubes[p.clube_casa_id], fora = clubes[p.clube_visitante_id];
+  const placarC = p.placar_oficial_mandante??"-", placarF = p.placar_oficial_visitante??"-";
+  const jogoIniciado = p.placar_oficial_mandante !== null;
+  return `<div class="match-card bg-white rounded-2xl shadow-sm border p-4 mb-3 cursor-pointer" data-partida-id="${p.partida_id}">
+    <p class="text-[10px] text-gray-400 text-center mb-3">${formatarData(p.partida_data)} • ${p.local||"-"}</p>
+    <div class="flex items-start justify-between gap-2">
+      <div class="flex-1 text-center"><span class="text-[11px] text-gray-400">${formatarPosicao(p.clube_casa_posicao)}</span><img src="${ESCUDOS_PATH}/${p.clube_casa_id}.png" class="w-12 h-12 mx-auto" onerror="this.src='${casa?.escudos?.["60x60"]||''}'"><span class="text-sm font-black block">${casa?.abreviacao||"?"}</span>${renderAproveitamento(p.aproveitamento_mandante)}</div>
+      <div class="text-2xl font-black pt-3"><span class="${jogoIniciado?"text-black":"text-gray-300"}">${placarC}</span> <span class="text-gray-300">×</span> <span class="${jogoIniciado?"text-black":"text-gray-300"}">${placarF}</span></div>
+      <div class="flex-1 text-center"><span class="text-[11px] text-gray-400">${formatarPosicao(p.clube_visitante_posicao)}</span><img src="${ESCUDOS_PATH}/${p.clube_visitante_id}.png" class="w-12 h-12 mx-auto" onerror="this.src='${fora?.escudos?.["60x60"]||''}'"><span class="text-sm font-black block">${fora?.abreviacao||"?"}</span>${renderAproveitamento(p.aproveitamento_visitante)}</div>
+    </div>
+  </div>`;
+}
+
+// ========== MODAL COM CABEÇALHO SEPARADO ==========
+function fecharModalScouts() {
+  const modal = document.getElementById('modal-scouts');
+  if (modal) modal.remove();
+}
+window.fecharModalScouts = fecharModalScouts;
+
+async function abrirModalScouts(partida, clubes) {
+  fecharModalScouts();
+
+  let pontuadosData = window.preloadedPontuadosData;
+  if (!pontuadosData) {
+    try {
+      const res = await fetch(API_CARTOLA.PONTUADOS());
+      if (!res.ok) throw new Error();
+      pontuadosData = await res.json();
+    } catch (err) {
+      alert("Erro ao carregar scouts");
+      return;
+    }
+  }
+
+  const atletas = pontuadosData.atletas || {};
+  const timeCasa = clubes[partida.clube_casa_id];
+  const timeFora = clubes[partida.clube_visitante_id];
+  const siglaPosicao = { 1: "GOL", 2: "LAT", 3: "ZAG", 4: "MEI", 5: "ATA", 6: "TEC" };
+  const scoutEmoji = { "G": "⚽", "A": "👟", "CA": "🟨", "CV": "🟥" };
+
+  const renderizarLista = (timeId) => {
+    const atletasTime = Object.values(atletas).filter(a => a.clube_id === timeId && a.entrou_em_campo === true);
+    atletasTime.sort((a,b) => (a.posicao_id || 99) - (b.posicao_id || 99));
+    const body = document.querySelector('#modal-scouts .modal-body');
+    if (!body) return;
+    if (atletasTime.length === 0) {
+      body.innerHTML = `<div class="empty-scouts">NENHUM ATLETA EM CAMPO</div>`;
+      return;
+    }
+    body.innerHTML = atletasTime.map(atleta => {
+      const sigla = siglaPosicao[atleta.posicao_id] || "???";
+      const scoutsList = Object.entries(atleta.scout || {}).map(([k,v]) => `<span class="scout-item">${v} ${k.toUpperCase()}</span>`).join("");
+      let emojis = [];
+      if (atleta.scout?.G) emojis.push(scoutEmoji.G);
+      if (atleta.scout?.A) emojis.push(scoutEmoji.A);
+      if (atleta.scout?.CA) emojis.push(scoutEmoji.CA);
+      if (atleta.scout?.CV) emojis.push(scoutEmoji.CV);
+      const emojiSpan = emojis.length ? `<span class="scout-emojis">${emojis.join(" ")}</span>` : "";
+      const pontuacao = atleta.pontuacao.toFixed(1);
+      const pontuacaoClass = atleta.pontuacao >= 0 ? "positiva" : "negativa";
+      return `
+        <div class="atleta-card">
+          <div class="atleta-info">
+            <img src="${atleta.foto?.replace("FORMATO", "140x140") || ""}" />
+            <div class="atleta-dados">
+              <div class="atleta-posicao">${sigla}</div>
+              <div class="atleta-nome">${atleta.apelido}</div>
+            </div>
+          </div>
+          <div class="atleta-stats">
+            <div class="pontuacao-wrapper">
+              <span class="pontuacao ${pontuacaoClass}">${pontuacao}</span>${emojiSpan}
+            </div>
+            <div class="scouts-wrapper">${scoutsList || '<span class="no-scout">—</span>'}</div>
+          </div>
         </div>
-        <div class="flex flex-col items-center justify-center text-center">
-          <p class="text-[10px] uppercase tracking-[0.2em] text-gray-400 mb-2">Status Mercado</p>
-          <p class="text-2xl font-black ${status.cor}">${status.label}</p>
+      `;
+    }).join("");
+  };
+
+  const modalHtml = `
+    <div id="modal-scouts" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onclick="if(event.target === this) fecharModalScouts()">
+      <div class="relative w-full max-w-md mx-3 bg-white rounded-2xl shadow-2xl overflow-y-auto max-h-[90vh]">
+        <!-- CABEÇALHO COM TÍTULO E X -->
+        <div class="sticky top-0 bg-white z-10 border-b border-gray-100 px-4 py-3 flex justify-between items-center">
+          <h3 class="font-black text-lg text-gray-800" style="font-family: 'FontJogos', sans-serif;">SCOUTS DA PARTIDA</h3>
+          <button onclick="fecharModalScouts()" class="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
         </div>
-        <div class="flex flex-col items-center justify-center text-center">
-          <p class="text-[10px] uppercase tracking-[0.2em] text-gray-400 mb-2">${status.labelTempo}</p>
-          <p class="text-lg font-black text-black tabular-nums">${fechamento}</p>
+        <!-- ABAS DOS TIMES -->
+        <div class="bg-gradient-to-r from-orange-50 to-white px-4 pb-3">
+          <div class="flex gap-2">
+            <button id="modal-tab-casa" class="flex-1 flex items-center justify-center gap-2 py-2 rounded-full font-bold text-white bg-[#ff6321]">
+              <img src="./ESCUDOS_BRASILEIRAO/${timeCasa.id}.png" class="w-5 h-5 object-contain" onerror="this.src='${timeCasa.escudos["30x30"]}'"> ${timeCasa.abreviacao}
+            </button>
+            <button id="modal-tab-fora" class="flex-1 flex items-center justify-center gap-2 py-2 rounded-full font-bold text-black bg-gray-200">
+              <img src="./ESCUDOS_BRASILEIRAO/${timeFora.id}.png" class="w-5 h-5 object-contain" onerror="this.src='${timeFora.escudos["30x30"]}'"> ${timeFora.abreviacao}
+            </button>
+          </div>
         </div>
+        <!-- CORPO DO MODAL -->
+        <div class="modal-body p-4 space-y-2"></div>
       </div>
     </div>
   `;
+
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+  renderizarLista(partida.clube_casa_id);
+
+  const tabCasa = document.getElementById('modal-tab-casa');
+  const tabFora = document.getElementById('modal-tab-fora');
+  if (tabCasa && tabFora) {
+    tabCasa.onclick = () => {
+      tabCasa.className = "flex-1 flex items-center justify-center gap-2 py-2 rounded-full font-bold text-white bg-[#ff6321]";
+      tabFora.className = "flex-1 flex items-center justify-center gap-2 py-2 rounded-full font-bold text-black bg-gray-200";
+      renderizarLista(partida.clube_casa_id);
+    };
+    tabFora.onclick = () => {
+      tabFora.className = "flex-1 flex items-center justify-center gap-2 py-2 rounded-full font-bold text-white bg-[#ff6321]";
+      tabCasa.className = "flex-1 flex items-center justify-center gap-2 py-2 rounded-full font-bold text-black bg-gray-200";
+      renderizarLista(partida.clube_visitante_id);
+    };
+  }
 }
 
-function renderAproveitamento(aproveitamento) {
-  if (!Array.isArray(aproveitamento) || aproveitamento.length === 0) return "";
-  const cores = { v: "bg-emerald-200", d: "bg-rose-200", e: "bg-gray-200" };
-  const bolinhas = aproveitamento.map(r => `<span class="w-2 h-2 rounded-full ${cores[r] || "bg-gray-100"}"></span>`).join("");
-  return `<div class="flex items-center justify-center gap-1 mt-2">${bolinhas}</div>`;
-}
-
-function renderCardPartida(partida, clubes) {
-  const idCasa = partida.clube_casa_id;
-  const idVis = partida.clube_visitante_id;
-  const mandante = clubes[idCasa];
-  const visitante = clubes[idVis];
-  const placarCasa = partida.placar_oficial_mandante ?? "-";
-  const placarVis = partida.placar_oficial_visitante ?? "-";
-  const jogoIniciado = partida.placar_oficial_mandante !== null;
-  const posCasa = formatarPosicao(partida.clube_casa_posicao);
-  const posVis = formatarPosicao(partida.clube_visitante_posicao);
-  const aproveitamentoCasa = renderAproveitamento(partida.aproveitamento_mandante);
-  const aproveitamentoVis = renderAproveitamento(partida.aproveitamento_visitante);
-  const escudoCasa = `${ESCUDOS_PATH}/${idCasa}.png`;
-  const escudoVis = `${ESCUDOS_PATH}/${idVis}.png`;
-  const fallbackCasa = mandante?.escudos?.["60x60"] || "";
-  const fallbackVis = visitante?.escudos?.["60x60"] || "";
-  const nomeCasa = mandante?.nome_fantasia || mandante?.nome || "?";
-  const nomeVis = visitante?.nome_fantasia || visitante?.nome || "?";
-  return `
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
-      <p class="text-[10px] uppercase tracking-widest text-gray-400 text-center mb-3">
-        ${formatarData(partida.partida_data)} • ${partida.local || "Local a definir"}
-      </p>
-      <div class="flex items-start justify-between gap-2">
-        <div class="flex flex-col items-center flex-1">
-          <div class="flex items-center gap-2">
-            <span class="text-[11px] font-bold text-gray-400 tabular-nums">${posCasa}</span>
-            <img src="${escudoCasa}" onerror="this.onerror=null;this.src='${fallbackCasa}';" alt="${nomeCasa}" class="w-12 h-12 object-contain">
-          </div>
-          <span class="text-sm font-black mt-1 text-center leading-tight">${nomeCasa}</span>
-          ${aproveitamentoCasa}
-        </div>
-        <div class="flex items-center gap-3 px-2 pt-3">
-          <span class="text-2xl font-black ${jogoIniciado ? "text-black" : "text-gray-300"}">${placarCasa}</span>
-          <span class="text-gray-300 text-sm">×</span>
-          <span class="text-2xl font-black ${jogoIniciado ? "text-black" : "text-gray-300"}">${placarVis}</span>
-        </div>
-        <div class="flex flex-col items-center flex-1">
-          <div class="flex items-center gap-2">
-            <img src="${escudoVis}" onerror="this.onerror=null;this.src='${fallbackVis}';" alt="${nomeVis}" class="w-12 h-12 object-contain">
-            <span class="text-[11px] font-bold text-gray-400 tabular-nums">${posVis}</span>
-          </div>
-          <span class="text-sm font-black mt-1 text-center leading-tight">${nomeVis}</span>
-          ${aproveitamentoVis}
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-/* ── FUNÇÃO PRINCIPAL COM CACHE ───────────────────────── */
+// ========== CARREGAR JOGOS ==========
 window.carregarJogos = async function() {
   if (jogosRenderizando) return;
   jogosRenderizando = true;
-  console.log("🟢 JOGOS: carregando (com cache se disponível)");
   renderLoader();
-
   try {
     let mercado, partidasData;
-
-    // Verifica se temos dados pré-carregados (pelo index.html)
     if (window.preloadedJogosData) {
-      console.log("📦 Usando cache de JOGOS");
       mercado = window.preloadedJogosData.mercado;
       partidasData = window.preloadedJogosData.partidas;
-      // Libera a memória do cache após usar
       delete window.preloadedJogosData;
     } else {
-      // Faz fetch normal (fallback)
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000);
-      const [resMercado, resPartidas] = await Promise.all([
-        fetch(API_CARTOLA.MERCADO_STATUS, { signal: controller.signal }),
-        fetch(API_CARTOLA.PARTIDAS, { signal: controller.signal })
+      const [resMerc, resPart] = await Promise.all([
+        fetch(API_CARTOLA.MERCADO_STATUS),
+        fetch(API_CARTOLA.PARTIDAS)
       ]);
-      clearTimeout(timeoutId);
-      if (!resMercado.ok) throw new Error(`Mercado HTTP ${resMercado.status}`);
-      if (!resPartidas.ok) throw new Error(`Partidas HTTP ${resPartidas.status}`);
-      mercado = await resMercado.json();
-      partidasData = await resPartidas.json();
+      if (!resMerc.ok || !resPart.ok) throw new Error("Falha na API");
+      mercado = await resMerc.json();
+      partidasData = await resPart.json();
     }
-
     const partidas = partidasData.partidas || [];
     const clubes = partidasData.clubes || {};
-
-    if (partidas.length === 0) {
-      mainContent.innerHTML = `
-        <div class="pt-6">
-          ${renderStatusMercado(mercado)}
-        </div>
-        <div class="flex flex-col justify-center items-center py-20">
-          <p class="text-sm text-gray-400">Nenhum jogo encontrado.</p>
-        </div>
-      `;
+    if (!partidas.length) {
+      mainContent.innerHTML = `<div class="pt-6">${renderStatusMercado(mercado)}</div><div class="text-center py-20 text-gray-400">Nenhum jogo</div>`;
     } else {
       const cards = partidas.map(p => renderCardPartida(p, clubes)).join("");
-      mainContent.innerHTML = `
-        <div class="pt-6">
-          ${renderStatusMercado(mercado)}
-        </div>
-        <section class="px-4">
-          ${cards}
-        </section>
-      `;
+      mainContent.innerHTML = `<div class="pt-6">${renderStatusMercado(mercado)}</div><section class="px-4">${cards}</section>`;
+      document.querySelectorAll(".match-card").forEach(card => {
+        const id = parseInt(card.dataset.partidaId);
+        const partida = partidas.find(p => p.partida_id === id);
+        if (partida) {
+          card.addEventListener("click", (e) => {
+            e.stopPropagation();
+            abrirModalScouts(partida, clubes);
+          });
+        }
+      });
     }
   } catch (err) {
-    console.error("❌ Erro ao carregar jogos:", err);
+    console.error(err);
     renderError(err.message);
   } finally {
     jogosRenderizando = false;
   }
 };
 
-/* ── EVENTOS: APENAS CLIQUE, SEM CARREGAMENTO AUTOMÁTICO ─ */
-if (btnJogos) btnJogos.addEventListener("click", () => window.carregarJogos());
-// NÃO EXECUTA carregarJogos automaticamente no DOMContentLoaded
+if (btnJogos) {
+  btnJogos.addEventListener("click", () => window.carregarJogos());
+  console.log("Botão JOGOS ativado");
+}
 
-console.log("✅ jogos_rodada.js carregado (modo sob demanda com cache)");
+console.log("✅ jogos_rodada.js carregado (modal com X no cabeçalho)");
