@@ -1,5 +1,5 @@
 /* ============================================================
-   JOGOS DA RODADA — COM VALORIZAÇÃO AWS (CORRIGIDO)
+   JOGOS DA RODADA — COM VALORIZAÇÃO AWS E STATUS CORRIGIDO
    ============================================================ */
 
 const mainContent = document.getElementById("main-content");
@@ -34,16 +34,67 @@ function renderAproveitamento(aprov) {
   const cores = {v:"bg-emerald-200",d:"bg-rose-200",e:"bg-gray-200"};
   return `<div class="flex justify-center gap-1 mt-2">${aprov.map(r=>`<span class="w-2 h-2 rounded-full ${cores[r]||"bg-gray-100"}"></span>`).join("")}</div>`;
 }
+
+// ========== FUNÇÃO RENDER CARD (COM STATUS CORRIGIDO) ==========
 function renderCardPartida(p, clubes) {
   const casa = clubes[p.clube_casa_id], fora = clubes[p.clube_visitante_id];
-  const placarC = p.placar_oficial_mandante??"-", placarF = p.placar_oficial_visitante??"-";
+  const placarC = p.placar_oficial_mandante ?? "-";
+  const placarF = p.placar_oficial_visitante ?? "-";
   const jogoIniciado = p.placar_oficial_mandante !== null;
+
+  // Lógica de status baseada no período e status de transmissão
+  let statusTexto = "";
+  let statusCor = "";
+  
+  // Prioridade: período PRE_JOGO -> AGUARDANDO
+  if (p.periodo_tr === "PRE_JOGO") {
+    statusTexto = "AGUARDANDO";
+    statusCor = "text-gray-400";
+  } 
+  // Jogo em andamento (1º tempo, 2º tempo, intervalo, etc.)
+  else if (p.periodo_tr === "PRIMEIRO_TEMPO" || p.periodo_tr === "SEGUNDO_TEMPO" || p.periodo_tr === "INTERVALO") {
+    statusTexto = "EM ANDAMENTO";
+    statusCor = "text-green-600";
+  }
+  // Partida encerrada
+  else if (p.status_transmissao_tr === "ENCERRADA" || p.status_transmissao_tr === "POS_JOGO") {
+    statusTexto = "ENCERRADA";
+    statusCor = "text-red-500";
+  }
+  // Caso "CRIADA" e válida
+  else if (p.valida === true && p.status_transmissao_tr === "CRIADA") {
+    statusTexto = "AGUARDANDO";
+    statusCor = "text-gray-400";
+  }
+  // Fallback: usa o status_transmissao_tr
+  else {
+    statusTexto = p.status_transmissao_tr ? p.status_transmissao_tr.replace(/_/g, " ") : "—";
+    statusCor = "text-gray-400";
+  }
+
   return `<div class="match-card bg-white rounded-2xl shadow-sm border p-4 mb-3 cursor-pointer" data-partida-id="${p.partida_id}">
-    <p class="text-[10px] text-gray-400 text-center mb-3">${formatarData(p.partida_data)} • ${p.local||"-"}</p>
+    <p class="text-[10px] text-gray-400 text-center mb-2">${formatarData(p.partida_data)} • ${p.local || "-"}</p>
     <div class="flex items-start justify-between gap-2">
-      <div class="flex-1 text-center"><span class="text-[11px] text-gray-400">${formatarPosicao(p.clube_casa_posicao)}</span><img src="${ESCUDOS_PATH}/${p.clube_casa_id}.png" class="w-12 h-12 mx-auto" onerror="this.src='${casa?.escudos?.["60x60"]||''}'"><span class="text-sm font-black block">${casa?.abreviacao||"?"}</span>${renderAproveitamento(p.aproveitamento_mandante)}</div>
-      <div class="text-2xl font-black pt-3"><span class="${jogoIniciado?"text-black":"text-gray-300"}">${placarC}</span> <span class="text-gray-300">×</span> <span class="${jogoIniciado?"text-black":"text-gray-300"}">${placarF}</span></div>
-      <div class="flex-1 text-center"><span class="text-[11px] text-gray-400">${formatarPosicao(p.clube_visitante_posicao)}</span><img src="${ESCUDOS_PATH}/${p.clube_visitante_id}.png" class="w-12 h-12 mx-auto" onerror="this.src='${fora?.escudos?.["60x60"]||''}'"><span class="text-sm font-black block">${fora?.abreviacao||"?"}</span>${renderAproveitamento(p.aproveitamento_visitante)}</div>
+      <div class="flex-1 text-center">
+        <span class="text-[11px] text-gray-400">${formatarPosicao(p.clube_casa_posicao)}</span>
+        <img src="${ESCUDOS_PATH}/${p.clube_casa_id}.png" class="w-12 h-12 mx-auto" onerror="this.src='${casa?.escudos?.["60x60"] || ""}'">
+        <span class="text-sm font-black block">${casa?.abreviacao || "?"}</span>
+        ${renderAproveitamento(p.aproveitamento_mandante)}
+      </div>
+      <div class="text-center">
+        <div class="text-2xl font-black pt-3">
+          <span class="${jogoIniciado ? "text-black" : "text-gray-300"}">${placarC}</span>
+          <span class="text-gray-300"> × </span>
+          <span class="${jogoIniciado ? "text-black" : "text-gray-300"}">${placarF}</span>
+        </div>
+        <div class="text-[9px] font-bold uppercase tracking-wider mt-1 ${statusCor}">${statusTexto}</div>
+      </div>
+      <div class="flex-1 text-center">
+        <span class="text-[11px] text-gray-400">${formatarPosicao(p.clube_visitante_posicao)}</span>
+        <img src="${ESCUDOS_PATH}/${p.clube_visitante_id}.png" class="w-12 h-12 mx-auto" onerror="this.src='${fora?.escudos?.["60x60"] || ""}'">
+        <span class="text-sm font-black block">${fora?.abreviacao || "?"}</span>
+        ${renderAproveitamento(p.aproveitamento_visitante)}
+      </div>
     </div>
   </div>`;
 }
@@ -66,7 +117,6 @@ async function abrirModalScouts(partida, clubes) {
     if (!pontuadosData) promises.push(fetch(API_CARTOLA.PONTUADOS()).then(r => r.json()));
     else promises.push(Promise.resolve(pontuadosData));
     
-    // Usa a mesma rota AWS definida em API_CARTOLA.AWS_ATLETAS_PONTUADOS
     const rotaValorizacao = API_CARTOLA.AWS_ATLETAS_PONTUADOS || "https://josabet-proxy.onrender.com/aws/atletas-pontuados";
     promises.push(fetch(rotaValorizacao).then(r => r.json()).catch(err => {
       console.error("Erro ao buscar valorização AWS:", err);
@@ -76,9 +126,6 @@ async function abrirModalScouts(partida, clubes) {
     const results = await Promise.all(promises);
     pontuadosData = results[0];
     valuationData = results[1];
-    
-    console.log("DEBUG: Pontuados Cartola carregados");
-    console.log("DEBUG: Valorização AWS recebida:", valuationData ? "Sim" : "Não");
   } catch (err) {
     console.error("Erro geral no modal de scouts:", err);
     alert("Erro ao carregar scouts");
@@ -87,7 +134,6 @@ async function abrirModalScouts(partida, clubes) {
 
   const atletas = pontuadosData.atletas || {};
   
-  // Mapeia valorizações (flexível, igual ao código funcional)
   const valuationMap = {};
   if (valuationData) {
     const source = valuationData.atletas || valuationData;
@@ -103,7 +149,6 @@ async function abrirModalScouts(partida, clubes) {
         }
       }
     });
-    console.log("DEBUG: Valorizações mapeadas:", Object.keys(valuationMap).length);
   }
 
   const timeCasa = clubes[partida.clube_casa_id];
@@ -112,11 +157,9 @@ async function abrirModalScouts(partida, clubes) {
   const scoutEmoji = { "G": "⚽", "A": "👟", "CA": "🟨", "CV": "🟥" };
 
   const renderizarLista = (timeId) => {
-    // Transforma objeto em array com ID
     const atletasArray = Object.entries(atletas).map(([id, data]) => {
       return { ...data, atleta_id: data.atleta_id || id };
     });
-
     const atletasTime = atletasArray.filter(a => Number(a.clube_id) === Number(timeId) && a.entrou_em_campo === true);
     atletasTime.sort((a,b) => (a.posicao_id || 99) - (b.posicao_id || 99));
     
@@ -131,18 +174,15 @@ async function abrirModalScouts(partida, clubes) {
     body.innerHTML = atletasTime.map(atleta => {
       const sigla = siglaPosicao[atleta.posicao_id] || "???";
       const scoutsList = Object.entries(atleta.scout || {}).map(([k,v]) => `<span class="scout-item">${v} ${k.toUpperCase()}</span>`).join("");
-      
       let emojis = [];
       if (atleta.scout?.G) emojis.push(scoutEmoji.G);
       if (atleta.scout?.A) emojis.push(scoutEmoji.A);
       if (atleta.scout?.CA) emojis.push(scoutEmoji.CA);
       if (atleta.scout?.CV) emojis.push(scoutEmoji.CV);
-      
       const emojiSpan = emojis.length ? `<span class="scout-emojis">${emojis.join(" ")}</span>` : "";
       const pontuacao = atleta.pontuacao.toFixed(1);
       const pontuacaoClass = atleta.pontuacao >= 0 ? "positiva" : "negativa";
 
-      // Valorização
       const atletaIdStr = String(atleta.atleta_id);
       const valorizacao = valuationMap[atletaIdStr];
       let valHtml = "";
@@ -267,4 +307,4 @@ if (btnJogos) {
   console.log("Botão JOGOS ativado");
 }
 
-console.log("✅ jogos_rodada.js carregado com valorização AWS");
+console.log("✅ jogos_rodada.js carregado com valorização AWS e status corrigido (PRE_JOGO -> AGUARDANDO)");
