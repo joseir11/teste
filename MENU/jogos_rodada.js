@@ -1,5 +1,5 @@
 /* ============================================================
-   JOGOS DA RODADA — COM MODAL CORRIGIDO (X NO CABEÇALHO)
+   JOGOS DA RODADA — COM VALORIZAÇÃO AWS (CORRIGIDO)
    ============================================================ */
 
 const mainContent = document.getElementById("main-content");
@@ -48,7 +48,7 @@ function renderCardPartida(p, clubes) {
   </div>`;
 }
 
-// ========== MODAL COM CABEÇALHO SEPARADO ==========
+// ========== MODAL COM CABEÇALHO SEPARADO E VALORIZAÇÃO ==========
 function fecharModalScouts() {
   const modal = document.getElementById('modal-scouts');
   if (modal) modal.remove();
@@ -59,50 +59,107 @@ async function abrirModalScouts(partida, clubes) {
   fecharModalScouts();
 
   let pontuadosData = window.preloadedPontuadosData;
-  if (!pontuadosData) {
-    try {
-      const res = await fetch(API_CARTOLA.PONTUADOS());
-      if (!res.ok) throw new Error();
-      pontuadosData = await res.json();
-    } catch (err) {
-      alert("Erro ao carregar scouts");
-      return;
-    }
+  let valuationData = null;
+
+  try {
+    const promises = [];
+    if (!pontuadosData) promises.push(fetch(API_CARTOLA.PONTUADOS()).then(r => r.json()));
+    else promises.push(Promise.resolve(pontuadosData));
+    
+    // Usa a mesma rota AWS definida em API_CARTOLA.AWS_ATLETAS_PONTUADOS
+    const rotaValorizacao = API_CARTOLA.AWS_ATLETAS_PONTUADOS || "https://josabet-proxy.onrender.com/aws/atletas-pontuados";
+    promises.push(fetch(rotaValorizacao).then(r => r.json()).catch(err => {
+      console.error("Erro ao buscar valorização AWS:", err);
+      return null;
+    }));
+
+    const results = await Promise.all(promises);
+    pontuadosData = results[0];
+    valuationData = results[1];
+    
+    console.log("DEBUG: Pontuados Cartola carregados");
+    console.log("DEBUG: Valorização AWS recebida:", valuationData ? "Sim" : "Não");
+  } catch (err) {
+    console.error("Erro geral no modal de scouts:", err);
+    alert("Erro ao carregar scouts");
+    return;
   }
 
   const atletas = pontuadosData.atletas || {};
+  
+  // Mapeia valorizações (flexível, igual ao código funcional)
+  const valuationMap = {};
+  if (valuationData) {
+    const source = valuationData.atletas || valuationData;
+    Object.entries(source).forEach(([key, value]) => {
+      if (value && typeof value === 'object') {
+        const val = value.valorizacao !== undefined ? value.valorizacao : 
+                    value.valorizacao_real !== undefined ? value.valorizacao_real : 
+                    value.variacao;
+        if (val !== undefined && val !== null) {
+          const numericVal = parseFloat(val);
+          valuationMap[String(key)] = numericVal;
+          if (value.idAtleta) valuationMap[String(value.idAtleta)] = numericVal;
+        }
+      }
+    });
+    console.log("DEBUG: Valorizações mapeadas:", Object.keys(valuationMap).length);
+  }
+
   const timeCasa = clubes[partida.clube_casa_id];
   const timeFora = clubes[partida.clube_visitante_id];
   const siglaPosicao = { 1: "GOL", 2: "LAT", 3: "ZAG", 4: "MEI", 5: "ATA", 6: "TEC" };
   const scoutEmoji = { "G": "⚽", "A": "👟", "CA": "🟨", "CV": "🟥" };
 
   const renderizarLista = (timeId) => {
-    const atletasTime = Object.values(atletas).filter(a => a.clube_id === timeId && a.entrou_em_campo === true);
+    // Transforma objeto em array com ID
+    const atletasArray = Object.entries(atletas).map(([id, data]) => {
+      return { ...data, atleta_id: data.atleta_id || id };
+    });
+
+    const atletasTime = atletasArray.filter(a => Number(a.clube_id) === Number(timeId) && a.entrou_em_campo === true);
     atletasTime.sort((a,b) => (a.posicao_id || 99) - (b.posicao_id || 99));
+    
     const body = document.querySelector('#modal-scouts .modal-body');
     if (!body) return;
+    
     if (atletasTime.length === 0) {
       body.innerHTML = `<div class="empty-scouts">NENHUM ATLETA EM CAMPO</div>`;
       return;
     }
+
     body.innerHTML = atletasTime.map(atleta => {
       const sigla = siglaPosicao[atleta.posicao_id] || "???";
       const scoutsList = Object.entries(atleta.scout || {}).map(([k,v]) => `<span class="scout-item">${v} ${k.toUpperCase()}</span>`).join("");
+      
       let emojis = [];
       if (atleta.scout?.G) emojis.push(scoutEmoji.G);
       if (atleta.scout?.A) emojis.push(scoutEmoji.A);
       if (atleta.scout?.CA) emojis.push(scoutEmoji.CA);
       if (atleta.scout?.CV) emojis.push(scoutEmoji.CV);
+      
       const emojiSpan = emojis.length ? `<span class="scout-emojis">${emojis.join(" ")}</span>` : "";
       const pontuacao = atleta.pontuacao.toFixed(1);
       const pontuacaoClass = atleta.pontuacao >= 0 ? "positiva" : "negativa";
+
+      // Valorização
+      const atletaIdStr = String(atleta.atleta_id);
+      const valorizacao = valuationMap[atletaIdStr];
+      let valHtml = "";
+      if (valorizacao !== undefined && valorizacao !== null && valorizacao !== 0) {
+        const valColor = valorizacao >= 0 ? "text-emerald-500" : "text-rose-500";
+        const sinal = valorizacao > 0 ? "+" : "";
+        valHtml = `<div class="text-[11px] font-black ${valColor} leading-tight">${sinal}${valorizacao.toFixed(2)}</div>`;
+      }
+
       return `
         <div class="atleta-card">
           <div class="atleta-info">
             <img src="${atleta.foto?.replace("FORMATO", "140x140") || ""}" />
             <div class="atleta-dados">
               <div class="atleta-posicao">${sigla}</div>
-              <div class="atleta-nome">${atleta.apelido}</div>
+              <div class="atleta-nome" style="line-height: 1.2;">${atleta.apelido}</div>
+              ${valHtml}
             </div>
           </div>
           <div class="atleta-stats">
@@ -119,14 +176,12 @@ async function abrirModalScouts(partida, clubes) {
   const modalHtml = `
     <div id="modal-scouts" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onclick="if(event.target === this) fecharModalScouts()">
       <div class="relative w-full max-w-md mx-3 bg-white rounded-2xl shadow-2xl overflow-y-auto max-h-[90vh]">
-        <!-- CABEÇALHO COM TÍTULO E X -->
         <div class="sticky top-0 bg-white z-10 border-b border-gray-100 px-4 py-3 flex justify-between items-center">
           <h3 class="font-black text-lg text-gray-800" style="font-family: 'FontJogos', sans-serif;">SCOUTS DA PARTIDA</h3>
           <button onclick="fecharModalScouts()" class="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
         </div>
-        <!-- ABAS DOS TIMES -->
         <div class="bg-gradient-to-r from-orange-50 to-white px-4 pb-3">
           <div class="flex gap-2">
             <button id="modal-tab-casa" class="flex-1 flex items-center justify-center gap-2 py-2 rounded-full font-bold text-white bg-[#ff6321]">
@@ -137,7 +192,6 @@ async function abrirModalScouts(partida, clubes) {
             </button>
           </div>
         </div>
-        <!-- CORPO DO MODAL -->
         <div class="modal-body p-4 space-y-2"></div>
       </div>
     </div>
@@ -213,4 +267,4 @@ if (btnJogos) {
   console.log("Botão JOGOS ativado");
 }
 
-console.log("✅ jogos_rodada.js carregado (modal com X no cabeçalho)");
+console.log("✅ jogos_rodada.js carregado com valorização AWS");
